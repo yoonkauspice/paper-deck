@@ -3,6 +3,7 @@
 //   <키>: 영문 소문자 짧은 이름(예: schelling)
 //   PDF 경로: 윈도우 경로(C:\...)나 Linux 경로 모두 가능. 생략하면 input/<키>/source.pdf 가 이미 있어야 함
 // 만드는 것: input/<키>/{source.pdf, extract/full.txt, figures/, sources/}, papers/<키>/{meta.json, assets/}, output/<키>/
+// papers/<키>/ 가 이미 있으면(다른 PC에서 clone한 경우) 원문만 다시 준비하고 작업 원고는 건드리지 않음
 const fs=require('fs'),path=require('path'),cp=require('child_process');
 const {paper}=require('./paths');
 const [key,src]=process.argv.slice(2);
