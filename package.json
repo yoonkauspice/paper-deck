@@ -1,0 +1,21 @@
+{
+  "name": "paper-deck",
+  "version": "1.0.0",
+  "private": true,
+  "description": "논문 PDF를 읽고 발표자료(파랑이: 슬라이드 덱, 노랑이: 스크롤형 관찰일지)와 PPTX를 만드는 파이프라인",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "new": "node src/new_paper.js",
+    "figure": "node src/pdf_figure.js",
+    "build": "node src/build.js",
+    "check": "node src/check_numbers.js",
+    "export": "node src/export_pptx.js",
+    "test": "node src/selftest.js"
+  },
+  "devDependencies": {
+    "pptxgenjs": "3.12.0"
+  }
+}

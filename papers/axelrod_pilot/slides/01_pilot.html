@@ -1,0 +1,43 @@
+<section class="slide cover">
+  <div class="cv-l">
+    <div class="kick an">시뮬레이션 장 파일럿 · 복잡계 5강</div>
+    <h1 class="an" style="--d:.08s">조직 안의<br>문화 확산 시뮬레이션</h1>
+    <div class="en an" style="--d:.16s">Axelrod (1997) 문화 확산 모형의 조직 확장<i>5강 자료의 모형 코드를 새 덱 디자인으로 옮긴 시범본</i></div>
+    <div class="rule an" style="--d:.24s"></div>
+    <div class="who an" style="--d:.3s">2026. 11</div>
+  </div>
+  <div class="cv-r">
+    <div class="lb an" style="--d:.2s">파일럿 구성</div>
+    <div class="big an" style="--d:.26s"><em>2</em>장</div>
+    <ul>
+      <li class="an" style="--d:.34s"><svg class="ic lg"><use href="#i-repeat"/></svg>상호작용 한 번의 규칙<span>02</span></li>
+      <li class="an" style="--d:.4s"><svg class="ic lg"><use href="#i-users"/></svg>직접 돌려 보기<span>03</span></li>
+    </ul>
+  </div>
+  <div class="ft"><div class="fr2"><span></span><span class="no" style="color:#AFC0DA"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>상호작용 한 번의 규칙</h2><span class="sec">모형 설명</span></div>
+  <div class="msg">행위자는 이웃과 공유하는 특성이 많을수록 더 자주 상호작용하고, 상호작용하면 서로 닮아 갑니다.<br>이 모형에서는 성별 특성 하나가 고정되어 있어 소수는 그 특성만큼은 닮을 수 없습니다.</div>
+  <div class="ct"><span>무작위로 고른 한 명에게 일어나는 일</span><span>특성 6개: 0번 성별(2가지 값), 1~5번 문화 특성(각 4가지 값)</span></div>
+  <div class="body "><div class="fl an" style="--d:.05s"><div class="fl5" style="grid-template-columns:repeat(4,1fr)">
+      <div class="fb"><span class="n">단계 1</span><svg class="ic lg"><use href="#i-user"/></svg><b>행위자 i 선택</b><p>200명 중 한 명을 무작위로 고름</p></div>
+      <div class="fb"><span class="n">단계 2</span><svg class="ic lg"><use href="#i-net"/></svg><b>이웃 j 선택</b><p>구역에 따라 정해진 이웃 범위 안에서 한 명을 고름</p></div>
+      <div class="fb"><span class="n">단계 3</span><svg class="ic lg"><use href="#i-adj"/></svg><b>상호작용 여부</b><p>같은 특성의 비율(같은 수 ÷ 6)의 확률로 상호작용</p></div>
+      <div class="fb"><span class="n">단계 4</span><svg class="ic lg"><use href="#i-repeat"/></svg><b>한 특성 닮기</b><p>서로 다른 특성 하나를 j의 값으로 바꿈. 성별은 바꾸지 않음</p></div></div>
+      <div class="fi2"><div><b>기존 조직(왼쪽 2/3)</b> · 반경 2의 넓은 이웃. 소수가 적게 배치됨(가중치 0.5)</div><div><b>주변부(오른쪽 1/3)</b> · 반경 1의 좁은 이웃. 소수가 많이 배치됨(가중치 3.0)</div></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-search"/></svg>보는 지표</h4><ol>
+      <li><div><b>소수 동화율</b>소수의 문화 특성 5개가 다수의 최빈값과 같은 비율</div></li>
+      <li><div><b>문화 영역 수</b>모든 특성이 같은 이웃끼리 이어진 덩어리의 수</div></li>
+      <li><div><b>소수만의 영역</b>소수만으로 이루어진 2명 이상의 영역 수</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>반경 2:</i>무어 이웃(대각선 포함 5×5)</span><span><b>2</b><i>반경 1:</i>폰 노이만 이웃(상하좌우)</span></div><div class="fr2"><span class="src">출처: 복잡계 5강 자료 · Axelrod (1997) The Dissemination of Culture</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>직접 돌려 보기</h2><span class="sec">시뮬레이션</span></div>
+  <div class="msg">시작을 누르면 이웃끼리 닮아 가면서 소수(파란 칸)의 문화 특성이 다수 쪽으로 바뀌는 과정이 보입니다.<br>시나리오를 바꿔 소수의 배치, 정체성 고정, 네트워크 구조가 결과를 어떻게 바꾸는지 비교해 보세요.</div>
+  <div class="ct"><span>20×10 격자 200명, 소수 비율 기본 9%</span><span>시드 고정: 같은 시드는 같은 결과 · 장에 들어오면 초기화</span></div>
+  <div class="body full"><div class="sim an" style="--d:.05s" data-sim="axelrod-org" data-seed="7"></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>끝까지:</i>지표가 3번 연속 변하지 않을 때까지 실행</span><span><b>2</b><i>문화 벡터:</i>색이 같으면 다섯 특성이 모두 같음</span></div><div class="fr2"><span class="src">모형 코드: 복잡계 5강 자료에서 이식(이질성, 순차 갱신 옵션 제외)</span><span class="no"></span></div></div>
+</section>

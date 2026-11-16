@@ -1,0 +1,26 @@
+<!-- 노랑이 부품 회귀 시험용(배포물 아님): 원본 그림과 옮긴 값을 나란히 놓는 비교 부품(.sc-cmp, .sc-diff) 확인.
+     왼쪽 그림은 이 프로젝트에서 직접 만든 Axelrod 관찰일지 캡처(papers/_story_check/assets/sample_fig.png) -->
+<section class="sc-ch" id="ch-cmp" data-n="시험 01">
+  <div class="sc-chh"><div><div class="lb">시험 · 01</div><div class="pn">01</div></div>
+    <div><h2>원본 그림과 옮긴 값 비교</h2><div class="dm">그림 이미지와 그 그림의 값을 옮긴 표를 나란히 놓습니다.</div></div></div>
+  <div class="sc-wrap">
+    <div class="sc-steps">
+      <div class="sc-step" data-g="g-cmp" data-s="1">
+        <h3>왼쪽은 원본 그림, 오른쪽은 옮긴 값입니다.</h3>
+        <p>논문 그림은 <code>src/pdf_figure.js</code>로 잘라 <code>input/&lt;키&gt;/figures/</code>에 둡니다.</p>
+        <dl class="sc-diff"><dt>같은 점</dt><dd>세 시나리오의 평균 도달 시점</dd><dt class="diff">다른 점</dt><dd>없음</dd></dl>
+      </div>
+    </div>
+    <div class="sc-fig"><div class="sc-sticky">
+      <div class="sc-g" id="g-cmp"><div class="sc-gh"><span>그림과 옮긴 값</span><span>예시: Axelrod 관찰일지</span></div>
+        <div class="sc-cmp">
+          <figure><figcaption><i>원본</i>점 그림</figcaption><img src="{{IMG:sample_fig.png}}" alt="예시 그림"></figure>
+          <figure class="re"><figcaption><i>옮긴 값</i>평균</figcaption>
+            <table><thead><tr><th>시나리오</th><th>동화율 90% 도달</th></tr></thead><tbody>
+              <tr><th>기본</th><td>10.6만 회</td></tr>
+              <tr><th>단일망</th><td>10.9만 회</td></tr>
+              <tr><th>군집</th><td>8.7만 회</td></tr></tbody></table></figure>
+        </div></div>
+    </div></div>
+  </div>
+</section>

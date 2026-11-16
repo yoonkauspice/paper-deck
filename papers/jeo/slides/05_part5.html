@@ -1,0 +1,54 @@
+<section class="slide dv">
+  <div class="dl"><div class="lb an">PART</div><div class="pn an" style="--d:.06s">5</div><h2 class="an" style="--d:.12s">해석과<br>한계</h2></div>
+  <div class="dr"><div class="dm an" style="--d:.16s">저자들이 직접 쓴 한계를 먼저 보고, 원문을 대조해 찾은 해석상 주의점을 봅니다. 마지막 장에는 재현에 필요한 설정값을 모았습니다.</div><ul class="dpg"><li class="an" style="--d:0.20s"><span>25</span>저자의 한계 서술</li><li class="an" style="--d:0.25s"><span>26</span>원문 감사: 해석과 설계</li><li class="an" style="--d:0.30s"><span>27</span>부록 · 재현 설정값</li></ul></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>저자의 한계 서술</h2><span class="sec">논문 §4.1, §5</span></div>
+  <div class="msg">저자들은 순차 시뮬레이션, 단순한 에이전트, 비교 자료의 한계를 직접 적었습니다.<br>파란 선은 결과 해석에 직접 관련된 항목입니다.</div>
+  <div class="ct"><span>저자 서술 한계 6가지</span><span>파란 선: 결과 해석에 직접 관련</span></div>
+  <div class="body full"><div class="ck">
+    <div class="an" style="--d:.05s"><svg class="ic lg"><use href="#i-clock"/></svg><div><b>순차 시뮬레이션</b><p>한 스텝에 한 에이전트만 움직여 조직적 캠페인의 동기화나 고빈도 상호작용을 담지 못함</p></div></div>
+    <div class="an" style="--d:.1s"><svg class="ic lg"><use href="#i-user"/></svg><div><b>단순한 프로필</b><p>입장과 정보 개방성만 모형화하고 이념, 종교, 성별 프로필이 없음</p></div></div>
+    <div class="an" style="--d:.15s"><svg class="ic lg"><use href="#i-db"/></svg><div><b>제한된 맥락</b><p>원글, 직전 글, 상호작용 변수만 쓰고 장기 기억이 없음</p></div></div>
+    <div class="on an" style="--d:.2s"><svg class="ic lg"><use href="#i-users"/></svg><div><b>비교 자료의 한계</b><p>Twitter16 글이 모두 사람이 쓴 것인지 보장할 수 없음</p></div></div>
+    <div class="on an" style="--d:.25s"><svg class="ic lg"><use href="#i-scale"/></svg><div><b>지표의 한계</b><p>지표마다 한계가 있어 여러 지표의 수렴 증거로 판단함</p></div></div>
+    <div class="an" style="--d:.3s"><svg class="ic lg"><use href="#i-robot"/></svg><div><b>LLM의 한계</b><p>더 예측 가능한 글을 만들고 세션마다 초기화되어 복잡한 신념 체계를 만들지 못함</p></div></div></div></div>
+  <div class="ft"><div class="fr2"><span class="src">출처: Jeon et al. (2025) §4.1, §5, p.18–19</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>원문 감사: 해석과 설계</h2><span class="sec">덱의 검토 결과</span></div>
+  <div class="msg">결론 문장의 근거, 통계 검정의 해석, 평가 설계에서 확인할 점이 있었습니다.<br>모두 원문 본문과 대조한 것이며 부록(S1~S7)은 아직 확인하지 못했습니다.</div>
+  <div class="ct"><span>해석과 설계의 주의점 3가지</span><span>원문 대조: 덱 작성자 · 부록과 외부 모델 교차 검토는 미실시</span></div>
+  <div class="body full"><div class="au3">
+      <div class="au an" style="--d:.05s"><h5><svg class="ic"><use href="#i-alert"/></svg>결론의 팩트체크 문장</h5>
+        <div class="lp"><span>결론: 팩트체크가 있으면 부정성이 커짐</span><i>↓</i><span>본문 실험: 진실 40건 대 거짓 40건 비교</span><i>↓</i><span>팩트체크 유무를 바꾼 비교는 서술되지 않음</span></div>
+        <div class="bt">팩트체크는 Informed에게 항상 주어져 진실·거짓 효과와 분리되지 않음</div></div>
+      <div class="au an" style="--d:.12s"><h5><svg class="ic"><use href="#i-scale"/></svg>검정 15개, 유의 5개</h5>
+        <p>표 3은 15개 지표를 각각 검정했고 5개가 유의했습니다. 다중 비교 보정은 본문에 언급이 없습니다.</p>
+        <p>각 틀에서 n=40이고 한 뉴스당 시뮬레이션 횟수는 서술되지 않았습니다.</p>
+        <div class="bt">보정과 반복 횟수가 정해져야 유의한 5개의 안정성을 판단할 수 있음</div></div>
+      <div class="au an" style="--d:.19s"><h5><svg class="ic"><use href="#i-cpu"/></svg>평가 설계</h5>
+        <p>시뮬레이션은 GPT-4o(05-13)가 만들고 평가는 GPT-4o(08-06)가 했습니다. 생성 모델과 평가 모델이 같은 계열입니다.</p>
+        <p>O1은 2014~2015년 트위터, O2는 2024~2025년 뉴스로 자료 시기가 다릅니다.</p>
+        <div class="bt">모델 계열의 평가 편향과 시기 차이를 따로 확인해야 함</div></div></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>다중 비교:</i>검정이 많을수록 우연히 유의한 결과가 늘어나는 문제</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §3.2, §3.3.2, §3.4, §5, 표 3, p.11, p.13, p.15–17, p.19</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>부록 · 재현 설정값</h2><span class="sec">재현 정보</span></div>
+  <div class="msg">본문에 적힌 설정값과 공개 자료를 한곳에 모았습니다.<br>프롬프트와 시뮬레이션 카드의 값은 원문 부록에 있어 이 덱에는 담지 못했습니다.</div>
+  <div class="ct"><span>재현에 필요한 값과 공개 위치</span><span>본문 기준, 부록 S1~S7 미확인</span></div>
+  <div class="body full"><table class="sm an" style="--d:.05s"><thead><tr><th style="width:170px">항목</th><th style="width:560px">값</th><th>위치</th></tr></thead><tbody>
+      <tr><th>시뮬레이션 엔진</th><td>SOIL(파이썬 ABM), FSM 에이전트, 이산 시간, 한 스텝에 한 에이전트</td><td>§2.1, §2.4</td></tr>
+      <tr><th>네트워크(LFR)</th><td>노드 100, 지수 2.0과 1.5, 혼합 0.5, 평균 차수 5</td><td>§3.2</td></tr>
+      <tr><th>LLM 설정</th><td>생성 GPT-4o(2024-05-13), 온도 0.5, 빈도·존재 페널티 0. 평가 GPT-4o(2024-08-06)</td><td>§3.2, §3.3.2</td></tr>
+      <tr><th>보정 범위</th><td>neighbor spread &gt; tv spread, backsliding와 이탈 약 0.1, neighbor cure 약 0.35</td><td>§3.2</td></tr>
+      <tr><th>O1 데이터</th><td>Twitter16, 뉴스 이벤트 818개, 검정 α=0.005</td><td>§3.2, §3.3</td></tr>
+      <tr><th>O2 데이터</th><td>PolitiFact 80건(진실 40, 거짓 40), 2024.5~2025.4</td><td>§3.4, S5, S6</td></tr>
+      <tr><th>공개 자료</th><td>PyPI network-simulator, GitHub minsoos/network_simulator, Zenodo 10.5281/zenodo.14544946</td><td>§2.7, 데이터 가용성</td></tr>
+      <tr><th>부록에만 있는 것</th><td>프롬프트(S1), 보정 곡선(S2), 시뮬레이션 카드(S3), 평가 프롬프트(S4), 대안 토폴로지(S7)</td><td>추가 파일</td></tr>
+      </tbody></table></div>
+  <div class="ft"><div class="fr2"><span class="src">출처: Jeon et al. (2025) §2.1, §2.4, §2.7, §3.2–3.4, 데이터 가용성, p.5–11, p.14–15, p.20</span><span class="no"></span></div></div>
+</section>

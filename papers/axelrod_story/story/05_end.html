@@ -1,0 +1,31 @@
+<section class="sc-ch" id="ch-end" data-n="관찰 05">
+  <div class="sc-chh"><div><div class="lb">관찰일지 · 05</div><div class="pn">05</div></div>
+    <div><h2>한계와 제작 기록</h2><div class="dm">무엇을 다시 구현했고 무엇을 뺐는지, 어떤 환경에서 돌렸는지 남깁니다.</div></div></div>
+  <div class="sc-wrap">
+    <div class="sc-steps">
+      <div class="sc-step" data-g="g-env" data-s="1">
+        <h3>이 관찰의 범위는 좁습니다.</h3>
+        <ol><li>원 논문의 원래 모형이 아니라 5강 자료의 조직 확장 모형을 옮겼습니다.</li>
+          <li>5강 모형의 이질성 파라미터와 순차 갱신은 이번 구현에서 뺐습니다.</li>
+          <li>격자 크기, 특성 수, 소수 비율은 한 가지 값만 썼습니다.</li>
+          <li>시나리오마다 시드 20개입니다. 통계 검정은 하지 않았습니다.</li></ol>
+      </div>
+      <div class="sc-step" data-g="g-env" data-s="2">
+        <h3>같은 결과를 다시 얻는 방법</h3>
+        <p>페이지의 시뮬레이션과 실험 코드는 같은 모형 파일을 씁니다.</p>
+        <p>실험 코드를 다시 실행하면 같은 시드에서 같은 결과가 나옵니다.</p>
+        <p class="mono">node papers/axelrod_story/replication/run.js</p>
+      </div>
+      <div class="sc-step" data-g="g-env" data-s="3">
+        <h3>처음 질문에 답합니다.</h3>
+        <p>성별이 고정되어 있으면 소수의 문화 특성은 다수와 같아지고, 소수는 성별로만 구별되는 영역으로 남습니다.</p>
+        <p>성별까지 바뀔 수 있으면 소수라는 구분 자체가 남지 않습니다.</p>
+        <div class="sc-memo">문화는 남지 않고, 고정된 표식만 남습니다.</div>
+      </div>
+    </div>
+    <div class="sc-fig"><div class="sc-sticky">
+      <div class="sc-g" id="g-env"><div class="sc-gh"><span>실험 환경과 규칙</span><span>replication/results.json 기준</span></div><div class="sc-gb"></div></div>
+    </div></div>
+  </div>
+</section>
+<div class="sc-end"><p class="s13 g">제작: paper-deck 파이프라인(스크롤형) · 모형 이식, 실험 코드, 본문 작성은 Claude(claude-opus-5-5)가 하고 사용자가 방향을 정함 · 모형 원본: 복잡계 5강 자료</p></div>

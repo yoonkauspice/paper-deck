@@ -1,0 +1,65 @@
+<div id="nav"><div class="grp"><button id="prev" aria-label="이전 장">‹</button><span id="pg">1 / 1</span><button id="next" aria-label="다음 장">›</button></div></div>
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll(".slide"));
+  slides.forEach(function(s,k){var n=s.querySelector(".ft .no");if(n)n.textContent=String(k+1).padStart(2,"0");
+    var bg=s.querySelector(".hd .no-big");if(bg)bg.textContent=String(k+1).padStart(2,"0");});
+  var cur=0;
+  try{var h=parseInt(location.hash.slice(1),10);if(h>0&&h<=slides.length)cur=h-1;}catch(e){}
+  function fit(){var d=document.getElementById("deck"),s=Math.min((d.clientWidth-24)/1280,(d.clientHeight-16)/720);if(!(s>0))s=.5;
+    slides.forEach(function(x){x.style.transform="translate(-50%,-50%) scale("+s+")";});}
+  function show(n){cur=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach(function(x,k){x.classList.toggle("active",k===cur);});
+    document.getElementById("pg").textContent=(cur+1)+" / "+slides.length;
+    try{history.replaceState(null,"","#"+(cur+1));}catch(e){}}
+  document.addEventListener("keydown",function(e){
+    if(["ArrowRight","PageDown"," "].indexOf(e.key)>=0){e.preventDefault();show(cur+1);}
+    else if(["ArrowLeft","PageUp"].indexOf(e.key)>=0){e.preventDefault();show(cur-1);}
+    else if(e.key==="Home")show(0);else if(e.key==="End")show(slides.length-1);});
+  document.getElementById("prev").onclick=function(){show(cur-1);};
+  document.getElementById("next").onclick=function(){show(cur+1);};
+  window.addEventListener("hashchange",function(){var h=parseInt(location.hash.slice(1),10);if(h>0&&h<=slides.length&&h-1!==cur)show(h-1);});
+  window.addEventListener("resize",fit);
+  if(window.ResizeObserver)new ResizeObserver(fit).observe(document.getElementById("deck"));
+  fit();show(cur);
+  var PN=window.PART_NAMES||[],part=0,groups={};
+  slides.forEach(function(x){if(x.classList.contains("dv"))part++;else if(part&&x.querySelector(".hd")){(groups[part]=groups[part]||[]).push(x);}});
+  Object.keys(groups).forEach(function(pt){var g=groups[pt];g.forEach(function(x,k){
+    var d=document.createElement("div");d.className="pp5";var bars="";
+    for(var i=0;i<g.length;i++)bars+="<i class=\""+(i<k?"pv":(i===k?"on":""))+"\"></i>";
+    d.innerHTML="<b>"+pt+"부 "+PN[pt-1]+"</b><span>"+bars+"</span>"+(k+1)+"/"+g.length;
+    x.querySelector(".hd").appendChild(d);});});
+})();
+function mkStep(root,N,apply,init){
+  var slide=root.closest(".slide"),lab=root.querySelector(".stl"),lis=slide.querySelectorAll(".kf.st li"),step=1,timer=null;
+  function show(anim){if(!anim)root.classList.add("noanim");root.dataset.step=step;
+    slide.querySelectorAll("[data-s]").forEach(function(e){e.classList.toggle("act",step>=+e.dataset.s);});
+    lis.forEach(function(l,k){l.classList.toggle("cur",k===step-1);});if(lab)lab.textContent=step+" / "+N;
+    root.querySelectorAll(".sbar button[data-go]").forEach(function(b){b.classList.toggle("pr",+b.dataset.go===step);});
+    if(apply)apply(step,anim);if(!anim){void root.offsetWidth;root.classList.remove("noanim");}}
+  function stop(){if(timer){clearInterval(timer);timer=null;}}
+  function reset(){stop();step=init||1;show(false);}
+  function next(){if(step>=N)return false;step++;show(true);return true;}
+  root.querySelectorAll(".sbar button").forEach(function(b){b.addEventListener("click",function(){var a=b.dataset.a;b.blur();
+    if(b.dataset.go){stop();step=+b.dataset.go;show(true);return;}
+    if(a==="next"){stop();next();}else if(a==="reset")reset();
+    else{if(step>=N)reset();stop();next();timer=setInterval(function(){if(!next())stop();},2300);}});});
+  var was=false;new MutationObserver(function(){var now=slide.classList.contains("active");if(now&&!was)reset();was=now;}).observe(slide,{attributes:true,attributeFilter:["class"]});
+  window.addEventListener("beforeprint",function(){stop();step=N;show(false);});
+  window.addEventListener("afterprint",reset);
+  reset();
+}
+</script>
+<!--EXTRA_SCRIPTS-->
+<div id="tipbox" role="tooltip"></div>
+<script>(function(){var box=document.getElementById("tipbox");
+  function show(t){box.textContent=t.dataset.tip;box.style.display="block";var r=t.getBoundingClientRect(),w=box.offsetWidth,h=box.offsetHeight;
+    var x=Math.min(Math.max(8,r.left),window.innerWidth-w-8),y=r.bottom+8;if(y+h>window.innerHeight-8)y=r.top-h-8;
+    box.style.left=x+"px";box.style.top=y+"px";}
+  document.addEventListener("mouseover",function(e){var t=e.target.closest(".tip");if(t)show(t);});
+  document.addEventListener("mouseout",function(e){if(e.target.closest(".tip"))box.style.display="none";});
+  document.addEventListener("focusin",function(e){var t=e.target.closest(".tip");if(t)show(t);});
+  document.addEventListener("focusout",function(e){if(e.target.closest(".tip"))box.style.display="none";});
+  document.addEventListener("click",function(e){var t=e.target.closest(".tip");if(t)show(t);else box.style.display="none";});
+})();</script>
+</body></html>

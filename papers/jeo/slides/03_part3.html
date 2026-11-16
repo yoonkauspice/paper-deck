@@ -1,0 +1,75 @@
+<section class="slide dv">
+  <div class="dl"><div class="lb an">PART</div><div class="pn an" style="--d:.06s">3</div><h2 class="an" style="--d:.12s">실험 설계</h2></div>
+  <div class="dr"><div class="dm an" style="--d:.16s">저자들은 두 가지 실험으로 시뮬레이터를 시험했습니다. 실제 트위터 대화와 견주는 평가(O1)와 진실·거짓 뉴스로 보는 사례 연구(O2)이며, 실험에 쓴 데이터, 설정, 지표를 차례로 봅니다.</div><ul class="dpg"><li class="an" style="--d:0.20s"><span>15</span>데이터와 네트워크 설정</li><li class="an" style="--d:0.25s"><span>16</span>파라미터 보정</li><li class="an" style="--d:0.30s"><span>17</span>O1: 무엇으로 비교하나</li><li class="an" style="--d:0.35s"><span>18</span>O2: 진실과 거짓 사례 연구 설계</li></ul></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>데이터와 네트워크 설정</h2><span class="sec">O1 실험 조건</span></div>
+  <div class="msg">실제 대화는 Twitter16의 뉴스 이벤트 818개이고 같은 뉴스로 시뮬레이션 대화를 만들었습니다.<br>네트워크는 LFR 모형으로 100명을 만들고 LLM은 GPT-4o를 썼습니다.</div>
+  <div class="ct"><span>시뮬레이션 설정의 주요 값</span><span>상세 설정은 원문 부록 S3 시뮬레이션 카드</span></div>
+  <div class="body "><table class="sm an" style="--d:.05s"><thead><tr><th style="width:130px">구분</th><th>설정</th></tr></thead><tbody>
+      <tr><th>실제 대화</th><td>Twitter16: 2014~2015년 뉴스 이벤트 818개, 진실성 주석, 캐스케이드 평균 길이는 수백 상호작용</td></tr>
+      <tr><th>시뮬레이션 대상</th><td>같은 뉴스 이벤트 818개로 시뮬레이션 대화 생성</td></tr>
+      <tr><th>네트워크</th><td>LFR: 노드 100, 차수 분포 지수 2.0, 커뮤니티 크기 지수 1.5, 혼합 매개변수 0.5, 평균 차수 5</td></tr>
+      <tr><th>LLM</th><td>GPT-4o(2024-05-13), 온도 0.5, 빈도·존재 페널티 0</td></tr>
+      <tr><th>팩트체크</th><td>Informed 에이전트에게만 포함</td></tr>
+      </tbody></table>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-net"/></svg>LFR 네트워크란</h4><ol>
+      <li><div><b>커뮤니티 구조</b>집단이 있고 부분적으로 겹침</div></li>
+      <li><div><b>이질적 연결</b>노드마다 연결 수가 크게 다름(<span class="tip" tabindex="0" data-tip="LFR(Lancichinetti-Fortunato-Radicchi) 모형은 커뮤니티 구조와 두꺼운 꼬리의 차수 분포를 함께 가진 네트워크를 만듭니다. 혼합 매개변수 0.5는 연결의 절반 정도가 자기 커뮤니티 밖으로 이어진다는 뜻입니다.">설명</span>)</div></li>
+      <li><div><b>선행 연구와 일치</b>트위터 커뮤니티 구조 연구가 평가한 값을 사용</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>캐스케이드:</i>한 뉴스에서 퍼져 나간 상호작용 묶음</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §3.2, p.10–11</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>파라미터 보정</h2><span class="sec">SISa 보정</span></div>
+  <div class="msg">저자들은 시뮬레이션의 메시지량 곡선을 Twitter16과 견주어 적정 범위를 골랐습니다.<br>고른 범위는 세 가지 가정을 뜻하며, 비교는 곡선 모양으로 서술되었습니다.</div>
+  <div class="ct"><span>메시지량 곡선의 모양과 적정 범위</span><span>그림은 설명용 개념도이며 실제 곡선은 원문 S2</span></div>
+  <div class="body "><div class="tos an" style="--d:.05s"><svg viewBox="0 0 760 420" width="100%" height="420">
+  <defs><marker id="ah3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#203044"/></marker></defs>
+  <line x1="70" y1="360" x2="720" y2="360" stroke="#203044" stroke-width="2" marker-end="url(#ah3)"/>
+  <line x1="70" y1="360" x2="70" y2="30" stroke="#203044" stroke-width="2" marker-end="url(#ah3)"/>
+  <text x="720" y="392" font-size="16" fill="#203044" text-anchor="end" font-weight="700">시뮬레이션 시간</text>
+  <text x="86" y="40" font-size="16" fill="#203044" font-weight="700">단위 시간당 메시지 수</text>
+  <path d="M80 350 L105 300 L140 90 L180 160 L220 230 L260 190 L300 250 L350 240 L400 285 L460 270 L520 305 L600 300 L700 320" fill="none" stroke="#0046CB" stroke-width="3"/>
+  <circle cx="140" cy="90" r="6" fill="#0046CB"/>
+  <text x="156" y="82" font-size="16" fill="#0046CB" font-weight="700">대화 초반의 큰 정점</text>
+  <path d="M260 190 L260 150" stroke="#6B7280" stroke-width="1.5" stroke-dasharray="4 4"/><text x="270" y="148" font-size="13.33" fill="#6B7280">이후 작은 정점이 이어짐</text>
+  <text x="440" y="340" font-size="13.33" fill="#6B7280">전반적으로 감소하는 흐름</text>
+</svg></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-adj"/></svg>적정 범위의 의미</h4><ol>
+      <li><div><b>사회적 영향이 더 큼</b>이웃 전파가 외부 자발 참여보다 일관되게 큼</div></li>
+      <li><div><b>소수의 영구 이탈</b>backsliding과 이탈률이 둘 다 약 0.1</div></li>
+      <li><div><b>일부는 입장 변경</b>neighbor cure는 약 0.35</div></li>
+      <li><div><b>서술 방식</b>비교는 곡선의 모양으로 설명됨</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>prob dead:</i>원문 표기, 영구 이탈률을 가리킴</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §3.2, p.11 · 곡선은 원문 부록 S2</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>O1: 무엇으로 비교하나</h2><span class="sec">평가 지표</span></div>
+  <div class="msg">실제 대화와 시뮬레이션 대화를 세 묶음의 지표로 견주었습니다.<br>문체 지표, GPT-4o 기반 지표, 합성 텍스트 탐지기 GPTZero 지표입니다.</div>
+  <div class="ct"><span>세 묶음 12개 지표</span><span>검정: 중앙값 독립표본 검정, α=0.005, n=818</span></div>
+  <div class="body full"><div style="display:flex;flex-direction:column;gap:14px"><table class="sm an" style="--d:.05s"><thead><tr><th style="width:150px">묶음</th><th style="width:330px">지표</th><th style="width:330px">보는 것</th><th>도구</th></tr></thead><tbody>
+      <tr><th>문체</th><td>단어 수, 글자 수, 평균 문장 길이, SAT 어휘 비율</td><td>대화 자체의 겉모습. 문장 길이는 댓글별로 계산해 대화 평균을 냄</td><td>직접 계산</td></tr>
+      <tr><th>GPT-4o 기반</th><td>내용 품질, 문법의 정확성, 상호작용의 관련성, 언어의 적절성</td><td>프롬프트로 평가하며 Lin et al.의 방법을 따름</td><td>GPT-4o(2024-08-06)</td></tr>
+      <tr><th>GPTZero 기반</th><td>가독성, perplexity, burstiness, simplicity</td><td>합성 텍스트를 가려내기 위한 모델이 계산한 특징</td><td>GPTZero</td></tr>
+      </tbody></table>
+    <div class="base an" style="--d:.15s"><svg class="ic lg"><use href="#i-scale"/></svg><div><b>읽는 법</b> · <span class="tip" tabindex="0" data-tip="perplexity는 앞의 단어들이 주어졌을 때 다음 단어를 맞히기 어려운 정도입니다. 값이 클수록 예측하기 어려운 글입니다. burstiness는 대화 안에서 같은 단어가 반복되는 정도입니다.">perplexity</span>가 높을수록 예측하기 어렵고, burstiness가 높을수록 특정 단어가 자주 반복됨. simplicity는 대화를 따라가기 쉬운 정도</div></div></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>SAT 어휘:</i>미국 대학입학시험의 어려운 단어</span><span><b>2</b><i>GPTZero:</i>합성 텍스트 탐지용으로 미세조정된 모델</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §3.3, p.11–14</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>O2: 진실과 거짓 사례 연구 설계</h2><span class="sec">사례 연구 설계</span></div>
+  <div class="msg">PolitiFact가 검증한 진실 40건과 거짓 40건으로 시뮬레이션 대화를 만들어 견주었습니다.<br>감성 방향, 편향어 같은 지표를 계산하고 분포 모양에 맞는 검정을 골랐습니다.</div>
+  <div class="ct"><span>설계 흐름과 감성 방향 SO</span><span>뉴스 80건, 2024년 5월~2025년 4월</span></div>
+  <div class="body "><div class="tx2 an" style="--d:.05s"><div class="tfl"><div><svg class="ic lg"><use href="#i-news"/></svg><b>PolitiFact 80건</b><span>진실 40, 거짓 40</span></div><i>→</i><div><svg class="ic lg"><use href="#i-robot"/></svg><b>시뮬레이션</b><span>뉴스마다 대화 생성</span></div><i>→</i><div><svg class="ic lg"><use href="#i-chart"/></svg><b>지표 계산</b><span>NELA, RoBERTa, 구조</span></div><i>→</i><div><svg class="ic lg"><use href="#i-scale"/></svg><b>검정</b><span>진실 대 거짓 비교</span></div></div>
+      <div class="stm"><b>감성 방향</b>SO = (P − N) ÷ (P + N)</div>
+      <div class="calc">P는 긍정 의견어 수, N은 부정 의견어 수입니다. 대화마다 SO의 평균 SO(B)와 분산 SO(D)를 구합니다.</div>
+      <div class="base" style="padding:8px 14px"><svg class="ic"><use href="#i-check"/></svg><div class="s13"><b>검정 선택</b> · 연속형은 정규성 검사 후 Levene로 등분산을 보고 Welch나 표준 t, 정규가 아니면 Mann-Whitney. H, A, LEAVES, NODES는 Freeman-Halton, HAS DRIFT는 Fisher 정확 검정</div></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-search"/></svg>계산한 지표</h4><ol>
+      <li><div><b>NELA 어휘 6종</b>편향어, assertives, factives, hedges, implicatives, report verbs</div></li>
+      <li><div><b>감성 방향</b>SO(B), SO(D)와 RoBERTa의 B, D</div></li>
+      <li><div><b>구조</b>높이 H, 너비 A, LEAVES, NODES</div></li>
+      <li><div><b>HAS DRIFT</b>긍정과 부정의 우세가 중간에 뒤바뀌었는지</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>NELA:</i>뉴스 분석용 어휘 라이브러리</span><span><b>2</b><i>RoBERTa:</i>트윗 5800만 건으로 학습한 감성 모델</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §3.4, 그림 7, p.14–17</span><span class="no"></span></div></div>
+</section>

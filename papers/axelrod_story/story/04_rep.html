@@ -1,0 +1,44 @@
+<section class="sc-ch" id="ch-rep" data-n="관찰 04">
+  <div class="sc-chh"><div><div class="lb">관찰일지 · 04</div><div class="pn">04</div></div>
+    <div><h2>시드 20개로 다시 돌리기</h2><div class="dm">한 번의 실행은 우연일 수 있습니다. 시나리오 4개를 시드 1~20으로 각각 돌려 결과의 범위를 봅니다.</div></div></div>
+  <div class="sc-wrap">
+    <div class="sc-steps">
+      <div class="sc-step" data-g="g-trace" data-s="1">
+        <h3>먼저 시드 1의 동화 경로를 봅니다.</h3>
+        <p>성별이 고정된 세 시나리오는 모두 동화율이 오르다가 100%에 닿습니다.</p>
+        <p>도달하는 속도는 시나리오마다 다릅니다.</p>
+      </div>
+      <div class="sc-step" data-g="g-t90" data-s="1">
+        <h3>동화율 90%에 닿는 시점은 시드마다 크게 다릅니다.</h3>
+        <p>기본 시나리오의 평균은 <span class="v" data-v="sc.base.t90Mean" data-f="man"></span> 회이고 표준편차는 <span class="v" data-v="sc.base.t90Sd" data-f="man"></span> 회입니다.</p>
+        <p>단일망은 <span class="v" data-v="sc.single.t90Mean" data-f="man"></span> 회, 군집은 <span class="v" data-v="sc.clu.t90Mean" data-f="man"></span> 회입니다.</p>
+        <dl class="sc-tri"><dt>바꾼 것</dt><dd>배치(분산·군집), 네트워크(이중·단일)</dd><dt>맞춰 둔 것</dt><dd>소수 비율 9%, 성별 고정, 시드 1~20</dd><dt>확인한 것</dt><dd>이중망과 단일망의 평균 차이는 시드 간 편차보다 작음</dd></dl>
+      </div>
+      <div class="sc-step" data-g="g-t90" data-s="2">
+        <h3>시드 5개로 본 첫 결과는 틀렸습니다.</h3>
+        <p>처음에 시드 5개, 4만 회 간격으로 쟀을 때는 단일망이 더 빨라 보였습니다.</p>
+        <p>시드를 20개로 늘리고 2천 회 간격으로 다시 재자 그 차이는 사라졌습니다.</p>
+        <div class="sc-memo">점 하나하나가 시드 하나입니다. 평균선만 보면 놓치는 흩어짐이 이 그림에 보입니다.</div>
+      </div>
+      <div class="sc-step" data-g="g-final" data-s="1">
+        <h3>끝난 뒤 남는 문화 영역의 수는 소수의 배치가 정합니다.</h3>
+        <p>분산 배치에서는 평균 <span class="v" data-v="sc.base.regionsMean" data-f="f1"></span>개, 군집 배치에서는 <span class="v" data-v="sc.clu.regionsMean" data-f="f1"></span>개입니다.</p>
+        <p>이중망과 단일망은 최종 영역 수도 같습니다. 이 설정에서 네트워크 구조는 속도와 결과 어느 쪽에도 뚜렷한 차이를 만들지 않았습니다.</p>
+      </div>
+      <div class="sc-step" data-g="g-free" data-s="1">
+        <h3>성별이 바뀔 수 있으면 결과는 두 갈래로 나뉩니다.</h3>
+        <p>20회 중 <span class="v" data-v="sc.free.vanished"></span>회는 소수 표식이 사라졌습니다.</p>
+        <p>나머지 <span class="v" data-v="sc.free.takeover"></span>회는 반대로 소수 표식이 모든 사람에게 퍼졌습니다.</p>
+        <div class="sc-memo">어느 쪽이든 끝에는 한 가지 문화만 남습니다. 이때 "동화율"은 계산할 수 없어 따로 셌습니다.</div>
+      </div>
+    </div>
+    <div class="sc-fig"><div class="sc-sticky">
+      <div class="sc-g" id="g-trace"><div class="sc-gh"><span>시드 1의 소수 동화율</span><span>2만 회마다 측정</span></div><div class="sc-gb"></div>
+        <div class="sc-gf">정체성 가변은 소수가 사라져 동화율을 계산할 수 없는 구간이 있어 제외</div></div>
+      <div class="sc-g" id="g-t90"><div class="sc-gh"><span>동화율 90% 도달 시점, 시드 20개</span><span>2천 회 간격 측정</span></div><div class="sc-gb"></div>
+        <div class="sc-gf">점: 시드 1개의 결과 · 굵은 선: 평균</div></div>
+      <div class="sc-g" id="g-final"><div class="sc-gh"><span>끝난 뒤의 상태, 시드 20개 평균</span><span>4만 회마다 비교해 3번 연속 같으면 정지</span></div><div class="sc-gb"></div></div>
+      <div class="sc-g" id="g-free"><div class="sc-gh"><span>정체성 가변 시나리오의 결말</span><span>시드 20개</span></div><div class="sc-gb"></div></div>
+    </div></div>
+  </div>
+</section>

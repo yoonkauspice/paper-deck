@@ -1,0 +1,120 @@
+<section class="slide dv">
+  <div class="dl"><div class="lb an">PART</div><div class="pn an" style="--d:.06s">2</div><h2 class="an" style="--d:.12s">시뮬레이터 구조</h2></div>
+  <div class="dr"><div class="dm an" style="--d:.16s">ABM이 누가 누구에게 어떤 유형으로 반응하는지 거시 구조를 만들고, 그 구조에 맞춰 LLM이 댓글을 씁니다. 상태 전이 모형, 에이전트 유형, 프롬프트 조건화, 소프트웨어 구성을 차례로 봅니다.</div><ul class="dpg"><li class="an" style="--d:0.20s"><span>08</span>전체 구조: 거시와 미시</li><li class="an" style="--d:0.25s"><span>09</span>SISa에서 이 모델로</li><li class="an" style="--d:0.30s"><span>10</span>파라미터 한눈에</li><li class="an" style="--d:0.35s"><span>11</span>에이전트 3유형</li><li class="an" style="--d:0.40s"><span>12</span>프롬프트 조건화</li><li class="an" style="--d:0.45s"><span>13</span>Informed가 아는 것과 소프트웨어</li></ul></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>전체 구조: 거시와 미시</h2><span class="sec">시뮬레이터 개요</span></div>
+  <div class="msg">ABM이 대화의 뼈대를 만들고, 뼈대의 각 상호작용마다 LLM이 댓글을 씁니다.<br>글의 내용은 직전 글, 반응 유형, 입장 세 가지 조건으로 결정됩니다.</div>
+  <div class="ct"><span>거시 시뮬레이션에서 미시 텍스트까지</span><span>원문 그림 1을 다시 그림</span></div>
+  <div class="body "><div class="fl an" style="--d:.05s"><div class="fl5">
+      <div class="fb"><span class="n">단계 1</span><svg class="ic lg"><use href="#i-net"/></svg><b>ABM이 거시 구조 생성</b><p>누가 누구와 상호작용하는지, 어떤 유형인지, 입장은 무엇인지 정함</p></div>
+      <div class="fb"><span class="n">단계 2</span><svg class="ic lg"><use href="#i-split"/></svg><b>상호작용마다 프롬프트</b><p>대상 노드마다 프롬프트를 하나씩 정의함</p></div>
+      <div class="fb"><span class="n">단계 3</span><svg class="ic lg"><use href="#i-adj"/></svg><b>입장과 유형 샘플</b><p>찬성·반대·중립 입장과 반응 유형을 시뮬레이션에서 뽑음</p></div>
+      <div class="fb"><span class="n">단계 4</span><svg class="ic lg"><use href="#i-robot"/></svg><b>LLM이 댓글 작성</b><p>직전 글에 맞춰 조건을 반영한 텍스트를 생성함</p></div>
+      <div class="fb"><span class="n">단계 5</span><svg class="ic lg"><use href="#i-msg"/></svg><b>대화 트리 완성</b><p>상호작용을 트리로 색인하고 레벨 순서로 채움</p></div></div>
+      <div class="fi2"><div><b>거시(ABM)</b> · 누가, 누구에게, 어떤 유형으로, 어떤 입장에서 반응하는가</div><div><b>미시(LLM)</b> · 그 조건 아래에서 실제로 어떤 말을 하는가</div></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-file"/></svg>읽는 법</h4><ol>
+      <li><div><b>조건 3가지</b>직전 글, 반응 유형, 입장이 프롬프트를 바꿈</div></li>
+      <li><div><b>반응 유형</b>지지, 부정, 의문, 추가 의견 중 하나</div></li>
+      <li><div><b>입장</b>찬성, 반대, 중립 중 하나</div></li>
+      <li><div><b>출발점</b>대화를 일으키는 뉴스의 제목과 본문이 루트</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>거시:</i>구조 수준(누가, 누구에게)</span><span><b>2</b><i>미시:</i>텍스트 수준(어떤 말)</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) 그림 1, §1, §2.5, p.2–3, p.9</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>SISa에서 이 모델로</h2><span class="sec">ABM 설계</span></div>
+  <div class="msg">기본 틀은 감염병 모형을 바꾼 SISa이고, 저자들은 소셜 미디어에 맞게 네 가지를 덧붙였습니다.<br>접속 시각, 재게시와 댓글, 뒤늦은 재참여, 영구 이탈이 확장 부분입니다.</div>
+  <div class="ct"><span>에이전트 상태와 전이</span><span>원문 그림 2를 단순화함</span></div>
+  <div class="body "><div class="tos an" style="--d:.05s"><svg viewBox="0 0 760 420" width="100%" height="420">
+  <defs><marker id="ah2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#203044"/></marker></defs>
+  <rect x="20" y="120" width="140" height="56" rx="4" fill="#C9D1DD"/><text x="90" y="144" font-size="16" fill="#203044" text-anchor="middle" font-weight="700">CONNECTED</text><text x="90" y="164" font-size="13.33" fill="#203044" text-anchor="middle">접속, 아직 노출 전</text>
+  <rect x="300" y="120" width="140" height="56" rx="4" fill="#fff" stroke="#203044" stroke-width="2"/><text x="370" y="144" font-size="16" fill="#203044" text-anchor="middle" font-weight="700">LISTENING</text><text x="370" y="164" font-size="13.33" fill="#203044" text-anchor="middle">내용을 보는 중</text>
+  <rect x="580" y="120" width="160" height="56" rx="4" fill="#0046CB"/><text x="660" y="144" font-size="16" fill="#fff" text-anchor="middle" font-weight="700">PARTICIPATING</text><text x="660" y="164" font-size="13.33" fill="#fff" text-anchor="middle">토론에 참여하는 중</text>
+  <line x1="160" y1="148" x2="298" y2="148" stroke="#203044" stroke-width="2" marker-end="url(#ah2)"/>
+  <text x="230" y="104" font-size="13.33" fill="#6B7280" text-anchor="middle">접속 시각이 지나면</text><text x="230" y="120" font-size="13.33" fill="#6B7280" text-anchor="middle">(가우시안 분포)</text>
+  <line x1="440" y1="138" x2="578" y2="138" stroke="#0046CB" stroke-width="2" marker-end="url(#ah2)"/>
+  <text x="510" y="82" font-size="13.33" fill="#0046CB" text-anchor="middle">이웃 전파 · 자발적 참여</text><text x="510" y="98" font-size="13.33" fill="#0046CB" text-anchor="middle">· backsliding(재참여)</text>
+  <line x1="580" y1="162" x2="442" y2="162" stroke="#203044" stroke-width="2" marker-end="url(#ah2)"/>
+  <text x="510" y="200" font-size="13.33" fill="#203044" text-anchor="middle">cure (Informed만)</text>
+  <text x="660" y="98" font-size="13.33" fill="#0046CB" text-anchor="middle" font-weight="700">행동: POST 또는 REPOST</text><text x="660" y="114" font-size="13.33" fill="#6B7280" text-anchor="middle">전이 직후 한 번 실행</text>
+  <rect x="290" y="320" width="160" height="56" rx="4" fill="#203044"/><text x="370" y="344" font-size="16" fill="#fff" text-anchor="middle" font-weight="700">DISCONNECTED</text><text x="370" y="364" font-size="13.33" fill="#fff" text-anchor="middle">네트워크 이탈</text>
+  <line x1="90" y1="178" x2="296" y2="324" stroke="#6B7280" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ah2)"/>
+  <line x1="370" y1="178" x2="370" y2="318" stroke="#6B7280" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ah2)"/>
+  <line x1="660" y1="178" x2="446" y2="324" stroke="#6B7280" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ah2)"/>
+  <text x="370" y="404" font-size="13.33" fill="#6B7280" text-anchor="middle">어느 상태에서나 prob_disconnected로 이탈</text>
+</svg></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-adj"/></svg>네 가지 확장</h4><ol>
+      <li><div><b>접속 시각</b>에이전트마다 가우시안으로 뽑은 시각이 지나야 LISTENING이 됨</div></li>
+      <li><div><b>두 가지 행동</b>참여 직후 재게시(prob_repost)나 댓글(1−prob_repost)</div></li>
+      <li><div><b>backsliding</b>차수가 큰 감염 노드 중에서 이웃이 아니어도 골라 답함</div></li>
+      <li><div><b>영구 이탈</b>어느 상태에서든 DISCONNECTED로 이동</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>SISa:</i>자발적 참여를 더한 SIS 감염 모형</span><span><b>2</b><i>FSM:</i>상태와 전이로 행동을 정하는 에이전트</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §1, §2.1–2.2, 그림 2, p.2, p.5–7</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>파라미터 한눈에</h2><span class="sec">표 2 정리</span></div>
+  <div class="msg">모형은 여덟 개 확률과 시간 모수로 움직이고 앞의 세 개는 SISa에서 가져왔습니다.<br>나머지 다섯 개가 소셜 미디어에 맞춘 확장입니다.</div>
+  <div class="ct"><span>시뮬레이션 파라미터와 의미</span><span>정리 기준은 원문 §2.1–2.2 서술(표 2 정렬 확인 필요)</span></div>
+  <div class="body full"><table class="sm an" style="--d:.05s"><thead><tr><th style="width:60px">구분</th><th style="width:240px">파라미터</th><th>의미</th></tr></thead><tbody>
+      <tr><th>SISa</th><td class="mono">prob_neighbor_spread</td><td>참여 중인 이웃이 청취 중인 접촉에게 토론을 퍼뜨리는 비율(사회적 접촉 참여)</td></tr>
+      <tr><th>SISa</th><td class="mono">prob_tv_spread</td><td>접촉 상태와 무관하게 자발적으로 참여하는 비율(외부 환경의 영향)</td></tr>
+      <tr><th>SISa</th><td class="mono">prob_neighbor_cure</td><td>참여에서 청취로 돌아가는 전이율(Informed 에이전트에만 적용)</td></tr>
+      <tr><th>확장</th><td class="mono">mean_time_connection<br>var_time_connection</td><td>에이전트의 접속 시각을 정하는 가우시안 분포의 평균과 분산</td></tr>
+      <tr><th>확장</th><td class="mono">prob_repost</td><td>참여 직후 재게시할 비율. 댓글 비율은 1−prob_repost</td></tr>
+      <tr><th>확장</th><td class="mono">prob_backsliding</td><td>청취로 돌아간 뒤 다시 참여하는 비율</td></tr>
+      <tr><th>확장</th><td class="mono">prob_disconnected</td><td>어느 상태에서든 네트워크를 떠나는 비율</td></tr>
+      </tbody></table></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>prob_tv:</i>TV처럼 네트워크 밖 정보의 영향</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §2.1–2.2, 표 2, p.6–7</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>에이전트 3유형</h2><span class="sec">에이전트 설계</span></div>
+  <div class="msg">에이전트는 믿는 정도와 정보 접근에 따라 Naive, Dubious, Informed 세 유형입니다.<br>유형마다 입장을 바꾸는 방식과 반응 유형의 비율이 다릅니다.</div>
+  <div class="ct"><span>유형별 입장과 반응 경향</span><span>상호작용 4종: 지지·부정·의문·추가 의견</span></div>
+  <div class="body full"><div style="display:flex;flex-direction:column;gap:14px"><div class="au3" style="height:290px">
+      <div class="au an" style="--d:.05s"><h5><svg class="ic"><use href="#i-user"/></svg>NaiveViewer · 쉽게 믿는 사용자</h5><p>보는 내용을 신뢰하고 환경의 메시지에 동조하는 경향이 큼. 입장은 바뀌지 않음</p><div class="bt">지지와 댓글 비율이 높음. 일부는 네트워크 밖 정보도 받음</div></div>
+      <div class="au an" style="--d:.12s"><h5><svg class="ic"><use href="#i-thermo"/></svg>DubiousViewer · 의심하는 사용자</h5><p>중립이 기본이고 찬성과 반대 사이를 오갈 수 있음. 영향받기 쉽지만 중립을 지키려 함</p><div class="bt">네 가지 반응이 모두 나타나며 부정과 의문이 Naive보다 많고 추가 의견이 조금 더 잦음</div></div>
+      <div class="au an" style="--d:.19s"><h5><svg class="ic"><use href="#i-search"/></svg>InformedViewer · 정보를 가진 사용자</h5><p>중립이 많고 일부는 반대. 반대 입장으로 바뀔 수 있고 다른 에이전트의 입장을 바꾸려 시도(cure)함</p><div class="bt">지지가 가장 적고 의문과 부정이 두드러짐</div></div></div>
+    <div class="base an" style="--d:.25s"><svg class="ic lg"><use href="#i-check"/></svg><div><b>진실·거짓 실험에서의 역할</b> · Informed는 팩트체커와 그 평가를 따르는 사용자, Dubious와 Naive는 팩트체크에 반응하는 사용자에 해당함</div></div></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>cure 확률:</i>prob_neighbor_cure × 치유된 이웃 ÷ 감염된 이웃</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §2.3–2.4, p.7–8</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>프롬프트 조건화</h2><span class="sec">텍스트 생성</span></div>
+  <div class="msg">프롬프트는 전체에 적용되는 전역 변수와 상호작용마다 달라지는 지역 변수로 이루어집니다.<br>지역 변수 세 개가 ABM 시뮬레이션에서 그대로 넘어옵니다.</div>
+  <div class="ct"><span>프롬프트 구성 요소</span><span>구조 요약이며 실제 문구는 원문 부록 S1</span></div>
+  <div class="body "><div class="ps an" style="--d:.05s"><div class="term">
+      <div class="gp"><span class="lb a">전역 변수</span><div class="tx"><span>language</span><span>min_chars, max_chars (데이터 기반 또는 플랫폼 제약)</span><span>사용자 설명 (예: 화나 있고 독설을 하는 평균적 사용자)</span></div></div>
+      <div class="gp"><span class="lb a">뉴스</span><div class="tx"><span>title, body (Informed는 본문 전체와 팩트체크 문서)</span></div></div>
+      <div class="gp"><span class="lb g">지역 변수 1</span><div class="tx"><span>preceding_message: 감염을 일으킨 직전 에이전트의 글</span></div></div>
+      <div class="gp"><span class="lb g">지역 변수 2</span><div class="tx"><span>interaction: support · deny · question · comment</span></div></div>
+      <div class="gp"><span class="lb g">지역 변수 3</span><div class="tx"><span>stance: favor · against · neutral</span></div></div></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-msg"/></svg>생성 순서</h4><ol>
+      <li><div><b>트리로 색인</b>상호작용을 대화 트리에 넣음</div></li>
+      <li><div><b>레벨별 순회</b>위 단계 글이 먼저 만들어지도록 함</div></li>
+      <li><div><b>프롬프트 생성</b>상호작용마다 변수를 채워 호출</div></li>
+      <li><div><b>맞춤법 검사</b>실패하면 프롬프트를 다시 실행</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>예시 문구:</i>원문 §2.5의 예를 한국어로 옮김</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §2.5, §2.7, p.9</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>Informed가 아는 것과 소프트웨어</h2><span class="sec">정보 접근과 구현</span></div>
+  <div class="msg">Informed가 비판적인 이유는 더 많은 정보를 프롬프트로 받기 때문입니다.<br>시뮬레이터는 network_simulator라는 파이썬 라이브러리로 공개되어 있습니다.</div>
+  <div class="ct"><span>유형별 정보 접근과 라이브러리 모듈 6개</span><span>PyPI와 GitHub 공개</span></div>
+  <div class="body "><div style="display:flex;flex-direction:column;gap:12px"><table class="sm an" style="--d:.05s"><thead><tr><th>에이전트</th><th>뉴스 정보</th><th>팩트체크</th></tr></thead><tbody>
+      <tr><th>Naive · Dubious</th><td>제목(헤드라인)만 받음</td><td>받지 않음</td></tr>
+      <tr><th>Informed</th><td>기사 본문 전체를 받음</td><td>검증 뉴스는 팩트체크 기관의 확인 문서까지 받음</td></tr></tbody></table>
+      <div class="ck an" style="--d:.12s;height:250px;grid-template-columns:repeat(3,1fr)">
+      <div><svg class="ic lg"><use href="#i-cpu"/></svg><div><b>IA</b><p>LLM 엔드포인트 연결</p></div></div>
+      <div><svg class="ic lg"><use href="#i-db"/></svg><div><b>get_data</b><p>결과를 sqlite3에 저장·조회</p></div></div>
+      <div><svg class="ic lg"><use href="#i-chart"/></svg><div><b>plot_data</b><p>입장별 반응 곡선 시각화</p></div></div>
+      <div><svg class="ic lg"><use href="#i-msg"/></svg><div><b>post</b><p>프롬프트 템플릿과 시간선 변환</p></div></div>
+      <div><svg class="ic lg"><use href="#i-net"/></svg><div><b>schema</b><p>에이전트, 전이 규칙, 제약 정의</p></div></div>
+      <div><svg class="ic lg"><use href="#i-check"/></svg><div><b>Spelling_checker</b><p>언어 오류 검사, 실패 시 재실행</p></div></div></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-file"/></svg>알아둘 점</h4><ol>
+      <li><div><b>정보로 만드는 비판성</b>역할을 말로 시키지 않고 입력 정보를 달리함</div></li>
+      <li><div><b>팩트체크는 일부만</b>Informed에게만 주어짐</div></li>
+      <li><div><b>공개 자료</b>PyPI, GitHub, Colab 예제와 문서 제공</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>Colab:</i>브라우저에서 실행하는 노트북 예제</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §2.6–2.7, p.9</span><span class="no"></span></div></div>
+</section>

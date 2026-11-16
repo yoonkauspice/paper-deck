@@ -1,0 +1,27 @@
+<section class="sc-ch" id="ch-org" data-n="관찰 02">
+  <div class="sc-chh"><div><div class="lb">관찰일지 · 02</div><div class="pn">02</div></div>
+    <div><h2>200명의 조직</h2><div class="dm">5강 모형은 Axelrod의 격자를 조직으로 바꿔 읽습니다. 구역마다 이웃의 범위와 소수의 비율이 다릅니다.</div></div></div>
+  <div class="sc-wrap">
+    <div class="sc-steps">
+      <div class="sc-step" data-g="g-org" data-s="1">
+        <h3>20 × 10 격자에 200명이 있습니다.</h3>
+        <p>왼쪽 2/3는 기존 조직입니다. 이웃은 반경 2(대각선 포함 5×5)로 넓습니다.</p>
+        <p>오른쪽 1/3은 주변부입니다. 이웃은 반경 1(상하좌우)로 좁습니다.</p>
+      </div>
+      <div class="sc-step" data-g="g-org" data-s="2">
+        <h3>소수는 전체의 약 9%이고 주변부에 더 많이 배치됩니다.</h3>
+        <p>배치 가중치는 기존 조직 0.5, 주변부 3.0입니다.</p>
+        <p>시드 20개에서 처음 배치된 소수는 평균 <span class="v" data-v="sc.base.minNMean" data-f="f1"></span>명입니다.</p>
+      </div>
+      <div class="sc-step" data-g="g-org" data-s="3">
+        <h3>처음에는 모든 사람의 문화가 제각각입니다.</h3>
+        <p>오른쪽 그림을 문화 벡터 보기로 바꿨습니다. 색이 같으면 다섯 문화 특성이 모두 같습니다.</p>
+        <p>시작할 때 문화 영역은 200개, 즉 사람 수와 같습니다.</p>
+      </div>
+    </div>
+    <div class="sc-fig"><div class="sc-sticky">
+      <div class="sc-g" id="g-org"><div class="sc-gh"><span>시작 상태, 시드 1</span><span>오른쪽 패널의 버튼은 발표 중 직접 눌러도 됩니다</span></div>
+        <div class="sim" data-sim="axelrod-org" data-seed="1"></div></div>
+    </div></div>
+  </div>
+</section>
