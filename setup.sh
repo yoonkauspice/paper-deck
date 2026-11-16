@@ -20,7 +20,7 @@ if ! have node || [ "$(node_major)" -lt 20 ]; then need+=(nodejs); fi
 linux_npm || need+=(npm)
 { have pdftotext && have pdfinfo && have pdftoppm; } || need+=(poppler-utils)
 if [ ${#need[@]} -eq 0 ]; then echo "모두 있음: node $(node -v), npm $(npm -v), $(pdftotext -v 2>&1 | head -1)"
-elif [ "$SKIP_APT" = "1" ]; then echo "건너뜀(SKIP_APT=1). 필요하면 직접: sudo apt-get install -y ${need[*]}"
+elif [ "$SKIP_APT" = "1" ]; then echo "건너뜀(SKIP_APT=1). 필요하면 직접: sudo apt-get install -y ${need[*]}"; [[ " ${need[*]} " == *" npm "* ]] && echo "주의: Linux npm이 없어 윈도우 npm을 씁니다. npm run 명령은 WSL 경로에서 실패하므로 node src/... 로 직접 실행하세요."
 elif have apt-get; then echo "설치: ${need[*]}"; sudo apt-get update && sudo apt-get install -y "${need[@]}"
 else echo "apt-get이 없습니다. 직접 설치하세요: ${need[*]}"; exit 1; fi
 if [ "$(node_major)" -lt 20 ]; then
@@ -43,6 +43,6 @@ if [ -n "$chrome" ] && [ -e "$chrome" ]; then echo "사용할 크롬: $chrome"
 else echo "크롬을 찾지 못했습니다. PPTX를 쓰려면 크롬을 설치하거나 .env 의 CHROME= 에 경로를 적으세요(빌드와 수치 대조는 크롬 없이 됨)."; fi
 
 echo "== 5. 회귀 시험"
-npm test
+node src/selftest.js   # npm test 와 같음(윈도우 npm이 잡힌 WSL에서도 돌도록 node로 직접 실행)
 echo
 echo "준비 끝. 새 논문: node src/new_paper.js <키> <PDF 경로>  → Claude에게 \"<키> 논문 파랑이로 만들어줘\""
