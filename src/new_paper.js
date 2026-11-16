@@ -8,7 +8,9 @@ const {paper}=require('./paths');
 const [key,src]=process.argv.slice(2);
 if(!key||!/^[a-z0-9_-]+$/.test(key)){console.error('usage: node src/new_paper.js <키(영문 소문자)> [PDF 경로]');process.exit(1);}
 const P=paper(key);
-if(fs.existsSync(path.join(P.work,'meta.json'))){console.error('이미 있는 키입니다: papers/'+key+' (다른 키를 쓰거나 그 폴더에서 이어서 작업)');process.exit(1);}
+// 작업 원고가 이미 있으면(다른 PC에서 가져온 경우 등) 원문 쪽만 다시 준비하고 원고는 건드리지 않는다
+const resume=fs.existsSync(path.join(P.work,'meta.json'));
+if(resume&&fs.existsSync(P.pdf)&&!src){console.error('이미 준비된 키입니다: papers/'+key+', input/'+key+' (그대로 이어서 작업하면 됩니다)');process.exit(1);}
 for(const d of [P.extract,P.figures,P.sources,path.join(P.work,'assets'),P.output])fs.mkdirSync(d,{recursive:true});
 if(src){let p=src;
   if(/^[A-Za-z]:[\\/]/.test(p)||p.startsWith('\\\\')){
@@ -19,7 +21,8 @@ const full=path.join(P.extract,'full.txt');
 cp.execFileSync('pdftotext',['-layout',P.pdf,full]);
 const info=cp.execFileSync('pdfinfo',[P.pdf]).toString(),pages=+(info.match(/Pages:\s+(\d+)/)||[])[1]||0;
 const chars=fs.readFileSync(full,'utf8').replace(/\s/g,'').length;
-fs.writeFileSync(path.join(P.work,'meta.json'),JSON.stringify({title:'',short:'',parts:[]},null,1)+'\n');
-console.log('준비 완료: input/'+key+'/ (원문, '+pages+'쪽, 텍스트 '+chars.toLocaleString()+'자), papers/'+key+'/ (작업 원고)');
+if(!resume)fs.writeFileSync(path.join(P.work,'meta.json'),JSON.stringify({title:'',short:'',parts:[]},null,1)+'\n');
+console.log((resume?'원문 다시 준비: ':'준비 완료: ')+'input/'+key+'/ (원문, '+pages+'쪽, 텍스트 '+chars.toLocaleString()+'자), papers/'+key+'/ ('+(resume?'기존 작업 원고 그대로':'작업 원고')+')');
+if(resume&&fs.existsSync(path.join(P.work,'figures.txt')))console.log('논문 그림 기록이 있습니다. 다시 만들기: node src/pdf_figure.js '+key+' --all');
 if(pages&&chars/pages<300)console.log('주의: 쪽당 글자가 적습니다. 스캔본이면 OCR이 필요할 수 있습니다(쪽 이미지는 node src/pdf_figure.js '+key+' <쪽>).');
 console.log('다음: Claude에게 "'+key+' 논문 파랑이로(또는 노랑이로) 만들어줘"');
