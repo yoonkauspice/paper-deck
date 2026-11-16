@@ -14,7 +14,7 @@ const only=process.argv[3],ROOT=P.root,abs=P.output,rel=path.relative(ROOT,abs).
 const CANDIDATES=['/mnt/c/Program Files/Google/Chrome/Application/chrome.exe','/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe',
   '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe','/mnt/c/Program Files/Microsoft/Edge/Application/msedge.exe',
   '/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium','/usr/bin/chromium-browser'];
-const CHROME=process.env.CHROME||CANDIDATES.find(p=>fs.existsSync(p));
+const CHROME=process.env.CHROME||process.env.CHROME_PATH||CANDIDATES.find(p=>fs.existsSync(p));  // CHROME_PATH: Claude Code 웹의 크롬
 if(!CHROME||!fs.existsSync(CHROME)){console.error('크롬을 찾지 못했습니다. .env 에 CHROME=크롬 실행 파일 경로 를 적으세요(.env.example 참고).');process.exit(1);}
 const onWin=CHROME.startsWith('/mnt/');
 const winPath=p=>onWin?cp.execFileSync('wslpath',['-w',p]).toString().trim():p;

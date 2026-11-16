@@ -18,6 +18,9 @@
 | `src/` | 도구(아래). 공통 경로 규칙은 `src/paths.js` | 커밋 |
 | `reference/`, `examples/` | 기준 덱, 슬라이드 유형별 마크업 예시(표지, 구분 `dv`, 본문 `.body`, `.body.full`, 표, 감사 `.au3`, 단계 위젯 `mkStep`) | 커밋 |
 | `papers/_tor_check/`, `papers/_story_check/` | 회귀 시험(파랑이 템플릿 재조립, 노랑이 부품) | 커밋 |
+| `inbox/` | Claude Code 웹으로 보낼 논문 PDF(사용자가 GitHub에 올림) | 사용자가 올린 PDF만 |
+| `deliver/<키>/` | 웹 세션에서 내보낸 최종본(`node src/deliver.js <키>`) | 커밋(받아 가기용) |
+| `scripts/web_session.sh` | 웹 세션 시작 때 자동 준비 | 커밋 |
 | `.claude/skills/paper-deck/`, `.claude/commands/` | 스킬과 슬래시 명령(`/new-paper`, `/build`, `/check`, `/export`) | 커밋 |
 
 비공개 논문은 `.gitignore`에 `papers/<키>/`를 추가해 작업 원고까지 빼도 된다(예: `papers/dashboard/`).
@@ -29,6 +32,7 @@
 - `node src/build.js <키>`: `output/<키>/deck.html`·`story.html`. `{{IMG:}}`는 `papers/<키>/assets` → `input/<키>/figures` 순서, `{{JSON:}}`은 `papers/<키>` → `output/<키>` 순서로 찾는다
 - `node src/check_numbers.js <키> [deck|story]`: 쓴 숫자를 원문(`input/<키>/extract/full.txt`), 추가 자료(`input/<키>/sources/`), 실험 결과(`output/<키>/results.json`)와 대조 → `output/<키>/04_numbers.md`. 계산한 값은 `papers/<키>/numbers_ok.txt`에 `값<TAB>이유`
 - `node src/export_pptx.js <키> [deck|story]`: 파랑이 `deck.pptx`(1920×1080), 노랑이 `story.pptx`(1600×900). 슬라이드는 화면 캡처 이미지, 노트는 글(편집 불가 이미지라는 점을 사용자에게 알림). 크롬 경로는 `.env`의 `CHROME`(없으면 자동 탐색)
+- `node src/deliver.js <키>`: 최종본을 `deliver/<키>/`로 복사(웹 세션에서 커밋해 받아 가기용)
 - `npm test`: 회귀 시험(시험용·예시 논문 빌드, 템플릿 문법 확인)
 
 ## 작업 순서 (사용자 승인 지점: ★)
@@ -76,6 +80,16 @@
 - "~합니다" 체, 장당 메시지 2줄, 출처는 장마다 `출처: 저자 (연도) §, 표`
 - 원문에 없는 내용은 쓰지 않는다. 해석이나 추론은 "원문 감사" 장에 분리해서 표시
 - 숫자는 원문과 대조 후 기입
+
+## Claude Code 웹(클라우드) 세션
+환경변수 `CLAUDE_CODE_REMOTE=true`면 웹 세션이다. 세션 시작 때 `scripts/web_session.sh`가 poppler 설치, `npm ci`, `.env`를 자동으로 준비한다(`.claude/settings.json`).
+- 웹 세션은 매번 새 컴퓨터다. `input/`, `output/`은 세션이 끝나면 사라지고, 커밋해서 push한 것만 남는다
+- **원문 가져오기**: 사용자가 GitHub의 `inbox/<파일>.pdf`에 올렸으면 `node src/new_paper.js <키> inbox/<파일>.pdf`, 공개 논문 URL을 줬으면 `node src/new_paper.js <키> <URL>`. 작업 원고(`papers/<키>`)가 이미 있으면 원문만 다시 준비된다(이어 하기). 그림은 `node src/pdf_figure.js <키> --all`
+- **중간 저장**: 아웃라인을 보여 주고 승인을 기다리기 전에 `papers/<키>/`를 커밋하고 push한다(세션이 끊겨도 이어서 할 수 있게)
+- **결과물 내보내기**: 빌드(필요하면 PPTX)까지 끝나면 `node src/deliver.js <키>`로 `deliver/<키>/`에 복사하고, `papers/<키>/`와 `deliver/<키>/`를 커밋해 push한다. 사용자는 GitHub에서 이 브랜치의 `deliver/<키>/` 파일을 내려받는다. push한 브랜치 이름을 마지막에 알려 준다
+- `inbox/`의 PDF와 `input/`은 커밋 대상이 아니다(`inbox/`는 사용자가 올린 것). 원문 텍스트·그림을 다른 곳에 커밋하지 않는다
+- 크롬은 클라우드의 `CHROME_PATH`를 자동으로 쓴다. 노랑이 캡처는 Pretendard 글꼴 서버(`cdn.jsdelivr.net`)가 막혀 있으면 대체 글꼴로 찍히므로, 그런 경고가 보이면 사용자에게 환경의 허용 도메인 추가를 안내한다
+- main에 직접 push하지 않는다(세션 브랜치에 push)
 
 ## 환경과 주의사항
 - 필요한 것: Node.js 20 이상, npm, poppler-utils(`pdftotext`, `pdfinfo`, `pdftoppm`), 크롬(PPTX 캡처). `./setup.sh`가 확인하고 설치한다

@@ -34,6 +34,7 @@ if [ -f .env ]; then echo ".env 있음"; else cp .env.example .env; echo ".env �
 
 echo "== 4. 크롬(PPTX 캡처용)"
 chrome="$(grep -E '^CHROME=' .env | cut -d= -f2- | sed -e 's/^"//' -e 's/"$//' || true)"
+[ -z "$chrome" ] && chrome="${CHROME_PATH:-}"
 if [ -z "$chrome" ]; then
   for c in "/mnt/c/Program Files/Google/Chrome/Application/chrome.exe" "/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe" \
            "/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe" "/mnt/c/Program Files/Microsoft/Edge/Application/msedge.exe" \

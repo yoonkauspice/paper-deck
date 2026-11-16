@@ -21,6 +21,8 @@ papers/*/sources/
 papers/*/export/
 papers/*/*.pptx
 *.pdf
+# 단, Claude Code 웹으로 보낼 PDF는 inbox/ 에 올린다(저장소는 반드시 Private)
+!inbox/*.pdf
 
 # 비공개 논문의 작업 원고(기관 데이터·비공개 리뷰 포함)
 papers/dashboard/

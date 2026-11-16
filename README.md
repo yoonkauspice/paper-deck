@@ -62,6 +62,9 @@ cd ~/projects/paper-deck && claude
 ```
 프로젝트 안의 `.claude/`에 스킬과 명령이 있어 따로 복사할 필요가 없습니다.
 
+### D. Claude Code 웹(브라우저)에서 쓰기
+설치 없이 claude.ai/code에서 쓰려면 GitHub에 올린 뒤 연결합니다. GitHub 연결부터 웹 세션 사용, 결과 받기까지는 **`WEB_GUIDE.md`**에 단계별로 정리했습니다.
+
 ## 사용법
 ```bash
 node src/new_paper.js schelling "C:\Users\me\Downloads\Schelling1971.pdf"   # 또는 Claude에게 경로만 알려 줌
@@ -75,6 +78,7 @@ node src/new_paper.js schelling "C:\Users\me\Downloads\Schelling1971.pdf"   # �
 | `npm run build -- <키>` | `output/<키>/deck.html`, `story.html` |
 | `npm run check -- <키>` | 숫자를 원문과 대조 → `output/<키>/04_numbers.md` |
 | `npm run export -- <키>` | PPTX(`output/<키>/deck.pptx`, `story.pptx`) |
+| `npm run deliver -- <키>` | 최종본을 `deliver/<키>/`로 복사(웹 세션에서 받아 가기용) |
 | `npm test` | 회귀 시험 |
 
 Claude Code 안에서는 `/new-paper`, `/build`, `/check`, `/export`로도 부를 수 있습니다.
