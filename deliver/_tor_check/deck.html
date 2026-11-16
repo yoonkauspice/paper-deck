@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<title>소셜 미디어 시뮬레이션 가이드</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap">
+<style>
+:root{--paper:#fff;--text:#262626;--navy:#203044;--accent:#0046CB;--gray:#6B7280;--pale:#EEF1F6;
+  --font:"Noto Sans KR","맑은 고딕","Malgun Gothic",sans-serif;color-scheme:light}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:#DCE1E8;color:var(--text);font-family:var(--font);font-size:16px;-webkit-font-smoothing:antialiased}
+#deck{position:relative;width:100%;height:calc(100% - 46px);overflow:hidden}
+.slide{position:absolute;left:50%;top:50%;width:1280px;height:720px;background:var(--paper);display:none;transform:translate(-50%,-50%) scale(.5);
+  transform-origin:center center;overflow:hidden;padding:28px 44px 0;box-shadow:0 2px 12px rgba(32,48,68,.18)}
+.slide.active{display:block}
+h1,h2,h3,h4,h5,h6,p,li,td,th,div,span{word-break:keep-all}
+b{font-weight:700}
+.hd{display:flex;align-items:flex-end;gap:16px;height:52px;padding-bottom:8px;border-bottom:1px solid #BFC6D1}
+.hd .no-big{font-size:32px;font-weight:300;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
+.hd h2{font-size:32px;font-weight:700;color:var(--navy);line-height:1.1;white-space:nowrap}
+.hd .sec{font-size:20px;color:var(--gray);font-weight:500;padding-bottom:1px;white-space:nowrap}
+.hd .pp5{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13.33px;color:var(--gray);white-space:nowrap;padding-bottom:4px}
+.hd .pp5 b{color:var(--navy)}
+.hd .pp5 span{display:flex;gap:3px}
+.hd .pp5 i{display:block;width:16px;height:5px;background:#DFE3EA}
+.hd .pp5 i.pv{background:#9AA8BC}
+.hd .pp5 i.on{background:var(--accent)}
+.msg{font-size:20px;font-weight:500;line-height:1.5;margin:12px 0 10px;height:60px;overflow:hidden}
+.ct{display:flex;justify-content:space-between;align-items:center;gap:16px;font-size:16px;font-weight:700;color:var(--navy);height:34px;
+  border-top:2px solid var(--navy);border-bottom:1px solid var(--pale);padding:3px 0;margin-bottom:12px;white-space:nowrap;overflow:hidden}
+.ct>span:last-child{color:var(--gray);font-weight:400;font-size:13.33px}
+.body{display:grid;grid-template-columns:2fr 1fr;gap:24px;height:436px;overflow:hidden}
+.body.full{grid-template-columns:1fr}
+.body>*{min-width:0;min-height:0}
+.ft{position:absolute;left:44px;right:44px;bottom:6px;display:flex;flex-direction:column;gap:2px;font-size:13.33px;color:var(--gray)}
+.ft .fr2{display:flex;justify-content:space-between;gap:24px;align-items:flex-end}
+.nt{display:grid;grid-template-columns:repeat(3,1fr);gap:0 18px;line-height:1.35;border-top:1px solid #DFE3EA;padding-top:4px}
+.nt span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-bottom:2px}
+.nt b{color:var(--accent);margin-right:4px}
+.nt i{font-style:normal;font-weight:700;color:var(--navy);margin-right:3px}
+.ft .no{color:var(--text);font-variant-numeric:tabular-nums}
+sup{font-size:.6em;color:var(--accent);font-weight:700;margin-left:1px;line-height:0;vertical-align:super}
+sub{font-size:.7em;line-height:0;vertical-align:baseline;position:relative;top:.3em}
+.kf{background:var(--pale);padding:16px 18px;display:flex;flex-direction:column;gap:10px;height:100%}
+.kf h4{font-size:20px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px;border-bottom:1px solid #C9D1DD;padding-bottom:8px}
+.kf h4 .ic{color:var(--accent)}
+.kf ol{list-style:none;display:flex;flex-direction:column;gap:8px;counter-reset:k;flex:1;justify-content:space-around}
+.kf li{display:grid;grid-template-columns:26px 1fr;gap:10px;font-size:16px;line-height:1.45}
+.kf li::before{counter-increment:k;content:counter(k);width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;font-size:13.33px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.kf li b{display:block;color:var(--navy)}
+.kf.st li{padding:3px 4px;border-radius:3px;transition:background .3s}
+.kf.st li.cur{background:#fff}
+.kf.st li.cur::before{background:var(--accent)}
+.kf.st li.cur b{color:var(--accent)}
+.ic{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic.lg{width:34px;height:34px;stroke-width:1.6}
+.ic.xl{width:48px;height:48px;stroke-width:1.5}
+table{border-collapse:collapse;width:100%;font-size:16px;line-height:1.45}
+th,td{padding:8px 10px;text-align:left;vertical-align:middle;border-bottom:1px solid #DFE3EA}
+thead th{background:var(--navy);color:#fff;font-weight:700}
+tbody tr:last-child td,tbody tr:last-child th{border-bottom:2px solid var(--navy)}
+tbody th{font-weight:700;color:var(--navy)}
+table.sm td,table.sm th{font-size:13.33px;padding:6px 8px}
+.base{background:var(--pale);border-left:4px solid var(--accent);padding:10px 16px;font-size:16px;line-height:1.5;display:flex;align-items:center;gap:14px}
+.base .ic{color:var(--accent)}
+.base b{color:var(--navy)}
+.g{color:var(--gray)}
+.ac{color:var(--accent);font-weight:700}
+.s13{font-size:13.33px}
+code,.mono{font-family:Consolas,"D2Coding",monospace;font-size:13.33px}
+.pb{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-style:normal;font-size:13.33px;font-weight:700;flex:none;vertical-align:-4px}
+.pb.d{background:var(--accent);color:#fff}
+.pb.r{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.pb.n{background:#C9D1DD;color:var(--navy)}
+.xb{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:13.33px;font-weight:700;margin-right:6px;vertical-align:1px;line-height:1;flex:none}
+thead .xb{background:#fff;color:var(--navy)}
+
+/* 단계 버튼 */
+.sbar{display:flex;align-items:center;gap:8px;font-size:13.33px;color:var(--gray)}
+.sbar button{font-family:inherit;font-size:13.33px;font-weight:700;border:1.5px solid var(--navy);background:#fff;color:var(--navy);padding:3px 12px;border-radius:3px;cursor:pointer}
+.sbar button.pr{background:var(--accent);border-color:var(--accent);color:#fff}
+.sbar .stl{margin-left:auto;font-weight:700;color:var(--navy)}
+@media print{.sbar button{display:none}}
+.noanim,.noanim *{transition:none!important}
+[data-s]{transition:opacity .45s}
+.fade [data-s]{opacity:.18}
+.fade [data-s].act{opacity:1}
+
+/* 마우스오버 주석 */
+.tip{font-style:normal;cursor:help;border-radius:2px;transition:background .15s}
+.tip::after{content:"";display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--accent);vertical-align:.55em;margin-left:1px;opacity:.85}
+.tip:hover,.tip:focus{background:var(--pale);outline:none}
+#tipbox{position:fixed;z-index:9999;max-width:340px;padding:8px 11px;background:var(--navy);color:#fff;font-size:13.33px;font-weight:400;line-height:1.5;border-radius:2px;box-shadow:0 2px 8px rgba(0,0,0,.18);pointer-events:none;display:none}
+@media print{.tip::after{display:none}#tipbox{display:none!important}}
+
+/* 표지 */
+.cover{padding:0}
+.cover .cv-l{position:absolute;left:0;top:0;bottom:0;width:760px;padding:110px 64px 0}
+.cover .kick{font-size:16px;font-weight:500;color:var(--gray)}
+.cover h1{font-size:48px;font-weight:700;color:var(--navy);line-height:1.2;margin-top:20px}
+.cover .en{font-size:20px;line-height:1.5;margin-top:18px}
+.cover .en i{font-style:normal;color:var(--gray);font-size:16px;display:block;margin-top:6px}
+.cover .rule{width:110px;height:4px;background:var(--accent);margin:36px 0 20px}
+.cover .who{font-size:16px;line-height:1.8;color:var(--gray)}
+.cover .cv-r{position:absolute;right:0;top:0;bottom:0;width:520px;background:var(--navy);padding:84px 48px 0;color:#fff}
+.cover .cv-r .lb{font-size:16px;color:#AFC0DA}
+.cover .cv-r .big{font-size:48px;font-weight:700;line-height:1.1;margin:6px 0 28px}
+.cover .cv-r .big em{font-style:normal;color:#7FA7FF}
+.cover .cv-r ul{list-style:none;display:flex;flex-direction:column;gap:14px}
+.cover .cv-r li{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;font-size:20px;border-bottom:1px solid #3A4A63;padding-bottom:10px}
+.cover .cv-r li .ic{color:#7FA7FF}
+.cover .cv-r li span{font-size:13.33px;font-weight:700;padding:2px 9px;border-radius:3px;border:1px solid #AFC0DA;color:#D6DFEE}
+
+/* 간지 */
+.dv{padding:0}
+.dv .dl{position:absolute;left:0;top:0;bottom:0;width:470px;background:var(--navy);color:#fff;padding:150px 56px 0}
+.dv .dl .lb{font-size:20px;color:#AFC0DA;font-weight:500}
+.dv .dl .pn{font-size:96px;font-weight:700;line-height:1;color:#7FA7FF;margin:10px 0 22px}
+.dv .dl h2{font-size:48px;font-weight:700;line-height:1.2}
+.dv .dr{position:absolute;left:470px;right:0;top:0;bottom:0;padding:120px 64px 0;display:flex;flex-direction:column;gap:26px}
+.dv .dm{font-size:20px;font-weight:500;line-height:1.6;color:var(--text);border-left:4px solid var(--accent);padding-left:18px}
+.dv .dpg{list-style:none;display:flex;flex-direction:column}
+.dv .dpg li{display:grid;grid-template-columns:60px 1fr;align-items:center;font-size:20px;padding:10px 0;border-bottom:1px solid #DFE3EA;color:var(--navy)}
+.dv .dpg li span{font-weight:300;color:var(--accent);font-variant-numeric:tabular-nums}
+
+/* 애니메이션 */
+@media (prefers-reduced-motion:no-preference){
+  .slide.active .an{animation:up .55s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0s)}
+}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+#nav{position:fixed;left:0;right:0;bottom:0;height:46px;display:flex;align-items:center;justify-content:center;gap:14px;font-size:16px;color:var(--navy);z-index:10}
+#nav .grp{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #C9D1DD;border-radius:18px;padding:3px 10px}
+#nav button{font-family:inherit;font-size:20px;background:none;border:0;color:var(--navy);cursor:pointer;width:28px;height:28px}
+@media print{
+  @page{size:1280px 720px;margin:0}
+  html,body{height:auto;background:#fff}
+  #deck{height:auto;overflow:visible}
+  .slide{display:block!important;position:relative;left:0;top:0;transform:none!important;box-shadow:none;break-after:page;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #nav{display:none!important}
+}
+
+/* 03 상충 그림 */
+.tos{display:grid;grid-template-columns:1fr;height:100%}
+.tos svg text{font-family:var(--font)}
+/* 04 순위 비교 */
+.rk2{display:grid;grid-template-columns:1fr 60px 1fr;align-items:center;height:100%}
+.rkc h5{font-size:16px;color:var(--navy);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.rkc h5 .ic{color:var(--accent)}
+.rkc ol{list-style:none;display:flex;flex-direction:column;gap:8px}
+.rkc li{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;border:1px solid #C9D1DD;padding:8px 10px;font-size:16px}
+.rkc li .r{font-size:20px;font-weight:300;color:var(--accent)}
+.rkc li .t b{display:block;color:var(--navy)}
+.rkc li .t span{font-size:13.33px;color:var(--gray)}
+.rkc li .v{font-weight:700;color:var(--navy);text-align:right;font-size:16px}
+.rkc.on li:first-child{border:2px solid var(--accent)}
+.rk2 .arr{font-size:32px;color:var(--accent);text-align:center}
+/* 05 방법 표 */
+table.mt td,table.mt th{padding:18px 12px}
+table.mt tr.on td,table.mt tr.on th{background:#F3F7FF}
+table.mt tr.on th{color:var(--accent)}
+/* 07 페르소나 */
+.ps{display:flex;flex-direction:column;gap:8px;height:100%}
+.term{background:#1B2534;color:#D6DFEE;font-family:Consolas,"D2Coding",monospace;font-size:13.33px;line-height:1.5;padding:10px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.term .gp{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:start}
+.term .lb{font-family:var(--font);font-size:13.33px;font-weight:700;padding:1px 8px;border-radius:3px;text-align:center}
+.term .lb.a{background:#3A4A63;color:#fff}
+.term .lb.g{background:var(--accent);color:#fff}
+.term .tx span{display:block}
+/* 08 온도계 */
+.th{display:flex;flex-direction:column;gap:12px;height:100%}
+.tbar{display:grid;grid-template-columns:110px 1fr 60px;gap:10px;align-items:center;font-size:16px}
+.tbar .k{font-weight:700;color:var(--navy)}
+.tbar .tr{height:26px;background:var(--pale);position:relative}
+.tbar .tr i{position:absolute;left:0;top:0;bottom:0;transition:width .8s}
+.tbar .tr i.d{background:var(--accent)}
+.tbar .tr i.r{background:var(--navy)}
+.tbar .v{font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.pax{position:relative;height:70px;margin:8px 70px 0}
+.pax .ln{position:absolute;left:0;right:0;top:30px;height:3px;background:#C9D1DD}
+.pax .tk{position:absolute;top:24px;width:2px;height:15px;background:var(--gray)}
+.pax .lab{position:absolute;top:44px;font-size:13.33px;color:var(--gray);transform:translateX(-50%);white-space:nowrap}
+.pax .mk{position:absolute;top:14px;width:20px;height:20px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 0 0 2px var(--accent);transform:translateX(-50%);transition:left .8s}
+.pax .mv{position:absolute;top:-10px;font-size:16px;font-weight:700;color:var(--accent);transform:translateX(-50%);transition:left .8s;white-space:nowrap}
+.stm{background:#1B2534;color:#F2C46D;font-family:Consolas,monospace;font-size:16px;padding:10px 16px}
+.stm b{font-family:var(--font);color:#AFC0DA;font-size:13.33px;font-weight:400;margin-right:10px}
+.calc{font-size:16px;color:var(--navy);background:var(--pale);padding:8px 14px}
+/* 09 네트워크 */
+.nw{display:flex;flex-direction:column;gap:8px;height:100%}
+.nw svg text{font-family:var(--font)}
+.fx{display:flex;align-items:center;gap:18px;background:var(--pale);padding:10px 16px;font-size:16px}
+.fx .eq{font-family:"Times New Roman",serif;font-size:20px;color:var(--navy);white-space:nowrap}
+/* 10 흐름 */
+.fl{display:flex;flex-direction:column;gap:12px;height:100%}
+.fl5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;position:relative}
+.fb{border:1.5px solid #C9D1DD;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-height:186px;background:#fff;transition:all .4s}
+.fb .n{font-size:13.33px;font-weight:700;color:var(--gray)}
+.fb .ic{color:var(--navy)}
+.fb b{font-size:16px;color:var(--navy);line-height:1.35}
+.fb p{font-size:13.33px;line-height:1.5;color:var(--text)}
+.fb.cur{border:2px solid var(--accent);background:#F3F7FF}
+.fb.cur .ic,.fb.cur .n{color:var(--accent)}
+.loop{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;height:34px}
+.loop div{grid-column:3/6;border:2px solid var(--accent);border-top:0;height:24px;position:relative}
+.loop div span{position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);background:#fff;padding:0 8px;font-size:13.33px;font-weight:700;color:var(--accent);white-space:nowrap}
+.loop div::before{content:"";position:absolute;left:-7px;top:-8px;border:6px solid transparent;border-bottom:8px solid var(--accent)}
+.fi2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fi2>div{background:var(--pale);padding:10px 14px;font-size:16px;line-height:1.5}
+.fi2 b{color:var(--navy)}
+/* 11 지시문 */
+.pr3{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:14px;height:100%}
+.pc{display:flex;flex-direction:column;gap:8px;min-width:0}
+.pc h5{font-size:16px;color:var(--navy);display:flex;align-items:center;gap:8px}
+.pc h5 .ic{color:var(--accent)}
+.pc .en{background:#1B2534;color:#D6DFEE;font-family:GulimChe,"굴림체",Gulim,"굴림",monospace;font-size:16px;line-height:1.6;padding:10px 12px;flex:1}
+.pc .en em{font-style:normal;color:#F2C46D}
+.pc .ko{background:var(--pale);font-size:13.33px;line-height:1.5;padding:8px 12px;min-height:86px}
+.pc.on .en{outline:3px solid var(--accent);outline-offset:-3px}
+
+/* 13 세 플랫폼 */
+.pf{display:flex;flex-direction:column;gap:10px;height:100%}
+.pf3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pfc{border:1.5px solid #C9D1DD;padding:10px 14px;display:flex;flex-direction:column;gap:4px;transition:all .3s}
+.pfc h5{font-size:16px;color:var(--navy);display:flex;align-items:center;gap:6px}
+.pfc dl{display:grid;grid-template-columns:72px 1fr;gap:2px 8px;font-size:13.33px;line-height:1.45}
+.pfc dt{color:var(--gray);font-weight:700}
+.pfc.on{border:2px solid var(--accent);background:#F3F7FF}
+.fd{display:grid;grid-template-columns:230px 1fr;gap:14px;flex:1;min-height:0}
+.fdv{background:var(--pale);padding:10px 14px;font-size:13.33px;line-height:1.55}
+.fdv b{display:block;color:var(--navy);font-size:16px;margin-bottom:4px}
+.fdl{list-style:none;display:flex;flex-direction:column;gap:5px}
+.fdl li{display:grid;grid-template-columns:30px 1fr 200px 70px;gap:10px;align-items:center;border:1px solid #DFE3EA;padding:4px 10px;font-size:13.33px;transition:opacity .3s}
+.fdl li .rn{font-size:16px;font-weight:700;color:var(--accent);text-align:center}
+.fdl li .nm b{font-size:16px;color:var(--navy)}
+.fdl li .sc{text-align:right;font-weight:700;color:var(--navy);font-size:16px}
+.fdl li.off{opacity:.3}
+.fdl li.off .rn{color:var(--gray)}
+/* 14 브릿징 계산 */
+.bc{display:flex;flex-direction:column;gap:10px;height:100%}
+.bcl{list-style:none;display:flex;flex-direction:column;gap:14px}
+.bcl li{display:grid;grid-template-columns:44px 170px 1fr 90px;gap:12px;align-items:center;border:1.5px solid #C9D1DD;padding:18px 14px;transition:all .5s}
+.bcl li .rn{font-size:20px;font-weight:300;color:var(--accent);text-align:center}
+.bcl li .nm b{color:var(--navy)}
+.bcl li .ch{display:flex;gap:4px;flex-wrap:wrap}
+.bcl li .ch .pb{transition:opacity .4s}
+.bc[data-step="2"] .ch .same,.bc[data-step="3"] .ch .same,.bc[data-step="4"] .ch .same{opacity:.15}
+.bcl li .sc{font-size:20px;font-weight:700;color:var(--accent);text-align:right;opacity:0;transition:opacity .4s}
+.bc[data-step="3"] .sc,.bc[data-step="4"] .sc{opacity:1}
+.bc[data-step="4"] .bcl li:first-child{border:2px solid var(--accent);background:#F3F7FF}
+/* 15 독설 */
+.tx2{display:flex;flex-direction:column;gap:12px;height:100%}
+.scl{position:relative;height:70px;margin:6px 10px 0}
+.scl .bar{position:absolute;left:0;right:0;top:22px;height:16px;background:linear-gradient(90deg,#EEF1F6,#203044)}
+.scl .lb{position:absolute;top:44px;font-size:13.33px;color:var(--gray);transform:translateX(-50%)}
+.scl .tt{position:absolute;top:0;font-size:13.33px;font-weight:700;color:var(--navy)}
+.ex2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.exc{border:1px solid #C9D1DD;padding:10px 14px;font-size:16px;line-height:1.5}
+.tfl{display:grid;grid-template-columns:1fr 24px 1fr 24px 1fr 24px 1fr;align-items:center}
+.tfl>div{background:var(--pale);padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-height:118px}
+.tfl .ic{color:var(--accent)}
+.tfl b{color:var(--navy)}
+.tfl span{font-size:13.33px;color:var(--gray)}
+.tfl i{font-style:normal;text-align:center;color:var(--accent);font-weight:700;font-size:20px}
+.exc .h{font-size:13.33px;font-weight:700;color:var(--gray);margin-bottom:4px}
+.exc .en{font-style:italic;color:var(--navy)}
+.exc .ko{font-size:13.33px;color:var(--gray);margin-top:4px}
+/* 16 E-I */
+.ei{display:flex;flex-direction:column;gap:12px;height:100%}
+.eib{display:flex;height:44px;font-size:16px;font-weight:700;color:#fff}
+.eib i{font-style:normal;display:flex;align-items:center;justify-content:center;transition:flex .6s}
+.eib .e{background:var(--accent)}
+.eib .i{background:var(--navy)}
+.eiq{font-size:20px;color:var(--navy);background:var(--pale);padding:10px 16px}
+table.eit td,table.eit th{text-align:center}
+table.eit tr.cur td,table.eit tr.cur th{background:#F3F7FF;color:var(--accent);font-weight:700}
+.eiq b{color:var(--accent)}
+.eax{position:relative;height:64px;margin:10px 70px 0}
+.eax .ln{position:absolute;left:0;right:0;top:28px;height:3px;background:#C9D1DD}
+.eax .lab{position:absolute;top:42px;font-size:13.33px;color:var(--gray);transform:translateX(-50%);white-space:nowrap}
+.eax .tk{position:absolute;top:22px;width:2px;height:15px;background:var(--gray)}
+.eax .mk{position:absolute;top:12px;width:20px;height:20px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 0 0 2px var(--accent);transform:translateX(-50%);transition:left .6s}
+.eax .mv{position:absolute;top:-12px;font-size:16px;font-weight:700;color:var(--accent);transform:translateX(-50%);transition:left .6s}
+/* 17 예상 */
+table.ex th,table.ex td{text-align:center;padding:12px 10px}
+table.ex td.l,table.ex th.l{text-align:left}
+.up{color:var(--accent);font-weight:700}
+.dn{color:var(--navy);font-weight:700}
+/* 19 결과 */
+.rs3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;height:100%}
+.rc{display:flex;flex-direction:column;gap:8px;border-top:3px solid var(--navy);padding-top:8px}
+.rc h5{font-size:16px;color:var(--navy)}
+.rc h5 span{display:block;font-size:13.33px;font-weight:400;color:var(--gray)}
+.rcb{display:flex;flex-direction:column;gap:18px;margin-top:14px}
+.rr{display:grid;grid-template-columns:64px 1fr 52px;gap:8px;align-items:center;font-size:13.33px}
+.rr .vv{font-size:16px;font-weight:700;color:var(--navy);text-align:right}
+.rr .vv.on{color:var(--accent)}
+.rr .k{font-weight:700;color:var(--navy)}
+.rtk{position:relative;height:56px;background:var(--pale)}
+.rtk i{position:absolute;top:4px;bottom:4px;background:#9AA8BC}
+.rtk i.on{background:var(--accent)}
+.rtk span{position:absolute;top:50%;transform:translateY(-50%);font-size:16px;font-weight:700;color:var(--navy);white-space:nowrap}
+.rtk .z{position:absolute;top:0;bottom:0;left:50%;width:2px;background:var(--navy)}
+.rax{display:flex;justify-content:space-between;font-size:13.33px;color:var(--gray);margin:0 60px 0 72px}
+/* 20·21 발췌 */
+.xp{display:grid;grid-template-columns:1fr 1fr;gap:14px;height:100%}
+.xp.one{grid-template-columns:1fr}
+.thd{border:1px solid #C9D1DD;display:flex;flex-direction:column}
+.thd .h{background:var(--navy);color:#fff;font-size:13.33px;font-weight:700;padding:5px 12px;display:flex;justify-content:space-between}
+.thd .p{padding:8px 12px;font-size:13.33px;line-height:1.5;border-bottom:1px solid #DFE3EA}
+.thd .p b{color:var(--navy);font-size:13.33px}
+.thd .p.root{background:var(--pale)}
+.thd .p .ko{color:var(--gray)}
+.thd .note{padding:8px 12px;font-size:13.33px;color:var(--accent);font-weight:700;margin-top:auto}
+/* 23 한계 카드 */
+.ck{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr;gap:14px;height:100%}
+.ck>div{display:grid;grid-template-columns:40px 1fr;gap:10px;align-items:start;border-top:3px solid var(--navy);padding-top:10px}
+.ck>div.on{border-top-color:var(--accent)}
+.ck .ic{color:var(--accent)}
+.ck b{display:block;color:var(--navy);font-size:16px;margin-bottom:4px}
+.ck p{font-size:16px;line-height:1.5}
+/* 24 감사 */
+.au3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;height:100%}
+.au{background:var(--pale);padding:12px 16px;display:flex;flex-direction:column;gap:8px;border-top:4px solid var(--accent)}
+.au h5{font-size:16px;color:var(--navy);display:flex;align-items:center;gap:8px}
+.au h5 .ic{color:var(--accent)}
+.au p{font-size:16px;line-height:1.5}
+.au .lp{display:flex;flex-direction:column;gap:4px;font-size:13.33px}
+.au .lp span{background:#fff;border:1px solid #C9D1DD;padding:4px 8px;text-align:center}
+.au .lp i{font-style:normal;text-align:center;color:var(--accent);font-weight:700;line-height:1}
+.au .bt{margin-top:auto;font-size:13.33px;color:var(--navy);background:#fff;padding:6px 10px;border-left:3px solid var(--navy)}
+
+/* 20·21 움직이는 댓글 스레드 */
+.fdx{display:flex;flex-direction:column;gap:6px;height:100%}
+.fd2{display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1;min-height:0}
+.thr{border:1px solid #C9D1DD;border-radius:6px;display:flex;flex-direction:column;background:#fff;overflow:hidden;min-height:0}
+.thr .tb{background:var(--navy);color:#fff;font-size:13.33px;font-weight:700;padding:5px 12px;display:flex;justify-content:space-between;align-items:center}
+.thr .tb .lk{display:flex;align-items:center;gap:4px;font-variant-numeric:tabular-nums}
+.thr .tb .lk .ic{width:16px;height:16px;stroke-width:2.2}
+.thr .tbody{padding:6px 10px;display:flex;flex-direction:column;gap:4px}
+.pst{display:grid;grid-template-columns:30px 1fr;gap:8px}
+.av{width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;font-size:13.33px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pst .who{font-size:13.33px;color:var(--gray)}
+.pst .who b{color:var(--navy)}
+.news{border:1px solid #DFE3EA;border-left:3px solid var(--accent);background:var(--pale);padding:3px 8px;margin:2px 0;font-size:13.33px;line-height:1.35}
+.news i{font-style:normal;color:var(--gray);display:block}
+.pst p,.cm p{font-size:13.33px;line-height:1.4}
+.cm{display:grid;grid-template-columns:24px 1fr;gap:6px;margin-left:30px;opacity:0;transform:translateY(8px);transition:opacity .45s,transform .45s}
+.cm .av{width:24px;height:24px;background:#9AA8BC;font-size:13.33px}
+.cm .bb{background:var(--pale);border-radius:10px;padding:4px 10px}
+.cm .bb b{font-size:13.33px;color:var(--navy);display:block}
+.cm.on{opacity:1;transform:none}
+.cm .ty{display:none;gap:3px;padding:6px 2px}
+.cm .ty i{width:6px;height:6px;border-radius:50%;background:#9AA8BC;display:block;animation:ty 1s infinite}
+.cm .ty i:nth-child(2){animation-delay:.15s}.cm .ty i:nth-child(3){animation-delay:.3s}
+@keyframes ty{0%,60%,100%{opacity:.25}30%{opacity:1}}
+.cm.typing .ty{display:flex}.cm.typing p{display:none}
+.thr .note{margin-top:auto;padding:6px 12px;font-size:13.33px;font-weight:700;color:var(--accent);border-top:1px solid #DFE3EA;opacity:0;transition:opacity .45s}
+.thr .note.act{opacity:1}
+.lpx{display:flex;align-items:center;gap:8px;font-size:13.33px;background:var(--pale);padding:6px 12px;opacity:0;transition:opacity .45s}
+.lpx.act{opacity:1}
+.lpx b{color:var(--navy)}
+.lpx span{background:#fff;border:1px solid #C9D1DD;padding:2px 8px}
+.lpx i{font-style:normal;color:var(--accent);font-weight:700}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6a8 3 0 0 0 16 0v-6"/><path d="M4 12v6a8 3 0 0 0 16 0v-6"/></symbol>
+<symbol id="i-split" viewBox="0 0 24 24"><path d="M21 17h-8l-3.5 -5h-6.5"/><path d="M21 7h-8l-3.495 5"/><path d="M18 10l3 -3l-3 -3"/><path d="M18 20l3 -3l-3 -3"/></symbol>
+<symbol id="i-msg" viewBox="0 0 24 24"><path d="M8 9h8"/><path d="M8 13h6"/><path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></symbol>
+<symbol id="i-adj" viewBox="0 0 24 24"><path d="M4 10a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M6 4v4"/><path d="M6 12v8"/><path d="M10 16a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M12 4v10"/><path d="M12 18v2"/><path d="M16 7a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M18 4v1"/><path d="M18 9v11"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 20h14"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/><path d="M12 16h.01"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2l4 -4"/></symbol>
+<symbol id="i-cpu" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="1"/><path d="M9 9h6v6h-6z"/><path d="M3 10h2"/><path d="M3 14h2"/><path d="M10 3v2"/><path d="M14 3v2"/><path d="M21 10h-2"/><path d="M21 14h-2"/><path d="M14 21v-2"/><path d="M10 21v-2"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/></symbol>
+<symbol id="i-repeat" viewBox="0 0 24 24"><path d="M4 12v-3a3 3 0 0 1 3 -3h13m-3 -3l3 3l-3 3"/><path d="M20 12v3a3 3 0 0 1 -3 3h-13m3 3l-3 -3l3 -3"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="7"/><path d="M21 21l-6 -6"/></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8"/><path d="M3.6 15h16.8"/><path d="M11.5 3a17 17 0 0 0 0 18"/><path d="M12.5 3a17 17 0 0 1 0 18"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path d="M9 13h6"/><path d="M9 17h4"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"/></symbol>
+<symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5a4 4 0 1 0 4 0v-8.5a2 2 0 0 0 -4 0v8.5"/><path d="M10 9h4"/></symbol>
+<symbol id="i-net" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><path d="M7 11l10 -5"/><path d="M7 13l10 5"/></symbol>
+<symbol id="i-news" viewBox="0 0 24 24"><path d="M16 6h3a1 1 0 0 1 1 1v11a2 2 0 0 1 -4 0v-13a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v12a3 3 0 0 0 3 3h11"/><path d="M8 8h4"/><path d="M8 12h4"/><path d="M8 16h4"/></symbol>
+<symbol id="i-sort" viewBox="0 0 24 24"><path d="M4 6h7"/><path d="M4 12h7"/><path d="M4 18h9"/><path d="M15 9l3 -3l3 3"/><path d="M18 6v12"/></symbol>
+<symbol id="i-bridge" viewBox="0 0 24 24"><path d="M3 17h18"/><path d="M5 7v10"/><path d="M19 7v10"/><path d="M5 8c4 5 10 5 14 0"/><path d="M9 11v6"/><path d="M15 11v6"/></symbol>
+<symbol id="i-scale" viewBox="0 0 24 24"><path d="M7 20h10"/><path d="M6 6l6 -1l6 1"/><path d="M12 3v17"/><path d="M9 12l-3 -6l-3 6a3 3 0 0 0 6 0"/><path d="M21 12l-3 -6l-3 6a3 3 0 0 0 6 0"/></symbol>
+<symbol id="i-robot" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="2"/><path d="M12 3v4"/><circle cx="9" cy="13" r="1"/><circle cx="15" cy="13" r="1"/><path d="M9 16h6"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></symbol>
+</svg>
+<div id="deck">
+
+<section class="slide cover">
+  <div class="cv-l">
+    <div class="kick an">논문 이해 노트 · LLM 사회 시뮬레이션</div>
+    <h1 class="an" style="--d:.08s">LLM 소셜 미디어<br>시뮬레이션 가이드</h1>
+    <div class="en an" style="--d:.16s">Törnberg, Valeeva, Uitermark, Bail (2023)<i>Simulating Social Media Using Large Language Models to Evaluate Alternative News Feed Algorithms · arXiv 2310.05984</i></div>
+    <div class="rule an" style="--d:.24s"></div>
+    <div class="who an" style="--d:.3s">2026. 11</div>
+  </div>
+  <div class="cv-r">
+    <div class="lb an" style="--d:.2s">왜부터 결과와 한계까지</div>
+    <div class="big an" style="--d:.26s"><em>5</em>부 구성</div>
+    <ul>
+      <li class="an" style="--d:.34s"><svg class="ic lg"><use href="#i-target"/></svg>왜, 무엇을 위해<span>03–05</span></li>
+      <li class="an" style="--d:.4s"><svg class="ic lg"><use href="#i-users"/></svg>시뮬레이션 세계<span>07–11</span></li>
+      <li class="an" style="--d:.46s"><svg class="ic lg"><use href="#i-sort"/></svg>세 플랫폼과 측정<span>13–17</span></li>
+      <li class="an" style="--d:.52s"><svg class="ic lg"><use href="#i-chart"/></svg>결과<span>19–21</span></li>
+      <li class="an" style="--d:.58s"><svg class="ic lg"><use href="#i-search"/></svg>해석과 한계<span>23–26</span></li>
+    </ul>
+  </div>
+  <div class="ft"><div class="fr2"><span></span><span class="no" style="color:#AFC0DA"></span></div></div>
+</section>
+
+<section class="slide dv">
+  <div class="dl"><div class="lb an">PART</div><div class="pn an" style="--d:.06s">1</div><h2 class="an" style="--d:.12s">왜, 무엇을<br>위해</h2></div>
+  <div class="dr"><div class="dm an" style="--d:.16s">소셜 미디어가 정치 성향이 다른 사람 사이의 상호작용을 늘리면서 독설은 늘리지 않을 수 있는지 묻는 연구입니다. 연구진이 이 질문을 던진 배경, 제안한 피드 알고리즘, 시뮬레이션을 고른 이유를 차례로 봅니다.</div><ul class="dpg"><li class="an" style="--d:0.20s"><span>03</span>연구 동기: 노출과 독설의 상충</li><li class="an" style="--d:0.25s"><span>04</span>연구 질문과 제안: 브릿징 알고리즘</li><li class="an" style="--d:0.30s"><span>05</span>방법 선택: LLM 시뮬레이션의 이유</li></ul></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>연구 동기: 노출과 독설의 상충</h2><span class="sec">연구 배경</span></div>
+  <div class="msg">민주주의 이론은 정치 성향이 다른 사람끼리의 토론을 중요하게 봅니다.<br>그런데 소셜 미디어에서 반대 의견에 노출하면 토론보다 공격이 늘 수 있다는 연구가 있습니다.</div>
+  <div class="ct"><span>노출과 독설의 상충 관계</span><span>그림은 설명용 개념도</span></div>
+  <div class="body "><div class="tos an" style="--d:.05s"><svg viewBox="0 0 760 420" width="100%" height="420">
+  <defs><marker id="ah" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#203044"/></marker></defs>
+  <line x1="80" y1="370" x2="720" y2="370" stroke="#203044" stroke-width="2" marker-end="url(#ah)"/>
+  <line x1="80" y1="370" x2="80" y2="30" stroke="#203044" stroke-width="2" marker-end="url(#ah)"/>
+  <text x="720" y="400" font-size="16" fill="#203044" text-anchor="end" font-weight="700">다른 당파 사람과의 상호작용</text>
+  <text x="96" y="40" font-size="16" fill="#203044" font-weight="700">독설</text>
+  <circle cx="200" cy="300" r="62" fill="#C9D1DD"/><text x="200" y="295" font-size="16" fill="#203044" text-anchor="middle" font-weight="700">에코 체임버</text><text x="200" y="316" font-size="13.33" fill="#203044" text-anchor="middle">댓글 적음 · 독설 적음</text>
+  <circle cx="560" cy="110" r="62" fill="#203044"/><text x="560" y="105" font-size="16" fill="#fff" text-anchor="middle" font-weight="700">노출 확대</text><text x="560" y="126" font-size="13.33" fill="#fff" text-anchor="middle">댓글 많음 · 독설 많음</text>
+  <path d="M262 276 Q 380 170 496 128" stroke="#6B7280" stroke-width="2" fill="none" stroke-dasharray="6 5" marker-end="url(#ah)"/>
+  <text x="250" y="190" font-size="13.33" fill="#6B7280" text-anchor="end">반대 의견에 노출하면</text><text x="250" y="208" font-size="13.33" fill="#6B7280" text-anchor="end">공격도 함께 늘 수 있음</text>
+  <circle cx="560" cy="300" r="66" fill="none" stroke="#0046CB" stroke-width="3" stroke-dasharray="7 5"/><text x="560" y="296" font-size="16" fill="#0046CB" text-anchor="middle" font-weight="700">연구진의 목표</text><text x="560" y="317" font-size="13.33" fill="#0046CB" text-anchor="middle">댓글 많음 · 독설 적음</text>
+</svg></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-file"/></svg>선행 연구</h4><ol>
+      <li><div><b><span class="tip" tabindex="0" data-tip="에코 체임버(echo chamber)는 정치 성향이 비슷한 사람끼리만 모인 정치 동호회와 비슷합니다. 같은 의견이 되풀이되면서 더 강해지고 반대 의견은 잘 들리지 않습니다. 보통 동호회는 등산 같은 관심사로 모여 회원의 정치 성향이 제각각일 수 있지만 에코 체임버는 의견이 같은 사람끼리 모인 상태입니다. 직접 가입하지 않아도 팔로우와 피드 알고리즘 때문에 생길 수 있습니다. 이 논문의 플랫폼 ①이 이 상태를 흉내 냅니다.">에코 체임버</span> 우려</b>사용자가 팔로우로 피드를 고르면 반대 의견을 덜 보게 된다는 우려가 있음(근거는 엇갈림)</div></li>
+      <li><div><b>노출의 역효과</b>반대 성향 계정을 보게 한 실험에서 정치 양극화가 오히려 커짐(Bail et al., 2018)</div></li>
+      <li><div><b>참여 중심 피드</b>화난 댓글도 참여로 간주하므로 갈등을 일으키는 글을 위로 올리고 사용자는 그런 글을 더 자주 봄</div></li>
+      <li><div><b>기존 연구의 공백</b>알고리즘의 인과 효과를 보여 주는 증거가 적었음</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>에코 체임버:</i>비슷한 의견만 나누는 정치 동호회 같은 온라인 공간</span><span><b>2</b><i>독설(toxicity):</i>무례·무시·억지 주장을 담은 말(15장)</span></div><div class="fr2"><span class="src">출처: Törnberg et al. (2023) §1, p.1–3 · Bail et al. (2018) PNAS</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>연구 질문과 제안: 브릿징 알고리즘</h2><span class="sec">연구 목표</span></div>
+  <div class="msg">연구진은 당파 간 상호작용을 늘리면서 독설은 늘리지 않는 피드를 만들 수 있는지 물었습니다.<br>제안은 글쓴이와 반대 정당 사용자의 좋아요를 많이 받은 글을 위로 올리는 브릿징 알고리즘입니다.</div>
+  <div class="ct"><span>같은 글 3개의 순서 비교</span><span>좋아요 수와 글 주제는 설명용 예시</span></div>
+  <div class="body "><div class="rk2 an" style="--d:.05s">
+      <div class="rkc"><h5><svg class="ic"><use href="#i-heart"/></svg>참여 순 (좋아요 합계)</h5><ol><li><span class="r">1</span><div class="t"><b><i class="pb r">공</i> A의 글</b><span>이민 정책 비판 · 공화 좋아요 6 · 민주 1</span></div><span class="v">7</span></li><li><span class="r">2</span><div class="t"><b><i class="pb d">민</i> B의 글</b><span>총기 규제 촉구 · 민주 좋아요 5 · 공화 2</span></div><span class="v">7</span></li><li><span class="r">3</span><div class="t"><b><i class="pb r">공</i> C의 글</b><span>컨트리 음악 소식 · 공화 좋아요 2 · 민주 4</span></div><span class="v">6</span></li></ol></div>
+      <div class="arr">→</div>
+      <div class="rkc on"><h5><svg class="ic"><use href="#i-bridge"/></svg>브릿징 순 (반대 당 좋아요)</h5><ol><li><span class="r">1</span><div class="t"><b><i class="pb r">공</i> C의 글</b><span>컨트리 음악 소식 · 민주(반대 당) 좋아요 4</span></div><span class="v">4</span></li><li><span class="r">2</span><div class="t"><b><i class="pb d">민</i> B의 글</b><span>총기 규제 촉구 · 공화(반대 당) 좋아요 2</span></div><span class="v">2</span></li><li><span class="r">3</span><div class="t"><b><i class="pb r">공</i> A의 글</b><span>이민 정책 비판 · 민주(반대 당) 좋아요 1</span></div><span class="v">1</span></li></ol></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-bridge"/></svg>제안의 근거</h4><ol>
+      <li><div><b>브릿징 개념</b>서로 다른 집단이 함께 긍정적으로 반응한 글을 올리자는 제안(Ovadya &amp; Thorburn, 2023)</div></li>
+      <li><div><b>기대 · 극단적인 글 감소</b>상대를 자극해 반응을 끌어내는 극단적인 글이 덜 보임</div></li>
+      <li><div><b>기대 · 온건한 사용자의 참여</b>온건한 사용자가 지지 신호를 받고 의견을 더 자주 냄</div></li>
+      <li><div><b>검증 방법</b>실제 플랫폼 대신 LLM 시뮬레이션에서 세 피드를 비교함</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>민·공:</i>글쓴이의 정당(민주당·공화당)</span><span><b>2</b><i>브릿징(bridging):</i>집단을 잇는다는 뜻(음차)</span></div><div class="fr2"><span class="src">출처: Törnberg et al. (2023) p.1, §1 · Ovadya &amp; Thorburn (2023) arXiv:2301.09976</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>방법 선택: LLM 시뮬레이션의 이유</h2><span class="sec">접근 방법</span></div>
+  <div class="msg">관측 자료와 무작위 실험으로는 아직 없는 알고리즘이 대화 전체에 미치는 효과를 보기 어렵습니다.<br>연구진은 <span class="tip" tabindex="0" data-tip="규칙에 따라 행동하는 가상의 개인(에이전트)을 많이 만들어 상호작용시키고 집단 수준의 결과를 관찰하는 시뮬레이션 방법입니다.">행위자 기반 모형(ABM)</span>의 에이전트를 LLM으로 바꿔 대화를 시뮬레이션했습니다.</div>
+  <div class="ct"><span>방법별 장점과 한계 (연구진의 정리)</span><span>§1–2의 서술을 표로 정리</span></div>
+  <div class="body full"><div style="display:flex;flex-direction:column;gap:12px">
+      <table class="mt an" style="--d:.05s"><thead><tr><th style="width:200px">방법</th><th style="width:330px">장점</th><th>이 질문에서의 한계</th></tr></thead><tbody>
+      <tr><th>관측 자료</th><td>실제 사용자의 행동 기록</td><td>원인을 구별하기 어렵고 아직 없는 알고리즘은 관측할 수 없음</td></tr>
+      <tr><th>대규모 무작위 실험</th><td>개인에게 미치는 인과 효과를 추정함</td><td>사용자끼리 주고받는 상호작용 전체를 보기 어렵고 플랫폼의 협조와 피험자 보호 문제가 따름</td></tr>
+      <tr><th>기존 행위자 기반 모형</th><td>개인의 행동이 모여 생기는 집단 현상을 봄</td><td>에이전트가 단순한 규칙만 따르고 말을 하지 못해 대화를 시뮬레이션할 수 없음</td></tr>
+      <tr class="on"><th>LLM + 행위자 기반 모형<br><span class="s13">이 논문</span></th><td>에이전트가 글을 읽고 쓰고 반응함</td><td>LLM 에이전트가 실제 사람처럼 행동하도록 <span class="tip" tabindex="0" data-tip="보정(calibration): 에이전트의 행동을 실제 사용자 자료와 비교해 맞추는 작업입니다. 저자는 LLM이 실제 사용자보다 정중하고 일부 집단을 잘 흉내 내지 못할 수 있다고 지적했습니다(§5).">보정</span>하는 일이 과제로 남음</td></tr>
+      </tbody></table>
+      <div class="base an" style="--d:.3s"><svg class="ic lg"><use href="#i-target"/></svg><div><b>연구진이 밝힌 목표</b> · 실제 대화를 그대로 재현하는 데 목적을 두지 않고 피드 설계에 따라 나올 수 있는 결과의 범위를 살펴 후속 연구의 방향을 잡으려 했습니다(p.2).</div></div></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>LLM:</i>대규모 언어 모델. 이 연구는 OpenAI의 GPT-3.5를 씀</span></div><div class="fr2"><span class="src">출처: Törnberg et al. (2023) p.1–3, §2</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide dv">
+  <div class="dl"><div class="lb an">PART</div><div class="pn an" style="--d:.06s">2</div><h2 class="an" style="--d:.12s">시뮬레이션<br>세계</h2></div>
+  <div class="dr"><div class="dm an" style="--d:.16s">연구진은 2020년 미국 트위터 이용자를 본뜬 에이전트 500명과 이들의 팔로우 관계를 만들었습니다. 이어서 하루 분량의 활동을 진행하며 에이전트에게 지시문을 주었습니다.</div><ul class="dpg"><li class="an" style="--d:0.20s"><span>07</span>에이전트 500명: ANES에서 페르소나로</li><li class="an" style="--d:0.25s"><span>08</span>정당 성향: 감정 온도계 차이</li><li class="an" style="--d:0.30s"><span>09</span>팔로우 관계: 동종선호(호모필리)</li><li class="an" style="--d:0.35s"><span>10</span>하루의 진행: 글쓰기에서 순위 갱신까지</li><li class="an" style="--d:0.40s"><span>11</span>에이전트 지시문 3가지</li></ul></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>에이전트 500명: ANES에서 페르소나로</h2><span class="sec">페르소나 구성</span></div>
+  <div class="msg">연구진은 <span class="tip" tabindex="0" data-tip="미국 전국 선거 조사(American National Election Study). 미국 유권자의 정치 태도와 행동을 묻는 대표 표본 설문입니다.">2020 ANES</span> 응답자 가운데 트위터 이용자 500명을 골라 에이전트의 <span class="tip" tabindex="0" data-tip="에이전트에게 주는 인물 설명문. LLM은 이 설명문에 맞춰 글을 쓰고 반응합니다.">페르소나</span>를 만들었습니다.<br>설문 응답을 영어 문장으로 바꾸고 이름·추가 취미·정치 의견·성격은 GPT가 채웠습니다.</div>
+  <div class="ct"><span>논문 그림 1의 페르소나 예시 (John Smith)</span><span>표본: 평균 38.1세 · 남성 54.2% · 백인 66.4%</span></div>
+  <div class="body "><div class="ps" id="psx"><div class="sbar"><button data-a="next">다음 ▶</button><button data-a="play">자동 재생</button><button data-a="reset">처음으로</button><span class="stl"></span></div>
+      <div class="term fade">
+        <div class="gp" data-s="1"><span class="lb a">① 인구통계 · ANES</span><div class="tx"><span>You are male. You are middle income. Age: 45. You are Evangelical Protestant.</span><span>You are from Iowa. Education: High school. You are White. You are heterosexual.</span></div></div>
+        <div class="gp" data-s="2"><span class="lb a">② 투표·정당 · ANES</span><div class="tx"><span>You voted for Donald Trump in 2020.</span><span>You are a strong Republican.</span></div></div>
+        <div class="gp" data-s="3"><span class="lb a">③ 강한 감정 · ANES</span><div class="tx"><span>You love Republicans, Donald Trump, Christians, NRA, Christian Fundamentalists, and conservatives.</span><span>You hate Democrats, Joe Biden, Black Lives Matter, Anthony Fauci, and liberals.</span><span>You feel happy, and proud about your country.</span></div></div>
+        <div class="gp" data-s="4"><span class="lb g">④ 이름·취미 · GPT</span><div class="tx"><span>Name: John Smith · Hobbies: Hunting, fishing, and woodworking</span><span>- Favorite sports team: Iowa Hawkeyes (college football)</span><span>- Political opinions: Supports strict immigration policies, opposes abortion rights, ...</span><span>- Personality attributes: Patriotic, traditionalist, family-oriented, community-oriented</span></div></div>
+      </div>
+      <div class="base" style="padding:8px 14px"><svg class="ic"><use href="#i-msg"/></svg><div class="s13">소셜 미디어에서 정치를 논의하지 않는 응답자는 정치 속성을 빼고 낚시 같은 비정치 관심사를 넣습니다. 이용 언론사와 이용 빈도도 ANES 응답에서 가져옵니다.</div></div></div>
+    <div class="kf st an" style="--d:.15s"><h4><svg class="ic"><use href="#i-user"/></svg>페르소나 조립 순서</h4><ol>
+      <li><div><b>인구통계</b>ANES 응답을 "You are male." 같은 문장으로 바꿈. 응답이 없는 문항은 넣지 않음</div></li>
+      <li><div><b>투표·정당</b>2020년 투표와 정당 성향(8장)을 문장으로 넣음</div></li>
+      <li><div><b>강한 감정</b>감정 온도가 아주 높거나 낮은 인물·집단만 love·hate로 넣고 중간 온도는 뺌</div></li>
+      <li><div><b>GPT 보충</b>이름, 응원 팀, 추가 취미, 구체적 정치 의견, 성격을 GPT가 덧붙임(부록 지시문)</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>ANES:</i>미국 전국 선거 조사</span><span><b>2</b><i>GPT:</i>OpenAI의 LLM. 이 연구는 GPT-3.5를 씀</span></div><div class="fr2"><span class="src">출처: Törnberg et al. (2023) §2, 그림 1, 부록 A, 표 SI.1</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>정당 성향: 감정 온도계 차이</h2><span class="sec">당파 구분 방법</span></div>
+  <div class="msg">연구진은 정당 성향을 스스로 밝힌 당적 대신 <span class="tip" tabindex="0" data-tip="ANES 문항. 정당이나 인물에 대한 감정을 0~100도로 답하게 합니다. 50도는 따뜻하지도 차갑지도 않음을 뜻합니다.">감정 온도계</span> 응답으로 구했습니다.<br>민주당과 공화당에 준 온도의 차이를 −1~1 사이 값으로 나타낸 값이 에이전트의 <span class="tip" tabindex="0" data-tip="두 온도의 차이로 합치면 사라지는 정보가 있습니다. 두 정당 모두 90도인 사람(양쪽 모두에 호감)과 두 정당 모두 10도인 사람(정치 전반에 냉소)은 똑같이 0이 되고 같은 페르소나 문장 You prefer neither party.를 받습니다.">정당 성향 P<sub>i</sub></span>입니다.</div>
+  <div class="ct"><span>응답자 예시 3명의 정당 성향 계산</span><span>버튼으로 예시를 바꿀 수 있음 · 온도와 계산식은 설명용 예시</span></div>
+  <div class="body "><div class="th" id="thx"><div class="sbar"><button data-go="1">예 ① 강한 민주당 지지</button><button data-go="2">예 ② 양쪽 비슷</button><button data-go="3">예 ③ 스스로 무당파</button><span class="stl" style="display:none"></span></div>
+      <div class="tbar"><span class="k">민주당 온도</span><div class="tr"><i class="d" style="width:90%"></i></div><span class="v">90</span></div>
+      <div class="tbar"><span class="k">공화당 온도</span><div class="tr"><i class="r" style="width:10%"></i></div><span class="v">10</span></div>
+      <div class="calc">정당 성향 P<sub>i</sub> = (민주당 온도 − 공화당 온도) ÷ 100 = <b class="ac" id="thc">(90 − 10) ÷ 100 = 0.80</b></div>
+      <div class="pax"><div class="ln"></div><i class="tk" style="left:0"></i><i class="tk" style="left:50%"></i><i class="tk" style="left:100%"></i>
+        <span class="lab" style="left:0">−1 공화당</span><span class="lab" style="left:50%">0</span><span class="lab" style="left:100%">+1 민주당</span>
+        <i class="mk" style="left:90%"></i><span class="mv" style="left:90%">0.80</span></div>
+      <div class="stm"><b>페르소나 문장</b><span id="ths">You are a strong Democrat.</span></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-thermo"/></svg>정당 성향 P<sub>i</sub></h4><ol>
+      <li><div><b>감정 온도계</b>ANES가 정당마다 0(매우 차가움)~100(매우 따뜻함)으로 묻는 문항</div></li>
+      <li><div><b>온도계 사용 이유</b>스스로 무당파라고 답한 유권자도 한 정당에 기운 경우가 많음(부록 A)</div></li>
+      <li><div><b>쓰임</b>페르소나 문장과 팔로우 관계(9장)에 씀. 무당파는 "You prefer neither party."</div></li>
+      <li><div><b>원문 미보고 항목</b>−1~1로 바꾸는 식과 강한 지지자의 기준. 덱의 계산식은 예시</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>P<sub>i</sub>:</i>i번째 에이전트의 정치적 위치(political position, 부록 A)</span><span><b>2</b><i>같은 0:</i>두 정당 모두 90도인 사람과 모두 10도인 사람은 둘 다 0</span></div><div class="fr2"><span class="src">출처: Törnberg et al. (2023) 부록 A</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>팔로우 관계: 동종선호(호모필리)</h2><span class="sec">연결 규칙</span></div>
+  <div class="msg">연구진이 비교한 세 피드 가운데 하나는 팔로우한 사람의 글만 보여 주므로 연구진은 팔로우 관계를 따로 만들었습니다.<br>에이전트마다 30명을 팔로우하고 정당 성향이 비슷할수록 연결될 확률이 높습니다.</div>
+  <div class="ct"><span>정당 성향에 따른 팔로우 관계 (점의 색 = 에이전트의 정당 성향)</span><span>점 위치와 연결선은 설명용 예시 · 식 (1)과 H 값의 문제는 25장</span></div>
+  <div class="body "><div class="nw an" style="--d:.05s"><svg viewBox="0 0 780 290" width="100%" height="290"><line x1="40" y1="250" x2="740" y2="250" stroke="#9AA8BC" stroke-width="1.5"/><line x1="40.0" y1="245" x2="40.0" y2="255" stroke="#6B7280"/><text x="40.0" y="276" font-size="13.33" fill="#6B7280" text-anchor="middle">−1 공화당</text><line x1="390.0" y1="245" x2="390.0" y2="255" stroke="#6B7280"/><text x="390.0" y="276" font-size="13.33" fill="#6B7280" text-anchor="middle">0 무당파</text><line x1="740.0" y1="245" x2="740.0" y2="255" stroke="#6B7280"/><text x="740.0" y="276" font-size="13.33" fill="#6B7280" text-anchor="middle">+1 민주당</text><line x1="586" y1="90" x2="628" y2="139" stroke="#AEB8C7" stroke-width="1.2"/><line x1="586" y1="90" x2="533" y2="85" stroke="#AEB8C7" stroke-width="1.2"/><line x1="547" y1="141" x2="586" y2="90" stroke="#AEB8C7" stroke-width="1.2"/><line x1="547" y1="141" x2="611" y2="196" stroke="#AEB8C7" stroke-width="1.2"/><line x1="661" y1="116" x2="634" y2="181" stroke="#AEB8C7" stroke-width="1.2"/><line x1="661" y1="116" x2="529" y2="87" stroke="#AEB8C7" stroke-width="1.2"/><line x1="529" y1="87" x2="547" y2="141" stroke="#AEB8C7" stroke-width="1.2"/><line x1="529" y1="87" x2="406" y2="37" stroke="#AEB8C7" stroke-width="1.2"/><line x1="634" y1="181" x2="529" y2="87" stroke="#AEB8C7" stroke-width="1.2"/><line x1="596" y1="163" x2="628" y2="139" stroke="#AEB8C7" stroke-width="1.2"/><line x1="596" y1="163" x2="406" y2="37" stroke="#AEB8C7" stroke-width="1.2"/><line x1="526" y1="76" x2="547" y2="141" stroke="#AEB8C7" stroke-width="1.2"/><line x1="526" y1="76" x2="528" y2="169" stroke="#AEB8C7" stroke-width="1.2"/><line x1="628" y1="139" x2="611" y2="196" stroke="#AEB8C7" stroke-width="1.2"/><line x1="628" y1="139" x2="484" y2="123" stroke="#AEB8C7" stroke-width="1.2"/><line x1="521" y1="130" x2="490" y2="175" stroke="#AEB8C7" stroke-width="1.2"/><line x1="521" y1="130" x2="465" y2="196" stroke="#AEB8C7" stroke-width="1.2"/><line x1="611" y1="196" x2="634" y2="181" stroke="#AEB8C7" stroke-width="1.2"/><line x1="611" y1="196" x2="596" y2="163" stroke="#AEB8C7" stroke-width="1.2"/><line x1="528" y1="169" x2="465" y2="196" stroke="#AEB8C7" stroke-width="1.2"/><line x1="533" y1="85" x2="456" y2="117" stroke="#AEB8C7" stroke-width="1.2"/><line x1="533" y1="85" x2="529" y2="87" stroke="#AEB8C7" stroke-width="1.2"/><line x1="609" y1="216" x2="661" y2="116" stroke="#AEB8C7" stroke-width="1.2"/><line x1="609" y1="216" x2="529" y2="87" stroke="#AEB8C7" stroke-width="1.2"/><line x1="701" y1="52" x2="661" y2="116" stroke="#AEB8C7" stroke-width="1.2"/><line x1="701" y1="52" x2="526" y2="76" stroke="#AEB8C7" stroke-width="1.2"/><line x1="311" y1="109" x2="315" y2="162" stroke="#AEB8C7" stroke-width="1.2"/><line x1="311" y1="109" x2="368" y2="157" stroke="#AEB8C7" stroke-width="1.2"/><line x1="332" y1="174" x2="586" y2="90" stroke="#AEB8C7" stroke-width="1.2"/><line x1="332" y1="174" x2="295" y2="139" stroke="#AEB8C7" stroke-width="1.2"/><line x1="417" y1="59" x2="484" y2="123" stroke="#AEB8C7" stroke-width="1.2"/><line x1="417" y1="59" x2="368" y2="157" stroke="#AEB8C7" stroke-width="1.2"/><line x1="484" y1="123" x2="456" y2="117" stroke="#AEB8C7" stroke-width="1.2"/><line x1="484" y1="123" x2="490" y2="175" stroke="#AEB8C7" stroke-width="1.2"/><line x1="406" y1="37" x2="368" y2="157" stroke="#AEB8C7" stroke-width="1.2"/><line x1="406" y1="37" x2="295" y2="139" stroke="#AEB8C7" stroke-width="1.2"/><line x1="368" y1="157" x2="315" y2="162" stroke="#AEB8C7" stroke-width="1.2"/><line x1="368" y1="157" x2="596" y2="163" stroke="#AEB8C7" stroke-width="1.2"/><line x1="490" y1="175" x2="350" y2="140" stroke="#AEB8C7" stroke-width="1.2"/><line x1="490" y1="175" x2="465" y2="196" stroke="#AEB8C7" stroke-width="1.2"/><line x1="295" y1="139" x2="125" y2="156" stroke="#AEB8C7" stroke-width="1.2"/><line x1="295" y1="139" x2="81" y2="190" stroke="#AEB8C7" stroke-width="1.2"/><line x1="465" y1="196" x2="533" y2="85" stroke="#AEB8C7" stroke-width="1.2"/><line x1="346" y1="90" x2="533" y2="85" stroke="#AEB8C7" stroke-width="1.2"/><line x1="346" y1="90" x2="315" y2="162" stroke="#AEB8C7" stroke-width="1.2"/><line x1="315" y1="162" x2="528" y2="169" stroke="#AEB8C7" stroke-width="1.2"/><line x1="310" y1="143" x2="332" y2="174" stroke="#AEB8C7" stroke-width="1.2"/><line x1="310" y1="143" x2="311" y2="109" stroke="#AEB8C7" stroke-width="1.2"/><line x1="350" y1="140" x2="484" y2="123" stroke="#AEB8C7" stroke-width="1.2"/><line x1="350" y1="140" x2="526" y2="76" stroke="#AEB8C7" stroke-width="1.2"/><line x1="456" y1="117" x2="586" y2="90" stroke="#AEB8C7" stroke-width="1.2"/><line x1="456" y1="117" x2="596" y2="163" stroke="#AEB8C7" stroke-width="1.2"/><line x1="81" y1="190" x2="310" y2="143" stroke="#AEB8C7" stroke-width="1.2"/><line x1="81" y1="190" x2="165" y2="42" stroke="#AEB8C7" stroke-width="1.2"/><line x1="172" y1="209" x2="311" y2="109" stroke="#AEB8C7" stroke-width="1.2"/><line x1="172" y1="209" x2="195" y2="186" stroke="#AEB8C7" stroke-width="1.2"/><line x1="185" y1="120" x2="165" y2="42" stroke="#AEB8C7" stroke-width="1.2"/><line x1="185" y1="120" x2="295" y2="139" stroke="#AEB8C7" stroke-width="1.2"/><line x1="125" y1="156" x2="81" y2="190" stroke="#AEB8C7" stroke-width="1.2"/><line x1="125" y1="156" x2="172" y2="209" stroke="#AEB8C7" stroke-width="1.2"/><line x1="165" y1="42" x2="172" y2="209" stroke="#AEB8C7" stroke-width="1.2"/><line x1="165" y1="42" x2="295" y2="139" stroke="#AEB8C7" stroke-width="1.2"/><line x1="54" y1="163" x2="87" y2="219" stroke="#AEB8C7" stroke-width="1.2"/><line x1="54" y1="163" x2="137" y2="84" stroke="#AEB8C7" stroke-width="1.2"/><line x1="54" y1="153" x2="165" y2="42" stroke="#AEB8C7" stroke-width="1.2"/><line x1="87" y1="219" x2="315" y2="162" stroke="#AEB8C7" stroke-width="1.2"/><line x1="87" y1="219" x2="310" y2="143" stroke="#AEB8C7" stroke-width="1.2"/><line x1="195" y1="186" x2="350" y2="140" stroke="#AEB8C7" stroke-width="1.2"/><line x1="195" y1="186" x2="315" y2="162" stroke="#AEB8C7" stroke-width="1.2"/><line x1="137" y1="84" x2="54" y2="153" stroke="#AEB8C7" stroke-width="1.2"/><line x1="137" y1="84" x2="310" y2="143" stroke="#AEB8C7" stroke-width="1.2"/><circle cx="586" cy="90" r="8" fill="#0046CB"/><circle cx="547" cy="141" r="8" fill="#0046CB"/><circle cx="661" cy="116" r="8" fill="#0046CB"/><circle cx="529" cy="87" r="8" fill="#0046CB"/><circle cx="634" cy="181" r="8" fill="#0046CB"/><circle cx="596" cy="163" r="8" fill="#0046CB"/><circle cx="526" cy="76" r="8" fill="#0046CB"/><circle cx="628" cy="139" r="8" fill="#0046CB"/><circle cx="521" cy="130" r="8" fill="#0046CB"/><circle cx="611" cy="196" r="8" fill="#0046CB"/><circle cx="528" cy="169" r="8" fill="#0046CB"/><circle cx="533" cy="85" r="8" fill="#0046CB"/><circle cx="609" cy="216" r="8" fill="#0046CB"/><circle cx="701" cy="52" r="8" fill="#0046CB"/><circle cx="311" cy="109" r="8" fill="#C9D1DD"/><circle cx="332" cy="174" r="8" fill="#C9D1DD"/><circle cx="417" cy="59" r="8" fill="#C9D1DD"/><circle cx="484" cy="123" r="8" fill="#C9D1DD"/><circle cx="406" cy="37" r="8" fill="#C9D1DD"/><circle cx="368" cy="157" r="8" fill="#C9D1DD"/><circle cx="490" cy="175" r="8" fill="#C9D1DD"/><circle cx="295" cy="139" r="8" fill="#C9D1DD"/><circle cx="465" cy="196" r="8" fill="#C9D1DD"/><circle cx="346" cy="90" r="8" fill="#C9D1DD"/><circle cx="315" cy="162" r="8" fill="#C9D1DD"/><circle cx="310" cy="143" r="8" fill="#C9D1DD"/><circle cx="350" cy="140" r="8" fill="#C9D1DD"/><circle cx="456" cy="117" r="8" fill="#C9D1DD"/><circle cx="81" cy="190" r="7" fill="#fff" stroke="#203044" stroke-width="2.5"/><circle cx="172" cy="209" r="7" fill="#fff" stroke="#203044" stroke-width="2.5"/><circle cx="185" cy="120" r="7" fill="#fff" stroke="#203044" stroke-width="2.5"/><circle cx="125" cy="156" r="7" fill="#fff" stroke="#203044" stroke-width="2.5"/><circle cx="165" cy="42" r="7" fill="#fff" stroke="#203044" stroke-width="2.5"/><circle cx="54" cy="163" r="7" fill="#fff" stroke="#203044" stroke-width="2.5"/><circle cx="54" cy="153" r="7" fill="#fff" stroke="#203044" stroke-width="2.5"/><circle cx="87" cy="219" r="7" fill="#fff" stroke="#203044" stroke-width="2.5"/><circle cx="195" cy="186" r="7" fill="#fff" stroke="#203044" stroke-width="2.5"/><circle cx="137" cy="84" r="7" fill="#fff" stroke="#203044" stroke-width="2.5"/></svg>
+      <div class="fx"><span class="tip" tabindex="0" data-tip="∝는 비례한다는 뜻입니다. 두 에이전트 i, j가 연결될 확률이 오른쪽 값에 비례한다는 식입니다. H 값에 따라 성향 차이가 연결 확률에 주는 영향의 크기가 달라집니다. H 값은 원문에 없습니다."><span class="eq">p<sub>ij</sub> ∝ 1 − |P<sub>i</sub> − P<sub>j</sub>|<sup style="color:inherit;font-size:.7em">H</sup></span></span><span>두 에이전트의 정당 성향 차이가 작을수록 연결 확률이 큼. H는 <span class="tip" tabindex="0" data-tip="비슷한 사람끼리 연결되는 경향(homophily). 이 식에서는 H가 그 강도를 조절합니다.">동종선호(호모필리)</span> 파라미터(식 1)</span></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-net"/></svg>팔로우 관계</h4><ol>
+      <li><div><b>팔로우 수</b>에이전트마다 30명을 팔로우함</div></li>
+      <li><div><b>연결 규칙</b>정당 성향이 비슷할수록 연결될 확률이 높음(식 1)</div></li>
+      <li><div><b>쓰임</b>세 피드 가운데 팔로우 피드(13장의 플랫폼 ①)에만 씀. 나머지 두 피드는 팔로우와 관계없이 모든 사용자의 글을 보여 줌</div></li>
+      <li><div><b>의도</b>비슷한 사람끼리 모이는 <span class="tip" tabindex="0" data-tip="에코 체임버(echo chamber)는 정치 성향이 비슷한 사람끼리만 모인 정치 동호회와 비슷합니다. 같은 의견이 되풀이되면서 더 강해지고 반대 의견은 잘 들리지 않습니다. 보통 동호회는 등산 같은 관심사로 모여 회원의 정치 성향이 제각각일 수 있지만 에코 체임버는 의견이 같은 사람끼리 모인 상태입니다. 직접 가입하지 않아도 팔로우와 피드 알고리즘 때문에 생길 수 있습니다. 이 논문의 플랫폼 ①이 이 상태를 흉내 냅니다.">에코 체임버</span>를 흉내 냄(§3)</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>파랑:</i>민주당 성향</span><span><b>2</b><i>흰 원:</i>공화당 성향</span><span><b>3</b><i>회색:</i>무당파</span></div><div class="fr2"><span class="src">출처: Törnberg et al. (2023) §3, 부록 A 식 (1)</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>하루의 진행: 글쓰기에서 순위 갱신까지</h2><span class="sec">시뮬레이션 순서</span></div>
+  <div class="msg">시뮬레이션은 일부 에이전트가 기사를 공유하는 데서 시작합니다.<br>이후 에이전트가 한 명씩 피드를 보고 반응하고 피드 알고리즘은 그 반응을 집계해 다음 사람의 피드 순서를 바꿉니다.</div>
+  <div class="ct"><span>한 플랫폼의 하루 진행 순서</span><span>세 플랫폼 모두 같은 순서, 피드 알고리즘만 다름</span></div>
+  <div class="body "><div class="fl" id="flx"><div class="sbar"><button data-a="next">다음 ▶</button><button data-a="play">자동 재생</button><button data-a="reset">처음으로</button><span class="stl"></span></div>
+      <div class="fl5"><div class="fb" data-k="1"><span class="n">단계 1</span><svg class="ic lg"><use href="#i-users"/></svg><b>글쓴이 뽑기</b><p>소셜 미디어 이용 빈도가 높은 에이전트가 더 자주 뽑힘(<span class="tip" tabindex="0" data-tip="Urn model. 원문은 이용 빈도에 따라 항아리 모형으로 활동할 에이전트를 뽑았다고만 쓰고 구체적인 식은 밝히지 않았습니다. 이용 빈도가 높은 에이전트가 더 자주 뽑히는 방식으로 볼 수 있습니다.">항아리 모형</span>)</p></div><div class="fb" data-k="2"><span class="n">단계 2</span><svg class="ic lg"><use href="#i-news"/></svg><b>기사 골라 공유</b><p>자기가 보는 언론사의 2020년 7월 1일 기사 15건 중 1건을 골라 10~50단어 글로 공유</p></div><div class="fb" data-k="3"><span class="n">단계 3</span><svg class="ic lg"><use href="#i-user"/></svg><b>반응 에이전트 뽑기</b><p>다시 이용 빈도에 따라 한 명을 뽑음</p></div><div class="fb" data-k="4"><span class="n">단계 4</span><svg class="ic lg"><use href="#i-heart"/></svg><b>피드 보고 반응</b><p>피드 알고리즘이 고른 글마다 좋아요 여부를 고르고 글 하나에 댓글을 담</p></div><div class="fb" data-k="5"><span class="n">단계 5</span><svg class="ic lg"><use href="#i-sort"/></svg><b>순위 다시 계산</b><p>피드 알고리즘이 새 좋아요·댓글을 집계해 다음 사람의 피드 순서를 바꿈</p></div></div>
+      <div class="loop"><div><span>단계 3~5 반복</span></div></div>
+      <div class="fi2"><div><b>종료 시점</b> · 에이전트의 30%가 좋아요와 댓글을 남길 때까지. 연구진은 이를 약 하루 분량으로 봄</div><div><b>사용 모델</b> · <span class="tip" tabindex="0" data-tip="OpenAI의 LLM. 연구진은 API로 호출했고 속도 제한 때문에 에이전트 수와 기간을 작게 잡았다고 밝혔습니다.">GPT-3.5</span>. 기사 날짜를 고른 이유와 학습 시점 문제는 25장</div></div></div>
+    <div class="kf st an" style="--d:.15s"><h4><svg class="ic"><use href="#i-clock"/></svg>단계별 설명</h4><ol>
+      <li><div><b>글쓴이</b>모든 에이전트가 글을 쓰지는 않음</div></li>
+      <li><div><b>공유</b>COVID, BLM 시위 등 그날 주요 기사</div></li>
+      <li><div><b>반응자</b>한 번에 한 명씩 차례로</div></li>
+      <li><div><b>반응</b>좋아요·댓글 지시문은 11장</div></li>
+      <li><div><b>순위</b>플랫폼마다 기준이 다름(13장)</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>BLM:</i>Black Lives Matter 시위</span><span><b>2</b><i>newsapi.ai:</i>미국 주요 언론사 기사를 모은 데이터베이스</span></div><div class="fr2"><span class="src">출처: Törnberg et al. (2023) §3A, 부록 A</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>에이전트 지시문 3가지</h2><span class="sec">부록의 프롬프트</span></div>
+  <div class="msg">에이전트는 첫 글, 댓글, 좋아요마다 다른 지시문을 받습니다.<br>댓글 지시문은 강하게 동의하거나 반대하는 글을 고르게 하고 공격적인 표현도 허용합니다.</div>
+  <div class="ct"><span>논문 부록 지시문의 한국어 번역 (노란 글씨는 덱에서 강조)</span><span>파란 테두리: 독설 해석 관련 지시문(24장) · 제목에 마우스를 올리면 영어 원문</span></div>
+  <div class="body full"><div class="pr3 an" style="--d:.05s">
+      <div class="pc"><h5><svg class="ic"><use href="#i-news"/></svg><span class="tip" tabindex="0" data-tip="원문: Here follows a list of headlines from the newspaper: {headlines} Choose exactly one of these headlines to share on your social media feed based on your persona, and write a comment of 10-50 words about that one headline in the style of your personality.">첫 글</span></h5><div class="en">다음은 신문 기사 제목 목록입니다.<br>{기사 목록}<br><br>페르소나에 맞춰 이 제목 가운데 정확히 하나를 골라 소셜 미디어 피드에 공유하세요. 그 제목에 대해 당신의 성격에 맞는 말투로 <em>10~50단어</em>의 글을 쓰세요.</div>
+        <div class="ko">기사 목록에서 페르소나에 맞는 기사 하나를 골라 10~50단어 글을 씀</div></div>
+      <div class="pc on"><h5><svg class="ic"><use href="#i-msg"/></svg><span class="tip" tabindex="0" data-tip="원문: You are using a social media platform, and see the following message threads: {timeline} Choose exactly one of these posts / message threads that your persona is likely to react to emotionally, either because you strongly agree or because your strongly disagree. Engage in natural conversation by writing a response to this message in the style of your personality. You may use sarcasm or irony, swear, criticize, threat, lie, and engage in personal attacks. You can also bring up a related topic that the post made you think of.">댓글</span></h5><div class="en">당신은 소셜 미디어를 이용하고 있고 다음 글 묶음을 보고 있습니다.<br>{타임라인}<br><br>이 가운데 페르소나가 <em>강하게 동의하거나 강하게 반대해</em> 감정적으로 반응할 만한 글이나 글 묶음을 정확히 하나 고르세요. 당신의 성격에 맞는 말투로 답글을 써서 자연스럽게 대화하세요. <em>비꼬거나 반어를 쓰거나 욕하거나 비판하거나 위협하거나 거짓말하거나 인신공격을 해도 됩니다.</em> 그 글을 보고 떠오른 관련 주제를 이야기해도 됩니다.</div>
+        <div class="ko">강하게 동의하거나 반대하는 글 하나에 반드시 댓글을 담. 비꼬기, 욕설, 위협, 인신공격도 허용됨. 단어 수 N은 <span class="tip" tabindex="0" data-tip="로그정규분포. 짧은 글이 많고 긴 글은 드물게 길게 이어지는 모양의 분포입니다. 연구진은 미국 트위터 글 30만 건의 단어 수에 이 분포를 맞추고 댓글마다 단어 수를 뽑았습니다.">트위터 글 길이 분포</span>에서 뽑아 지시문에 넣음</div></div>
+      <div class="pc"><h5><svg class="ic"><use href="#i-heart"/></svg><span class="tip" tabindex="0" data-tip="원문: You are using a social media platform, and see the following messages: {timeline} Based on your persona, decide if you want to react to each message. Your possible actions are 'press like' and 'no action'. Only like messages that you endorse, and that you feel positive about.">좋아요</span></h5><div class="en">당신은 소셜 미디어를 이용하고 있고 다음 글을 보고 있습니다.<br>{타임라인}<br><br>페르소나에 따라 글마다 반응할지 결정하세요. 할 수 있는 행동은 '좋아요 누르기'와 '아무것도 하지 않기'입니다. <em>지지하고 긍정적으로 느끼는 글에만 좋아요를 누르세요.</em></div>
+        <div class="ko">글마다 좋아요 또는 무반응을 고름. 지지하고 긍정적으로 느끼는 글에만 좋아요</div></div></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>{ }:</i>실행 때 채우는 변수</span><span><b>2</b><i>단어 수 N:</i>트위터 글 30만 건에서 추정한 로그정규분포에서 뽑음</span><span><b>3</b><i>번역:</i>덱 작성자. 서식 지시 부분은 원문에서도 생략됨</span></div><div class="fr2"><span class="src">출처: Törnberg et al. (2023) 부록 A의 지시문을 덱에서 번역</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide dv">
+  <div class="dl"><div class="lb an">PART</div><div class="pn an" style="--d:.06s">3</div><h2 class="an" style="--d:.12s">세 플랫폼과<br>측정</h2></div>
+  <div class="dr"><div class="dm an" style="--d:.16s">세 플랫폼은 피드 알고리즘만 다릅니다. 브릿징 알고리즘이 순위를 매기는 방법을 예시로 따라가 본 뒤 독설과 당파 간 상호작용을 측정한 방법, 연구진이 미리 세운 예상을 봅니다.</div><ul class="dpg"><li class="an" style="--d:0.20s"><span>13</span>세 플랫폼: 피드 알고리즘만 다름</li><li class="an" style="--d:0.25s"><span>14</span>브릿징 알고리즘 자세히: 순위 계산</li><li class="an" style="--d:0.30s"><span>15</span>측정 ①: 독설</li><li class="an" style="--d:0.35s"><span>16</span>측정 ②: E-I 지수</li><li class="an" style="--d:0.40s"><span>17</span>연구진의 예상</li></ul></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>세 플랫폼: 피드 알고리즘만 다름</h2><span class="sec">논문 표 1</span></div>
+  <div class="msg">세 플랫폼은 같은 에이전트 500명과 같은 기사 목록을 쓰고 피드 알고리즘만 다릅니다.<br>플랫폼마다 피드에 넣는 글의 범위와 순위 기준이 다르고 그래서 같은 사람도 다른 글을 먼저 봅니다.</div>
+  <div class="ct"><span>같은 글 5개의 플랫폼별 피드 순서</span><span>버튼으로 플랫폼을 바꿀 수 있음 · 좋아요·댓글 수는 설명용 예시</span></div>
+  <div class="body full"><div class="pf" id="pfx"><div class="sbar"><button data-go="1">플랫폼 ①</button><button data-go="2">플랫폼 ②</button><button data-go="3">플랫폼 ③</button><span class="stl" style="display:none"></span></div>
+      <div class="pf3"><div class="pfc" data-p="1"><h5><span class="xb">①</span>팔로우 피드</h5><dl><dt>글 범위</dt><dd>팔로우한 사람의 글만</dd><dt>순위 기준</dt><dd>좋아요 + 댓글 수</dd><dt>설계 의도</dt><dd><span class="tip" tabindex="0" data-tip="에코 체임버(echo chamber)는 정치 성향이 비슷한 사람끼리만 모인 정치 동호회와 비슷합니다. 같은 의견이 되풀이되면서 더 강해지고 반대 의견은 잘 들리지 않습니다. 보통 동호회는 등산 같은 관심사로 모여 회원의 정치 성향이 제각각일 수 있지만 에코 체임버는 의견이 같은 사람끼리 모인 상태입니다. 직접 가입하지 않아도 팔로우와 피드 알고리즘 때문에 생길 수 있습니다. 이 논문의 플랫폼 ①이 이 상태를 흉내 냅니다.">에코 체임버</span> 재현</dd></dl></div><div class="pfc" data-p="2"><h5><span class="xb">②</span>전체 인기 피드</h5><dl><dt>글 범위</dt><dd>모든 사용자의 글</dd><dt>순위 기준</dt><dd>좋아요 + 댓글 수</dd><dt>설계 의도</dt><dd>에코 체임버 해소(노출 확대)</dd></dl></div><div class="pfc" data-p="3"><h5><span class="xb">③</span>브릿징 피드</h5><dl><dt>글 범위</dt><dd>모든 사용자의 글</dd><dt>순위 기준</dt><dd>반대 정당 사용자의 좋아요 수</dd><dt>설계 의도</dt><dd>반대 당도 지지한 글 우선</dd></dl></div></div>
+      <div class="fd"><div class="fdv"><b>피드 이용자 예시</b>민주당 성향 에이전트 1명<br>팔로우: B, D, E (모두 민주당 성향)<br><br>흐린 줄은 이 사람의 피드에 나오지 않는 글입니다. 플랫폼 ②·③은 팔로우와 정당에 관계없이 모든 글을 보여 줍니다. 오른쪽 숫자는 순위 점수이고 마우스를 올리면 계산식이 보입니다.</div><ul class="fdl"><li data-r="0,1,5" data-v="|43|1" data-t="이 사람이 팔로우하지 않은 글쓴이라 플랫폼 ①의 피드에 나오지 않음|순위 점수 43 = 좋아요 31(공화 30 + 민주 1) + 댓글 12. 정당과 관계없이 좋아요와 댓글을 모두 더함|순위 점수 1 = 글쓴이(공화당 성향)와 반대인 민주당 사용자의 좋아요 수. 같은 당 좋아요와 댓글은 넣지 않음"><span class="rn"></span><span class="nm"><i class="pb r">공</i> <b>A</b> 이민 정책 비판<span class="g"></span></span><span>공화 30 · 민주 1 · 댓글 12</span><span class="sc"><span class="tip" tabindex="0" data-tip=""></span></span></li><li data-r="1,2,3" data-v="37|37|2" data-t="순위 점수 37 = 좋아요 27(공화 2 + 민주 25) + 댓글 10. 정당과 관계없이 좋아요와 댓글을 모두 더함. 팔로우한 사람의 글끼리만 순위를 매김|순위 점수 37 = 좋아요 27(공화 2 + 민주 25) + 댓글 10. 정당과 관계없이 좋아요와 댓글을 모두 더함|순위 점수 2 = 글쓴이(민주당 성향)와 반대인 공화당 사용자의 좋아요 수. 같은 당 좋아요와 댓글은 넣지 않음"><span class="rn"></span><span class="nm"><i class="pb d">민</i> <b>B</b> 총기 규제 촉구<span class="g"> · 팔로우함</span></span><span>민주 25 · 공화 2 · 댓글 10</span><span class="sc"><span class="tip" tabindex="0" data-tip=""></span></span></li><li data-r="0,4,1" data-v="|16|9" data-t="이 사람이 팔로우하지 않은 글쓴이라 플랫폼 ①의 피드에 나오지 않음|순위 점수 16 = 좋아요 14(공화 5 + 민주 9) + 댓글 2. 정당과 관계없이 좋아요와 댓글을 모두 더함|순위 점수 9 = 글쓴이(공화당 성향)와 반대인 민주당 사용자의 좋아요 수. 같은 당 좋아요와 댓글은 넣지 않음"><span class="rn"></span><span class="nm"><i class="pb r">공</i> <b>C</b> 컨트리 음악 소식<span class="g"></span></span><span>공화 5 · 민주 9 · 댓글 2</span><span class="sc"><span class="tip" tabindex="0" data-tip=""></span></span></li><li data-r="2,3,2" data-v="21|21|6" data-t="순위 점수 21 = 좋아요 18(공화 6 + 민주 12) + 댓글 3. 정당과 관계없이 좋아요와 댓글을 모두 더함. 팔로우한 사람의 글끼리만 순위를 매김|순위 점수 21 = 좋아요 18(공화 6 + 민주 12) + 댓글 3. 정당과 관계없이 좋아요와 댓글을 모두 더함|순위 점수 6 = 글쓴이(민주당 성향)와 반대인 공화당 사용자의 좋아요 수. 같은 당 좋아요와 댓글은 넣지 않음"><span class="rn"></span><span class="nm"><i class="pb d">민</i> <b>D</b> 지역 축제 안내<span class="g"> · 팔로우함</span></span><span>민주 12 · 공화 6 · 댓글 3</span><span class="sc"><span class="tip" tabindex="0" data-tip=""></span></span></li><li data-r="3,5,4" data-v="9|9|0" data-t="순위 점수 9 = 좋아요 8(공화 0 + 민주 8) + 댓글 1. 정당과 관계없이 좋아요와 댓글을 모두 더함. 팔로우한 사람의 글끼리만 순위를 매김|순위 점수 9 = 좋아요 8(공화 0 + 민주 8) + 댓글 1. 정당과 관계없이 좋아요와 댓글을 모두 더함|순위 점수 0 = 글쓴이(민주당 성향)와 반대인 공화당 사용자의 좋아요 수. 같은 당 좋아요와 댓글은 넣지 않음"><span class="rn"></span><span class="nm"><i class="pb d">민</i> <b>E</b> 선거 토론 후기<span class="g"> · 팔로우함</span></span><span>민주 8 · 공화 0 · 댓글 1</span><span class="sc"><span class="tip" tabindex="0" data-tip=""></span></span></li></ul></div></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>순위 점수 ①·②:</i>좋아요 + 댓글 수</span><span><b>2</b><i>순위 점수 ③:</i>글쓴이와 반대 정당 사용자의 좋아요 수</span></div><div class="fr2"><span class="src">출처: Törnberg et al. (2023) §3, 표 1</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>브릿징 알고리즘 자세히: 순위 계산</h2><span class="sec">플랫폼 ③의 기준</span></div>
+  <div class="msg">브릿징 알고리즘은 글쓴이와 반대 정당 사용자의 좋아요만 집계합니다.<br>같은 당의 좋아요와 댓글은 점수에 넣지 않으므로 알고리즘은 양쪽에서 좋아요를 받은 글을 피드 위쪽에 놓습니다.</div>
+  <div class="ct"><span>글 3개의 순위 재계산 과정</span><span>동그라미 하나 = 좋아요 1개 · 수는 설명용 예시</span></div>
+  <div class="body "><div class="bc" id="bcx"><div class="sbar"><button data-a="next">다음 ▶</button><button data-a="play">자동 재생</button><button data-a="reset">처음으로</button><span class="stl"></span></div><ul class="bcl"><li data-o="0" data-b="3"><span class="rn">1</span><span class="nm"><i class="pb r">공</i> <b>A의 글</b><br><span class="s13 g">이민 정책 비판</span></span><span class="ch"><i class="pb r same">공</i><i class="pb r same">공</i><i class="pb r same">공</i><i class="pb r same">공</i><i class="pb r same">공</i><i class="pb r same">공</i><i class="pb d opp">민</i></span><span class="sc">1</span></li><li data-o="1" data-b="2"><span class="rn">2</span><span class="nm"><i class="pb d">민</i> <b>B의 글</b><br><span class="s13 g">총기 규제 촉구</span></span><span class="ch"><i class="pb d same">민</i><i class="pb d same">민</i><i class="pb d same">민</i><i class="pb d same">민</i><i class="pb d same">민</i><i class="pb r opp">공</i><i class="pb r opp">공</i></span><span class="sc">2</span></li><li data-o="2" data-b="1"><span class="rn">3</span><span class="nm"><i class="pb r">공</i> <b>C의 글</b><br><span class="s13 g">컨트리 음악 소식</span></span><span class="ch"><i class="pb r same">공</i><i class="pb r same">공</i><i class="pb d opp">민</i><i class="pb d opp">민</i><i class="pb d opp">민</i><i class="pb d opp">민</i></span><span class="sc">4</span></li></ul>
+      <div class="base" style="padding:8px 14px"><svg class="ic"><use href="#i-alert"/></svg><div class="s13">무당파 에이전트의 좋아요를 어떻게 집계했는지는 원문에 설명이 없습니다(25장). 플랫폼 ①·②는 같은 글을 좋아요와 댓글 수의 합으로 줄 세웁니다.</div></div></div>
+    <div class="kf st an" style="--d:.15s"><h4><svg class="ic"><use href="#i-bridge"/></svg>계산 순서</h4><ol>
+      <li><div><b>좋아요 확인</b>글마다 좋아요를 누른 사람의 정당을 봄</div></li>
+      <li><div><b>같은 당 제외</b>글쓴이와 같은 정당의 좋아요는 점수에 넣지 않음</div></li>
+      <li><div><b>반대 당 집계</b>글쓴이와 반대 정당의 좋아요만 합산함</div></li>
+      <li><div><b>순서 매기기</b>그 수가 큰 글부터 피드 위에 놓음</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>민·공:</i>좋아요를 누른 사람의 정당</span></div><div class="fr2"><span class="src">출처: Törnberg et al. (2023) §3, 표 1</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>측정 ①: 독설</h2><span class="sec">댓글의 말투 측정</span></div>
+  <div class="msg">연구진은 글에 담긴 독설을 Perspective API로 측정했습니다. API는 글마다 0~1 점수를 매깁니다.<br>독설(toxicity)은 무례하거나 상대를 존중하지 않거나 억지 주장을 하는 말을 뜻합니다.</div>
+  <div class="ct"><span>독설 점수의 눈금과 논문 그림의 댓글 예</span><span>두 댓글의 실제 점수는 원문에 없음</span></div>
+  <div class="body "><div class="tx2 an" style="--d:.05s">
+      <div class="scl"><div class="bar"></div><span class="tt" style="left:0">0 · 독설로 볼 사람이 거의 없음</span><span class="tt" style="right:0">1 · 거의 모두 독설로 봄</span><span class="lb" style="left:0">0</span><span class="lb" style="left:50%">0.5</span><span class="lb" style="left:100%">1</span></div>
+      <div class="ex2">
+        <div class="exc"><div class="h">독설 예시 (그림 3, 플랫폼 ②)</div><div class="en">"Emma, you just don't get it, do you?"</div><div class="ko">상대를 깎아내리는 말투</div></div>
+        <div class="exc"><div class="h">동의 표현 예시 (그림 4, 플랫폼 ③)</div><div class="en">"Karen, couldn't agree more!"</div><div class="ko">상대에게 동의하는 말투</div></div></div>
+      <div class="tfl"><div><svg class="ic lg"><use href="#i-msg"/></svg><b>에이전트의 글·댓글</b><span>플랫폼마다 하루 분량</span></div><i>→</i><div><svg class="ic lg"><use href="#i-cpu"/></svg><b>Perspective API</b><span>글마다 자동 분석</span></div><i>→</i><div><svg class="ic lg"><use href="#i-chart"/></svg><b>글마다 0~1 점수</b><span>독설로 볼 사람 비율 추정</span></div><i>→</i><div><svg class="ic lg"><use href="#i-sort"/></svg><b>플랫폼 값 하나</b><span>집계 방식은 원문에 없음</span></div></div>
+      <div class="base"><svg class="ic lg"><use href="#i-scale"/></svg><div><b>측정 범위</b> · 독설 점수는 말투를 봅니다. 댓글이 건설적이었는지, 실제로 설득이 일어났는지는 측정 대상이 아닙니다. 사람이 직접 평가하는 검증은 후속 연구로 계획되었습니다(§3B).</div></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-alert"/></svg>독설 점수</h4><ol>
+      <li><div><b>정의</b>무례하거나 상대를 존중하지 않거나 억지 주장을 하는 말(p.3)</div></li>
+      <li><div><b>측정 도구</b>Google Jigsaw의 <span class="tip" tabindex="0" data-tip="댓글의 독설 정도(TOXICITY)를 자동으로 점수화하는 공개 도구입니다. 점수는 그 댓글을 독설로 볼 사람의 비율을 모델이 추정한 값입니다(Perspective API 문서).">Perspective API</span></div></li>
+      <li><div><b>점수</b>글마다 0~1. 플랫폼마다 값 하나로 보고하고 집계 방식은 원문에 없음</div></li>
+      <li><div><b>검증</b>사람 평가 없이 자동 분석만 씀</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>독설(toxicity):</i>무례·무시·억지 주장을 담은 말</span><span><b>2</b><i>Jigsaw:</i>Google의 온라인 안전 연구 조직</span></div><div class="fr2"><span class="src">출처: Törnberg et al. (2023) p.3, §3B, 그림 3·4 · Perspective API 문서</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>측정 ②: E-I 지수</h2><span class="sec">당파 간 상호작용</span></div>
+  <div class="msg">당파 간 상호작용은 E-I 지수로 측정했습니다.<br>다른 당파와의 상호작용 수에서 같은 당파 안 상호작용 수를 빼고 둘의 합으로 나눈 값으로 −1~1 사이입니다.</div>
+  <div class="ct"><span>상호작용 20건의 E-I 지수 예시</span><span>버튼으로 예시를 바꿀 수 있음 · 건수는 설명용 예시</span></div>
+  <div class="body "><div class="ei" id="eix"><div class="sbar"><button data-go="1">예 ① 1 : 19</button><button data-go="2">예 ② 5 : 15</button><button data-go="3">예 ③ 10 : 10</button><button data-go="4">예 ④ 13 : 7</button><span class="stl" style="display:none"></span></div>
+      <div class="eib"><i class="e" style="flex:13">E 13</i><i class="i" style="flex:7">I 7</i></div>
+      <div class="eiq">E-I 지수 = (E − I) ÷ (E + I) = <b id="eic">(13 − 7) ÷ 20 = +0.30</b></div>
+      <div class="eax"><div class="ln"></div><i class="tk" style="left:0"></i><i class="tk" style="left:50%"></i><i class="tk" style="left:100%"></i>
+        <span class="lab" style="left:0">−1 같은 당파끼리만</span><span class="lab" style="left:50%">0 반반</span><span class="lab" style="left:100%">+1 다른 당파끼리만</span>
+        <i class="mk" style="left:65%"></i><span class="mv" style="left:65%">+0.30</span></div>
+      <table class="sm eit"><thead><tr><th>예시</th><th>E 다른 당파</th><th>I 같은 당파</th><th>E-I 지수</th><th>해석</th></tr></thead><tbody>
+      <tr data-x="1"><th>①</th><td>1</td><td>19</td><td>−0.90</td><td>거의 같은 당파끼리만 상호작용</td></tr>
+      <tr data-x="2"><th>②</th><td>5</td><td>15</td><td>−0.50</td><td>같은 당파가 3배 많음</td></tr>
+      <tr data-x="3"><th>③</th><td>10</td><td>10</td><td>0.00</td><td>반반</td></tr>
+      <tr data-x="4"><th>④</th><td>13</td><td>7</td><td>+0.30</td><td>다른 당파와 더 많이 상호작용</td></tr></tbody></table></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-net"/></svg>E-I 지수</h4><ol>
+      <li><div><b>E와 I</b>E는 External(다른 당파와의 상호작용), I는 Internal(같은 당파 안 상호작용)</div></li>
+      <li><div><b>부호</b>음수면 같은 당파끼리, 양수면 다른 당파와 더 많이 상호작용함</div></li>
+      <li><div><b>따로 계산</b>댓글과 좋아요의 지수를 각각 구함</div></li>
+      <li><div><b>원문 미보고 항목</b>무당파 에이전트의 상호작용을 E와 I 중 어디에 넣었는지</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>상호작용:</i>댓글 또는 좋아요 1건</span></div><div class="fr2"><span class="src">출처: Törnberg et al. (2023) §3B · Crossley (2015)</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>연구진의 예상</h2><span class="sec">결과를 보기 전에</span></div>
+  <div class="msg">연구진은 결과를 보기 전에 플랫폼마다 예상을 세웠습니다.<br>브릿징 알고리즘을 쓰는 플랫폼 ③에서 당파 간 상호작용이 늘고 독설은 늘지 않을 것으로 예상했습니다.</div>
+  <div class="ct"><span>플랫폼별 예상</span><span>§3의 서술을 표로 정리</span></div>
+  <div class="body "><table class="ex an" style="--d:.05s"><thead><tr><th class="l" style="width:250px">플랫폼</th><th>당파 간 상호작용</th><th>독설</th><th class="l" style="width:330px">연구진의 근거</th></tr></thead><tbody>
+      <tr><th class="l"><span class="xb">①</span>팔로우 피드</th><td class="dn">가장 적음</td><td class="dn">적음</td><td class="l">비슷한 사람끼리는 무례하게 굴 가능성이 낮음</td></tr>
+      <tr><th class="l"><span class="xb">②</span>전체 인기 피드</th><td class="up">늘어남</td><td class="up">늘어남</td><td class="l">모든 참여를 키우면 갈등을 부르는 글도 함께 커짐</td></tr>
+      <tr><th class="l"><span class="xb">③</span>브릿징 피드</th><td class="up">늘어남</td><td class="dn">①·②보다 늘지 않음</td><td class="l">양쪽에서 좋아요를 받은 글이 위로 올라감</td></tr>
+      </tbody></table>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-target"/></svg>예상의 쓰임</h4><ol>
+      <li><div><b>가설의 순서</b>연구진은 결과를 보기 전에 예상을 글로 밝힘(§3)</div></li>
+      <li><div><b>비교 기준</b>①은 고립, ②는 노출 확대의 기준선 역할</div></li>
+      <li><div><b>핵심 비교</b>③이 ②만큼 당파 간 댓글을 늘리면서 ①만큼 정중한지</div></li></ol></div></div>
+  <div class="ft"><div class="fr2"><span class="src">출처: Törnberg et al. (2023) §3</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide dv">
+  <div class="dl"><div class="lb an">PART</div><div class="pn an" style="--d:.06s">4</div><h2 class="an" style="--d:.12s">결과</h2></div>
+  <div class="dr"><div class="dm an" style="--d:.16s">세 플랫폼의 독설 점수와 E-I 지수를 먼저 한 장에서 비교합니다. 이어서 논문에 실린 댓글 스레드로 플랫폼마다 어떤 댓글이 달렸는지 봅니다.</div><ul class="dpg"><li class="an" style="--d:0.20s"><span>19</span>결과 한눈에: 논문 표 2</li><li class="an" style="--d:0.25s"><span>20</span>플랫폼 ①·②: 예상과 일치</li><li class="an" style="--d:0.30s"><span>21</span>플랫폼 ③: 브릿징 알고리즘의 결과</li></ul></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>결과 한눈에: 논문 표 2</h2><span class="sec">세 플랫폼 비교</span></div>
+  <div class="msg">브릿징 알고리즘의 플랫폼 ③은 독설 점수가 0.07로 가장 낮고 당파 간 댓글의 E-I 지수만 양수(+0.33)였습니다.<br>모든 사용자의 인기 글을 보여 준 플랫폼 ②는 독설 점수가 0.13으로 가장 높았습니다.</div>
+  <div class="ct"><span>독설 점수와 E-I 지수 (파랑 = 플랫폼 ③)</span><span>논문 표 2 · 조건마다 한 번 실행</span></div>
+  <div class="body "><div style="display:flex;flex-direction:column;height:100%"><div class="rs3 an" style="--d:.05s">
+      <div class="rc"><h5>독설 점수<span>Perspective API · 낮을수록 정중</span></h5><div class="rcb"><div class="rr"><span class="k">플랫폼 ①</span><div class="rtk"><i class="" style="left:0;width:60.0%"></i></div><span class="vv">0.09</span></div><div class="rr"><span class="k">플랫폼 ②</span><div class="rtk"><i class="" style="left:0;width:86.7%"></i></div><span class="vv">0.13</span></div><div class="rr"><span class="k">플랫폼 ③</span><div class="rtk"><i class="on" style="left:0;width:46.7%"></i></div><span class="vv on">0.07</span></div></div><div class="rax"><span>0</span><span>0.15</span></div></div>
+      <div class="rc"><h5>E-I 지수 · 댓글<span>+면 다른 당파에 단 댓글이 더 많음</span></h5><div class="rcb"><div class="rr"><span class="k">플랫폼 ①</span><div class="rtk"><i class="" style="left:5.5%;width:44.5%"></i><b class="z"></b></div><span class="vv">−0.89</span></div><div class="rr"><span class="k">플랫폼 ②</span><div class="rtk"><i class="" style="left:15.0%;width:35.0%"></i><b class="z"></b></div><span class="vv">−0.70</span></div><div class="rr"><span class="k">플랫폼 ③</span><div class="rtk"><i class="on" style="left:50%;width:16.5%"></i><b class="z"></b></div><span class="vv on">+0.33</span></div></div><div class="rax"><span>−1</span><span>0</span><span>+1</span></div></div>
+      <div class="rc"><h5>E-I 지수 · 좋아요<span>+면 다른 당파에 누른 좋아요가 더 많음</span></h5><div class="rcb"><div class="rr"><span class="k">플랫폼 ①</span><div class="rtk"><i class="" style="left:1.5%;width:48.5%"></i><b class="z"></b></div><span class="vv">−0.97</span></div><div class="rr"><span class="k">플랫폼 ②</span><div class="rtk"><i class="" style="left:11.0%;width:39.0%"></i><b class="z"></b></div><span class="vv">−0.78</span></div><div class="rr"><span class="k">플랫폼 ③</span><div class="rtk"><i class="on" style="left:41.0%;width:9.0%"></i><b class="z"></b></div><span class="vv on">−0.18</span></div></div><div class="rax"><span>−1</span><span>0</span><span>+1</span></div></div></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-chart"/></svg>Key Findings</h4><ol>
+      <li><div><b>플랫폼 ①</b>독설은 적고 다른 당파와의 상호작용은 거의 없음</div></li>
+      <li><div><b>플랫폼 ②</b>당파 간 상호작용이 늘고 독설 점수는 ①보다 약 50% 높음(논문 표현)</div></li>
+      <li><div><b>플랫폼 ③</b>다른 당파에 단 댓글이 더 많고 독설 점수는 가장 낮음. 좋아요는 같은 당파가 조금 더 많음</div></li>
+      <li><div><b>해석 주의</b>한 번 실행한 값이고 통계 검정이 없음(24장)</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>E-I 지수:</i>(다른 당파 − 같은 당파) ÷ 합. 16장</span></div><div class="fr2"><span class="src">출처: Törnberg et al. (2023) §4, 표 2</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>플랫폼 ①·②: 예상과 일치</h2><span class="sec">논문 그림 2·3</span></div>
+  <div class="msg">플랫폼 ①은 같은 당파끼리 댓글을 달아 독설이 적었고 ②는 당파 간 댓글과 독설이 함께 늘었습니다.<br>연구진은 상대 진영 글에 단 화난 반응도 참여로 간주되어 그 글이 더 많이 보였다고 해석했습니다.</div>
+  <div class="ct"><span>논문 수록 댓글 스레드 (한국어 번역, 일부 축약)</span><span>다음 ▶으로 댓글이 차례로 달림 · 이름에 마우스를 올리면 영어 원문</span></div>
+  <div class="body full"><div class="fdx" id="thr20"><div class="sbar"><button data-a="next">다음 ▶</button><button data-a="play">자동 재생</button><button data-a="reset">처음으로</button><span class="stl"></span></div>
+      <div class="fd2"><div class="thr" data-likes="17"><div class="tb"><span><span class="xb" style="background:#fff;color:var(--navy)">①</span>그림 2 · 팔로우 피드</span><span class="lk"><svg class="ic"><use href="#i-heart"/></svg><em style="font-style:normal" class="lkn">17</em></span></div><div class="tbody"><div class="pst"><span class="av">J</span><div><div class="who"><b><span class="tip" tabindex="0" data-tip="원문: Man, this whole debate about painting &#x27;Black Lives Matter&#x27; on Fifth Avenue is getting intense! It&#x27;s crazy how something as simple as a street mural can stir up so much controversy. But hey, everyone&#x27;s entitled to their opinion, right? #FreedomOfSpeech #CommunityUnity">Jamal Thompson</span></b> 님이 NPR 기사를 공유함</div><div class="news"><i>NPR</i>트럼프 "5번가 BLM 벽화는 증오의 상징"</div><p>5번가 벽화 논쟁이 점점 격해지네요. 그래도 다들 자기 의견이 있는 거죠? #FreedomOfSpeech</p></div></div><div class="cm" data-k="2"><span class="av">J</span><div class="bb"><b><span class="tip" tabindex="0" data-tip="원문: Yeah, because painting a slogan on a street is totally going to solve all the problems in this country. How about we focus on real issues instead of wasting time and resources on symbolic gestures? There are more important things to worry about.">John Anderson</span></b><div class="ty"><i></i><i></i><i></i></div><p>그래요, 길에 구호 하나 칠하면 이 나라 문제가 다 풀리겠네요. 진짜 문제에 집중합시다.</p></div></div><div class="cm" data-k="3"><span class="av">E</span><div class="bb"><b><span class="tip" tabindex="0" data-tip="원문: Oh John, it must be nice to live in a world where you think symbolic gestures don&#x27;t matter. Maybe if we start acknowledging and addressing the systemic racism that exists, we can work towards those &quot;real issues&quot; you speak of.">Emily Thompson</span></b><div class="ty"><i></i><i></i><i></i></div><p>John, 상징적인 행동이 중요하지 않다고 여겨도 되는 세상이라 좋겠네요. 구조적 인종차별부터 인정해야 해요.</p></div></div><div class="cm" data-k="4"><span class="av">J</span><div class="bb"><b><span class="tip" tabindex="0" data-tip="원문: Emily, I appreciate your perspective, but let&#x27;s not assume that I don&#x27;t care about addressing racism. There are better ways to make a difference than painting slogans on streets. Let&#x27;s focus on meaningful actions instead of symbolic gestures.">John Anderson</span></b><div class="ty"><i></i><i></i><i></i></div><p>Emily, 관점은 존중해요. 다만 제가 인종차별에 관심이 없다고 단정하지는 맙시다.</p></div></div><div class="cm" data-k="5"><span class="av">R</span><div class="bb"><b><span class="tip" tabindex="0" data-tip="원문: John, let&#x27;s focus on effective change.">Rahul Patel</span></b><div class="ty"><i></i><i></i><i></i></div><p>John, 효과적인 변화에 집중합시다.</p></div></div></div><div class="note" data-s="6">의견은 다르지만 정중한 어조가 이어짐</div></div><div class="thr" data-likes="76"><div class="tb"><span><span class="xb" style="background:#fff;color:var(--navy)">②</span>그림 3 · 전체 인기 피드</span><span class="lk"><svg class="ic"><use href="#i-heart"/></svg><em style="font-style:normal" class="lkn">76</em></span></div><div class="tbody"><div class="pst"><span class="av">E</span><div><div class="who"><b><span class="tip" tabindex="0" data-tip="원문: Seriously, Terry? It&#x27;s disappointing to see someone who claims to support equality and justice for all mock the importance of the Black Lives Matter movement. We need unity, not division. Educate yourself, listen to marginalized voices, and be an ally. #BlackLivesMatter?">Emma Thompson</span></b> 님이 HuffPost 기사를 공유함</div><div class="news"><i>HuffPost</i>Terry Crews, Black Lives Matter 관련 경고성 트윗으로 온라인에서 비판받아</div><p>진심이에요, Terry? 평등을 지지한다면서 BLM을 비웃다니 실망이에요. 공부 좀 하세요.</p></div></div><div class="cm" data-k="2"><span class="av">J</span><div class="bb"><b><span class="tip" tabindex="0" data-tip="원문: Emma, you just don&#x27;t get it, do you? Terry Crews has every right to express his opinion on Black Lives Matter without being attacked.">John Smith</span></b><div class="ty"><i></i><i></i><i></i></div><p>Emma, 정말 모르는군요? Terry Crews도 공격받지 않고 의견을 말할 권리가 있어요.</p></div></div><div class="cm" data-k="3"><span class="av">E</span><div class="bb"><b><span class="tip" tabindex="0" data-tip="원문: Seriously, Emma? Terry Crews can have his own opinions too.">Ethan Anderson</span></b><div class="ty"><i></i><i></i><i></i></div><p>진심이에요, Emma? Terry Crews도 자기 의견을 가질 수 있어요.</p></div></div><div class="cm" data-k="4"><span class="av">E</span><div class="bb"><b><span class="tip" tabindex="0" data-tip="원문: Emma Thompson, you clearly don&#x27;t understand Terry Crews&#x27; tweet. It&#x27;s about unity and dialogue, not division. Educate yourself before jumping to conclusions.">Emily Nguyen</span></b><div class="ty"><i></i><i></i><i></i></div><p>Emma Thompson, Terry Crews의 트윗을 전혀 이해 못 했네요. 결론 내리기 전에 공부 좀 하세요.</p></div></div></div><div class="note" data-s="6">글쓴이를 몰아세우는 댓글이 이어짐 · 화난 댓글도 참여로 간주 → 순위 상승 → 더 많은 노출</div></div></div>
+      </div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>BLM:</i>Black Lives Matter 운동</span><span><b>2</b><i>좋아요 수:</i>그림에 표시된 원글의 좋아요</span><span><b>3</b><i>번역:</i>덱 작성자. 원문은 이름 주석</span></div><div class="fr2"><span class="src">출처: Törnberg et al. (2023) §4, 그림 2·3</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>플랫폼 ③: 브릿징 알고리즘의 결과</h2><span class="sec">논문 그림 4</span></div>
+  <div class="msg">플랫폼 ③에서는 다른 당파에 단 댓글이 같은 당파 안 댓글보다 많았고 독설 점수는 세 플랫폼 중 가장 낮았습니다.<br>연구진은 피드 위쪽에 당파를 넘어 공감받는 주제가 많아졌다고 해석했습니다.</div>
+  <div class="ct"><span>논문 수록 댓글 스레드 (한국어 번역, 일부 축약)</span><span>다음 ▶으로 댓글이 차례로 달림 · 이름에 마우스를 올리면 영어 원문</span></div>
+  <div class="body "><div class="fdx" id="thr21"><div class="sbar"><button data-a="next">다음 ▶</button><button data-a="play">자동 재생</button><button data-a="reset">처음으로</button><span class="stl"></span></div><div class="thr" data-likes="94"><div class="tb"><span><span class="xb" style="background:#fff;color:var(--navy)">③</span>그림 4 · 브릿징 피드</span><span class="lk"><svg class="ic"><use href="#i-heart"/></svg><em style="font-style:normal" class="lkn">94</em></span></div><div class="tbody"><div class="pst"><span class="av">K</span><div><div class="who"><b><span class="tip" tabindex="0" data-tip="원문: Y&#x27;all, I&#x27;m lovin&#x27; this news! Country music finally realizing that love and acceptance are for everyone. So proud of artists like Tanya Tucker leading the way. Let&#x27;s keep spreading the message of inclusivity! #LoveIsLove">Karen Smith</span></b> 님이 Fox News 기사를 공유함</div><div class="news"><i>Fox News</i>Kristin Chenoweth "컨트리 음악계, LGBTQ 포용에 더 열려"</div><p>여러분, 이 소식 정말 좋아요! 컨트리 음악도 드디어 사랑과 포용은 모두를 위한 것임을 알게 됐네요. #LoveIsLove</p></div></div><div class="cm" data-k="2"><span class="av">K</span><div class="bb"><b><span class="tip" tabindex="0" data-tip="원문: Finally, country music is catching up with the times. About time!">Karen Johnson</span></b><div class="ty"><i></i><i></i><i></i></div><p>드디어 컨트리 음악이 시대를 따라잡네요. 이제라도 다행이에요!</p></div></div><div class="cm" data-k="3"><span class="av">A</span><div class="bb"><b><span class="tip" tabindex="0" data-tip="원문: Karen, couldn&#x27;t agree more! It&#x27;s about time country music embraced love and acceptance for everyone. It&#x27;s great to see artists like Tanya Tucker leading the charge. Let&#x27;s keep spreading the message of inclusion and support LGBTQ artists in all genres of music!">Alejandro Rodriguez</span></b><div class="ty"><i></i><i></i><i></i></div><p>Karen, 완전히 동의해요! 모든 장르의 LGBTQ 아티스트를 응원해요!</p></div></div><div class="cm" data-k="4"><span class="av">M</span><div class="bb"><b><span class="tip" tabindex="0" data-tip="원문: On a related note, I recently attended a charity event where Kristin Chenoweth performed. Her talent and charisma were simply outstanding. It&#x27;s great to see artists using their platform to advocate for positive change. Country music has such a rich history, and it&#x27;s exciting to witness its evolution towards a more inclusive and diverse future.">Michael Johnson</span></b><div class="ty"><i></i><i></i><i></i></div><p>그러고 보니 최근 Chenoweth가 공연한 자선 행사에 다녀왔어요. 컨트리 음악이 더 포용적인 미래로 가는 모습이 반가워요.</p></div></div></div><div class="note" data-s="5">보수 성향 언론 기사에 다른 성향 사용자의 공감 댓글</div></div>
+      <div class="base" data-s="5" style="padding:6px 14px"><svg class="ic"><use href="#i-bridge"/></svg><div class="s13">연구진은 피드 상위에 컨트리 음악의 LGBTQ 포용처럼 <b>당파를 넘어 공감받는 주제</b>가 많이 올라왔다고 봤습니다(질적 관찰).</div></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-target"/></svg>플랫폼 ③의 결과</h4><ol>
+      <li><div><b>댓글 E-I +0.33</b>다른 당파에 단 댓글이 같은 당파 안 댓글보다 많음</div></li>
+      <li><div><b>좋아요 E-I −0.18</b>같은 당파 안 좋아요가 조금 더 많음</div></li>
+      <li><div><b>독설 점수 0.07</b>세 플랫폼 중 가장 낮음. 같은 당파끼리 댓글을 단 ①(0.09)보다도 낮음</div></li>
+      <li><div><b>연구진의 평가</b>당파 간 댓글은 독설을 피하기가 더 어려운데도 가장 정중했다는 점에 주목함</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>LGBTQ:</i>성소수자를 아우르는 말</span><span><b>2</b><i>번역:</i>덱 작성자. 원문은 이름 주석</span></div><div class="fr2"><span class="src">출처: Törnberg et al. (2023) §4, 그림 4, 표 2</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide dv">
+  <div class="dl"><div class="lb an">PART</div><div class="pn an" style="--d:.06s">5</div><h2 class="an" style="--d:.12s">해석과<br>한계</h2></div>
+  <div class="dr"><div class="dm an" style="--d:.16s">저자의 한계 서술을 먼저 보고 원문을 대조해 찾은 해석상 주의점과 설계 기록의 문제를 봅니다. 마지막 장에는 재현 설정값을 모았습니다.</div><ul class="dpg"><li class="an" style="--d:0.20s"><span>23</span>저자의 한계 서술</li><li class="an" style="--d:0.25s"><span>24</span>원문 감사 ①: 결과 해석</li><li class="an" style="--d:0.30s"><span>25</span>원문 감사 ②: 설계 기록</li><li class="an" style="--d:0.35s"><span>26</span>부록 · 재현 설정값</li></ul></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>저자의 한계 서술</h2><span class="sec">논문 §5</span></div>
+  <div class="msg">저자들은 이 결과를 예비 결과로 보고 앞으로 검증할 점을 직접 적었습니다.<br>사람 평가가 없는 점, 작은 규모와 짧은 기간, LLM 에이전트를 실제 사람에 맞추는 보정 문제가 대표적입니다.</div>
+  <div class="ct"><span>저자 서술 한계 6가지</span><span>파란 선: 결과 해석에 직접 관련</span></div>
+  <div class="body full"><div class="ck"><div class="on an"><svg class="ic lg"><use href="#i-search"/></svg><div><b>사람 평가 없음</b><p>자동 분석(Perspective API)만 씀. 사람 평가자로 현실성과 글의 질을 검증하는 작업은 계획 단계</p></div></div><div class="an"><svg class="ic lg"><use href="#i-users"/></svg><div><b>규모와 기간</b><p>에이전트 500명, 약 하루. API 속도 제한과 계산 자원 때문이라고 밝힘</p></div></div><div class="on an"><svg class="ic lg"><use href="#i-scale"/></svg><div><b>보정 문제</b><p>LLM은 학습 자료에 적게 나온 집단을 잘 흉내 내지 못하고 실제 사용자보다 정중하게 쓰는 경향이 있음</p></div></div><div class="an"><svg class="ic lg"><use href="#i-repeat"/></svg><div><b>재현성</b><p>상용 모델의 학습 과정이 공개되지 않았고 출력이 확률적이라 같은 지시문으로도 결과가 달라질 수 있음</p></div></div><div class="an"><svg class="ic lg"><use href="#i-user"/></svg><div><b>미반영 행동</b><p>태도 변화, 관계 변화, 알고리즘에 맞춰 글을 바꾸는 행동은 모형에 넣지 않음</p></div></div><div class="an"><svg class="ic lg"><use href="#i-clock"/></svg><div><b>과거 자료 학습의 한계</b><p>LLM은 과거 자료로 학습하므로 최신 사건에 대한 반응에 한계가 있음</p></div></div></div></div>
+  <div class="ft"><div class="fr2"><span class="src">출처: Törnberg et al. (2023) §3B, §5</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>원문 감사 ①: 결과 해석</h2><span class="sec">덱의 검토 결과</span></div>
+  <div class="msg">플랫폼 ③의 결과를 해석할 때는 설계 때문에 생기는 차이와 실행마다 생기는 우연 변동을 구분해야 합니다.<br>좋아요 E-I 개선은 순위 기준과 이어져 있고 표 2의 값은 한 번 실행한 결과로 보입니다.</div>
+  <div class="ct"><span>결과 해석의 주의점 3가지</span><span>원문 대조: 덱 작성자 · Gemini 교차 검토(2026-11-13)</span></div>
+  <div class="body full"><div class="au3">
+      <div class="au an" style="--d:.05s"><h5><svg class="ic"><use href="#i-bridge"/></svg>좋아요 E-I와 순위 기준</h5>
+        <div class="lp"><span>알고리즘이 반대 당 좋아요를 받은 글을 위에 놓음</span><i>↓</i><span>더 많은 반대 당 사용자가 그 글을 봄</span><i>↓</i><span>반대 당 좋아요가 더 늘어남</span></div>
+        <p>플랫폼 ③의 좋아요 E-I 개선 가운데 일부는 순위 기준 때문에 생겼을 수 있습니다.</p>
+        <div class="bt">댓글 E-I(+0.33)는 순위 기준에 들어가지 않아 별도로 볼 근거가 됨</div></div>
+      <div class="au an" style="--d:.12s"><h5><svg class="ic"><use href="#i-msg"/></svg>지시문의 영향</h5>
+        <p>댓글 지시문은 강하게 동의하거나 반대하는 글 하나에 반드시 댓글을 달게 하고 욕설·위협·인신공격을 허용합니다(11장).</p>
+        <p>그래서 독설 점수의 절대 수준은 지시문에 따라 달라질 수 있습니다.</p>
+        <div class="bt">세 플랫폼이 같은 지시문을 쓰므로 플랫폼 사이의 비교에는 같은 조건이 적용됨</div></div>
+      <div class="au an" style="--d:.19s"><h5><svg class="ic"><use href="#i-repeat"/></svg>한 번 실행, 검정 없음</h5>
+        <p>표 2에는 분산, 신뢰구간, 통계 검정이 없습니다. 0.07과 0.09의 차이가 실행마다 바뀌는 범위 안에 있는지 알 수 없습니다.</p>
+        <p>LLM 출력은 확률적이라 같은 설정에서도 실행마다 결과가 다릅니다.</p>
+        <div class="bt">저자도 여러 번 실행해 안정성을 확인할 필요가 있다고 씀(§5)</div></div></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>신뢰구간:</i>반복 실행했을 때 값이 놓일 범위의 추정</span></div><div class="fr2"><span class="src">출처: Törnberg et al. (2023) §3, §4, §5, 표 2, 부록 지시문</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>원문 감사 ②: 설계 기록</h2><span class="sec">재현 전 확인 사항</span></div>
+  <div class="msg">재현하려면 원문의 설계 기록에서 맞지 않거나 빠진 부분을 먼저 확인해야 합니다.<br>GPT-3.5의 학습 시점 설명, 식 (1)의 값 범위, 무당파 처리, 보고되지 않은 설정값이 해당합니다.</div>
+  <div class="ct"><span>원문의 설계 기록 대조</span><span>원문 대조: 덱 작성자 · Gemini 교차 검토(2026-11-13)</span></div>
+  <div class="body full"><table class="sm an" style="--d:.05s"><thead><tr><th style="width:150px">항목</th><th style="width:290px">원문</th><th style="width:370px">확인 결과</th><th>영향</th></tr></thead><tbody>
+      <tr><th>GPT-3.5 학습 시점</th><td>2020년 7월 1일이 GPT-3.5 학습 자료가 끝난 직후라고 씀(§3A)</td><td>OpenAI 문서의 gpt-3.5-turbo 학습 자료 기준일은 2021년 9월</td><td>모델이 그날 이후의 사건을 알고 반응했을 수 있음</td></tr>
+      <tr><th>식 (1)</th><td>연결 확률 ∝ 1 − |P<sub>i</sub> − P<sub>j</sub>|<sup style="color:inherit">H</sup>, P<sub>i</sub>는 −1~1(부록 A)</td><td>확률은 0보다 작을 수 없는데 성향 차이가 1을 넘으면 식의 값이 음수가 됨. 차이를 2로 나누는 정규화가 빠졌을 수 있음</td><td>H 값도 보고되지 않아 팔로우 관계를 똑같이 만들 수 없음</td></tr>
+      <tr><th>무당파 처리</th><td>에이전트 대다수가 정당과 무관함(p.4)</td><td>플랫폼 ③의 "반대 정당 좋아요"와 E-I 지수에서 처리 방식 설명 없음</td><td>처리 방식에 따라 E-I 지수 값이 달라질 수 있음</td></tr>
+      <tr><th>정당 성향 변환</th><td>온도 차이를 −1~1 값으로 나타냄(부록 A)</td><td>변환식과 강한 지지자의 기준값 없음</td><td>페르소나 문장과 팔로우 관계에 영향</td></tr>
+      <tr><th>미보고 값</th><td>표 2와 본문</td><td>첫 단계의 글쓴이 수, 피드에 한 번에 보이는 글 수, 독설 점수 집계 방식, "트위터 평균과 비슷"의 비교값</td><td>재현하는 사람이 직접 정해야 함</td></tr>
+      <tr><th>코드와 사람 평가</th><td>곧 공개하고 사람 평가로 검증할 예정(§3B, §5)</td><td>원고 시점에는 둘 다 공개되지 않음</td><td>결과를 독립적으로 확인할 자료가 없음</td></tr>
+      </tbody></table></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>gpt-3.5-turbo:</i>OpenAI 모델 문서 기준</span></div><div class="fr2"><span class="src">출처: Törnberg et al. (2023) §2, §3, §5, 부록 A · OpenAI GPT-3.5 Turbo 모델 문서</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>부록 · 재현 설정값</h2><span class="sec">논문 값과 재현 작업</span></div>
+  <div class="msg">연구진이 보고한 값은 그대로 쓰고 보고하지 않은 값은 기준을 정해 기록해야 합니다.<br>저자도 다른 모델이나 같은 모델로 다시 실행하면 결과가 크게 달라질 수 있다고 밝혔습니다.</div>
+  <div class="ct"><span>재현 설정</span><span>논문 미보고 항목은 재현 작업 열에 기준 정리</span></div>
+  <div class="body full"><table class="sm an" style="--d:.05s"><thead><tr><th style="width:150px">항목</th><th style="width:470px">논문 값</th><th>재현 작업</th></tr></thead><tbody>
+      <tr><th>에이전트</th><td>ANES 2020 트위터 이용자 500명. 세 플랫폼에 같은 페르소나</td><td>ANES 변수와 페르소나 문장의 대응표를 직접 만들기</td></tr>
+      <tr><th>페르소나 보충</th><td>GPT에 이름·취미·성격을 덧붙이게 하는 지시문(부록 A)</td><td>지시문은 그대로 쓰고 생성 결과를 저장해 고정하기</td></tr>
+      <tr><th>팔로우 관계</th><td>각 30명, 식 (1)의 동종선호(호모필리)</td><td>H 값과 정규화 방식을 정해 기록하기</td></tr>
+      <tr><th>기사</th><td>2020-07-01 newsapi.ai. 에이전트마다 이용 언론사의 기사 15건(제목 + 100단어 요약)</td><td>ANES 이용 언론사와 newsapi.ai 출처를 맞추는 규칙 정하기</td></tr>
+      <tr><th>글 길이</th><td>첫 글 10~50단어. 댓글은 로그정규분포(shape 0.8066, location 0.2178, scale 10.69)</td><td>분포에서 뽑은 단어 수를 지시문에 넣기</td></tr>
+      <tr><th>추출과 종료</th><td>이용 빈도에 따른 항아리 모형. 에이전트 30%가 활동하면 종료</td><td>항아리 모형의 구체적인 식과 첫 단계 글쓴이 수 정하기</td></tr>
+      <tr><th>모델</th><td>GPT-3.5 (OpenAI API)</td><td>모델 버전, temperature 등 호출 설정을 기록하기</td></tr>
+      <tr><th>측정</th><td>Perspective API 독설 점수(TOXICITY), E-I 지수(댓글·좋아요)</td><td>집계 방식과 무당파 처리 방식 정하기</td></tr>
+      <tr><th>반복</th><td>보고 없음</td><td>시드나 실행을 바꿔 여러 번 돌리고 분포를 보고하기</td></tr>
+      </tbody></table></div>
+  <div class="ft"><div class="fr2"><span class="src">출처: Törnberg et al. (2023) §3, §5, 부록 A</span><span class="no"></span></div></div>
+</section>
+
+</div>
+<script>window.PART_NAMES=["왜, 무엇을 위해","시뮬레이션 세계","세 플랫폼과 측정","결과","해석과 한계"];</script>
+<div id="nav"><div class="grp"><button id="prev" aria-label="이전 장">‹</button><span id="pg">1 / 1</span><button id="next" aria-label="다음 장">›</button></div></div>
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll(".slide"));
+  slides.forEach(function(s,k){var n=s.querySelector(".ft .no");if(n)n.textContent=String(k+1).padStart(2,"0");
+    var bg=s.querySelector(".hd .no-big");if(bg)bg.textContent=String(k+1).padStart(2,"0");});
+  var cur=0;
+  try{var h=parseInt(location.hash.slice(1),10);if(h>0&&h<=slides.length)cur=h-1;}catch(e){}
+  function fit(){var d=document.getElementById("deck"),s=Math.min((d.clientWidth-24)/1280,(d.clientHeight-16)/720);if(!(s>0))s=.5;
+    slides.forEach(function(x){x.style.transform="translate(-50%,-50%) scale("+s+")";});}
+  function show(n){cur=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach(function(x,k){x.classList.toggle("active",k===cur);});
+    document.getElementById("pg").textContent=(cur+1)+" / "+slides.length;
+    try{history.replaceState(null,"","#"+(cur+1));}catch(e){}}
+  document.addEventListener("keydown",function(e){
+    if(["ArrowRight","PageDown"," "].indexOf(e.key)>=0){e.preventDefault();show(cur+1);}
+    else if(["ArrowLeft","PageUp"].indexOf(e.key)>=0){e.preventDefault();show(cur-1);}
+    else if(e.key==="Home")show(0);else if(e.key==="End")show(slides.length-1);});
+  document.getElementById("prev").onclick=function(){show(cur-1);};
+  document.getElementById("next").onclick=function(){show(cur+1);};
+  window.addEventListener("hashchange",function(){var h=parseInt(location.hash.slice(1),10);if(h>0&&h<=slides.length&&h-1!==cur)show(h-1);});
+  window.addEventListener("resize",fit);
+  if(window.ResizeObserver)new ResizeObserver(fit).observe(document.getElementById("deck"));
+  fit();show(cur);
+  var PN=window.PART_NAMES||[],part=0,groups={};
+  slides.forEach(function(x){if(x.classList.contains("dv"))part++;else if(part&&x.querySelector(".hd")){(groups[part]=groups[part]||[]).push(x);}});
+  Object.keys(groups).forEach(function(pt){var g=groups[pt];g.forEach(function(x,k){
+    var d=document.createElement("div");d.className="pp5";var bars="";
+    for(var i=0;i<g.length;i++)bars+="<i class=\""+(i<k?"pv":(i===k?"on":""))+"\"></i>";
+    d.innerHTML="<b>"+pt+"부 "+PN[pt-1]+"</b><span>"+bars+"</span>"+(k+1)+"/"+g.length;
+    x.querySelector(".hd").appendChild(d);});});
+})();
+function mkStep(root,N,apply,init){
+  var slide=root.closest(".slide"),lab=root.querySelector(".stl"),lis=slide.querySelectorAll(".kf.st li"),step=1,timer=null;
+  function show(anim){if(!anim)root.classList.add("noanim");root.dataset.step=step;
+    slide.querySelectorAll("[data-s]").forEach(function(e){e.classList.toggle("act",step>=+e.dataset.s);});
+    lis.forEach(function(l,k){l.classList.toggle("cur",k===step-1);});if(lab)lab.textContent=step+" / "+N;
+    root.querySelectorAll(".sbar button[data-go]").forEach(function(b){b.classList.toggle("pr",+b.dataset.go===step);});
+    if(apply)apply(step,anim);if(!anim){void root.offsetWidth;root.classList.remove("noanim");}}
+  function stop(){if(timer){clearInterval(timer);timer=null;}}
+  function reset(){stop();step=init||1;show(false);}
+  function next(){if(step>=N)return false;step++;show(true);return true;}
+  root.querySelectorAll(".sbar button").forEach(function(b){b.addEventListener("click",function(){var a=b.dataset.a;b.blur();
+    if(b.dataset.go){stop();step=+b.dataset.go;show(true);return;}
+    if(a==="next"){stop();next();}else if(a==="reset")reset();
+    else{if(step>=N)reset();stop();next();timer=setInterval(function(){if(!next())stop();},2300);}});});
+  var was=false;new MutationObserver(function(){var now=slide.classList.contains("active");if(now&&!was)reset();was=now;}).observe(slide,{attributes:true,attributeFilter:["class"]});
+  window.addEventListener("beforeprint",function(){stop();step=N;show(false);});
+  window.addEventListener("afterprint",reset);
+  reset();
+}
+</script>
+<script>
+(function(){
+  var p=document.getElementById("psx");if(p)mkStep(p,4);
+  var t=document.getElementById("thx");
+  if(t){var E=[[90,10,"(90 − 10) ÷ 100 = 0.80",0.80,"You are a strong Democrat."],[55,50,"(55 − 50) ÷ 100 = 0.05",0.05,"You prefer neither party."],[15,80,"(15 − 80) ÷ 100 = −0.65",-0.65,"You are a strong Republican."]];
+    mkStep(t,3,function(st){var e=E[st-1],b=t.querySelectorAll(".tr i"),v=t.querySelectorAll(".tbar .v");
+      b[0].style.width=e[0]+"%";b[1].style.width=e[1]+"%";v[0].textContent=e[0];v[1].textContent=e[1];
+      document.getElementById("thc").textContent=e[2];var x=(e[3]+1)/2*100;
+      t.querySelector(".mk").style.left=x+"%";var mv=t.querySelector(".mv");mv.style.left=x+"%";mv.textContent=(e[3]>0?"+":"")+e[3].toFixed(2);
+      document.getElementById("ths").textContent=e[4];});}
+  var f=document.getElementById("flx");
+  if(f)mkStep(f,5,function(st){f.querySelectorAll(".fb").forEach(function(b){b.classList.toggle("cur",+b.dataset.k===st);});});
+  var q=document.getElementById("pfx");
+  if(q)mkStep(q,3,function(st){q.querySelectorAll(".pfc").forEach(function(c){c.classList.toggle("on",+c.dataset.p===st);});
+    var ul=q.querySelector(".fdl"),li=[].slice.call(ul.children);
+    li.forEach(function(l){var r=+l.dataset.r.split(",")[st-1],v=l.dataset.v.split("|")[st-1];l.classList.toggle("off",r===0);
+      l.querySelector(".rn").textContent=r||"–";var tp=l.querySelector(".sc .tip");tp.textContent=v||"–";tp.dataset.tip=l.dataset.t.split("|")[st-1];l.style.order=r||9;});
+    ul.style.display="flex";});
+  var b=document.getElementById("bcx");
+  if(b)mkStep(b,4,function(st){b.querySelectorAll(".bcl li").forEach(function(l){var o=st>=4?+l.dataset.b:+l.dataset.o+1;l.style.order=o;l.querySelector(".rn").textContent=o;});});
+  var e=document.getElementById("eix");
+  if(e){var X=[[1,19],[5,15],[10,10],[13,7]];
+    mkStep(e,4,function(st){var a=X[st-1],v=(a[0]-a[1])/(a[0]+a[1]),ii=e.querySelectorAll(".eib i");
+      ii[0].style.flex=a[0];ii[0].textContent="E "+a[0];ii[1].style.flex=a[1];ii[1].textContent="I "+a[1];
+      var s=(v>0?"+":(v<0?"−":""))+Math.abs(v).toFixed(2);
+      document.getElementById("eic").textContent="("+a[0]+" − "+a[1]+") ÷ 20 = "+s;
+      var x=(v+1)/2*100;e.querySelector(".mk").style.left=x+"%";var mv=e.querySelector(".mv");mv.style.left=x+"%";mv.textContent=s;
+      e.querySelectorAll(".eit tr[data-x]").forEach(function(r){r.classList.toggle("cur",+r.dataset.x===st);});});}
+})();
+(function(){
+  [["thr20",6],["thr21",5]].forEach(function(x){var r=document.getElementById(x[0]);if(!r)return;var N=x[1],last=0;
+    mkStep(r,N,function(st,anim){
+      r.querySelectorAll(".cm").forEach(function(c){var k=+c.dataset.k,on=k<=st;c.classList.toggle("on",on);c.classList.remove("typing");
+        if(anim&&on&&k===st&&st>last){c.classList.add("typing");setTimeout(function(){c.classList.remove("typing");},700);}});
+      r.querySelectorAll(".thr").forEach(function(t){var L=+t.dataset.likes;t.querySelector(".lkn").textContent=Math.round(L*Math.min(1,st/N));});
+      last=st;});});
+})();
+
+</script>
+<div id="tipbox" role="tooltip"></div>
+<script>(function(){var box=document.getElementById("tipbox");
+  function show(t){box.textContent=t.dataset.tip;box.style.display="block";var r=t.getBoundingClientRect(),w=box.offsetWidth,h=box.offsetHeight;
+    var x=Math.min(Math.max(8,r.left),window.innerWidth-w-8),y=r.bottom+8;if(y+h>window.innerHeight-8)y=r.top-h-8;
+    box.style.left=x+"px";box.style.top=y+"px";}
+  document.addEventListener("mouseover",function(e){var t=e.target.closest(".tip");if(t)show(t);});
+  document.addEventListener("mouseout",function(e){if(e.target.closest(".tip"))box.style.display="none";});
+  document.addEventListener("focusin",function(e){var t=e.target.closest(".tip");if(t)show(t);});
+  document.addEventListener("focusout",function(e){if(e.target.closest(".tip"))box.style.display="none";});
+  document.addEventListener("click",function(e){var t=e.target.closest(".tip");if(t)show(t);else box.style.display="none";});
+})();</script>
+</body></html>
