@@ -1,6 +1,7 @@
 // PPTX 내보내기 (파랑이 deck.html, 노랑이 story.html 공통)
 // 사용: node src/export_pptx.js <키> [deck|story]   (생략하면 있는 것 모두. 또는 npm run export -- <키>)
-//  - 파랑이: 슬라이드마다 1280×720을 1.5배로 캡처(1920×1080) → output/<키>/deck.pptx. 노트 = 장 제목 + 2줄 메시지
+//  - 파랑이: 슬라이드마다 1280×720을 1.5배로 캡처(1920×1080) → output/<키>/deck.pptx. 노트 = papers/<키>/script.md의 "## 번호" 절(없으면 장 제목 + 2줄 메시지)
+//    meta.json에 "file":"이름"이 있으면 output/<키>/이름.pptx 로 저장하고 deck.html도 이름.html 로 복사
 //    템플릿은 건드리지 않고, 캡처용 임시 사본(output/<키>/export/_deck_shot.html)에만 "한 장 꽉 차게" 스타일을 덧붙임
 //  - 노랑이: 표지와 단계마다 1600×900 캡처(?shot=번호) → output/<키>/story.pptx. 노트 = 숫자가 채워진 단계 글
 //    끝나면 build.js를 다시 실행해 페이지 상단에 "PPTX 받기" 버튼을 붙임
@@ -11,6 +12,7 @@ const {paper}=require('./paths');
 const PptxGenJS=require('pptxgenjs');
 let P;try{P=paper(process.argv[2]);}catch(e){console.error('usage: node src/export_pptx.js <키> [deck|story]');process.exit(1);}
 const only=process.argv[3],ROOT=P.root,abs=P.output,rel=path.relative(ROOT,abs).split(path.sep).join('/');
+const metaP=path.join(P.work,'meta.json'),META=fs.existsSync(metaP)?JSON.parse(fs.readFileSync(metaP,'utf8')):{};
 const CANDIDATES=['/mnt/c/Program Files/Google/Chrome/Application/chrome.exe','/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe',
   '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe','/mnt/c/Program Files/Microsoft/Edge/Application/msedge.exe',
   '/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium','/usr/bin/chromium-browser'];
@@ -45,11 +47,18 @@ async function deck(port,shotDir){
   fs.writeFileSync(path.join(shotDir,'_deck_shot.html'),src.replace('</head>',css+'</head>'));
   const secs=[...src.matchAll(/<section class="slide[^"]*">([\s\S]*?)<\/section>/g)].map(m=>m[1]);
   const notes=secs.map(b=>{const t=(b.match(/<h[12][^>]*>([\s\S]*?)<\/h[12]>/)||[])[1]||'',m=(b.match(/<div class="(?:msg|dm[^"]*)"[^>]*>([\s\S]*?)<\/div>/)||[])[1]||'';return strip(t)+(m?'\n'+strip(m):'');});
+  // 발표 스크립트(papers/<키>/script.md의 "## 번호" 절)가 있으면 그 장의 노트로 씀
+  const sp=path.join(P.work,'script.md'),script={};
+  if(fs.existsSync(sp))fs.readFileSync(sp,'utf8').split(/^## +(\d+)[^\n]*\n/m).forEach((t,i,a)=>{if(i%2)script[+t]=a[i+1].trim();});
+  const nS=Object.keys(script).length;if(nS&&nS!==secs.length)console.warn('주의: script.md는 '+nS+'장, 덱은 '+secs.length+'장입니다. 없는 장은 제목과 메시지를 노트로 씁니다.');
   const out=[];
   for(let i=0;i<secs.length;i++){const f=path.join(shotDir,'d'+String(i+1).padStart(2,'0')+'.png');
-    await shoot('http://localhost:'+port+'/'+rel+'/export/_deck_shot.html#'+(i+1),f,1280,720,1.5);out.push({img:f,note:notes[i]});process.stdout.write('\r파랑이 캡처 '+(i+1)+'/'+secs.length);}
+    await shoot('http://localhost:'+port+'/'+rel+'/export/_deck_shot.html#'+(i+1),f,1280,720,1.5);out.push({img:f,note:script[i+1]||notes[i]});process.stdout.write('\r파랑이 캡처 '+(i+1)+'/'+secs.length);}
   const title=(src.match(/<title>([^<]*)<\/title>/)||[])[1]||P.key;
-  await save(out,title,path.join(abs,'deck.pptx'));
+  // meta.json의 file(예: "ABM_Hou")이 있으면 그 이름으로 PPTX와 HTML 사본을 만듦
+  const name=META.file||'deck';
+  await save(out,title,path.join(abs,name+'.pptx'));
+  if(META.file){fs.copyFileSync(path.join(abs,'deck.html'),path.join(abs,name+'.html'));console.log('저장:',path.relative(ROOT,path.join(abs,name+'.html')));}
 }
 async function story(port,shotDir){
   const base='http://localhost:'+port+'/'+rel+'/story.html';

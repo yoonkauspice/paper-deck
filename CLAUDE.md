@@ -31,7 +31,7 @@
 - `node src/pdf_figure.js <키> <쪽> <이름> --crop x0,y0,x1,y1 [--dpi 200]`: 그림만 잘라 `input/<키>/figures/<이름>.png`(쪽 대비 0~1 비율). 기록이 `papers/<키>/figures.txt`에 남고, 다른 PC에서는 `node src/pdf_figure.js <키> --all`로 다시 만든다. HTML에서는 `{{IMG:<이름>.png}}`
 - `node src/build.js <키>`: `output/<키>/deck.html`·`story.html`. `{{IMG:}}`는 `papers/<키>/assets` → `input/<키>/figures` 순서, `{{JSON:}}`은 `papers/<키>` → `output/<키>` 순서로 찾는다
 - `node src/check_numbers.js <키> [deck|story]`: 쓴 숫자를 원문(`input/<키>/extract/full.txt`), 추가 자료(`input/<키>/sources/`), 실험 결과(`output/<키>/results.json`)와 대조 → `output/<키>/04_numbers.md`. 계산한 값은 `papers/<키>/numbers_ok.txt`에 `값<TAB>이유`
-- `node src/export_pptx.js <키> [deck|story]`: 파랑이 `deck.pptx`(1920×1080), 노랑이 `story.pptx`(1600×900). 슬라이드는 화면 캡처 이미지, 노트는 글(편집 불가 이미지라는 점을 사용자에게 알림). 크롬 경로는 `.env`의 `CHROME`(없으면 자동 탐색)
+- `node src/export_pptx.js <키> [deck|story]`: 파랑이 `deck.pptx`(1920×1080), 노랑이 `story.pptx`(1600×900). 슬라이드는 화면 캡처 이미지, 노트는 글(편집 불가 이미지라는 점을 사용자에게 알림). 파랑이 노트는 `papers/<키>/script.md`의 `## 번호` 절(발표 스크립트, 없으면 제목+메시지). `meta.json`에 `"file":"이름"`이 있으면 `이름.pptx`로 저장하고 `deck.html`을 `이름.html`로 복사. 크롬 경로는 `.env`의 `CHROME`(없으면 자동 탐색)
 - `node src/deliver.js <키>`: 최종본을 `deliver/<키>/`로 복사(웹 세션에서 커밋해 받아 가기용)
 - `npm test`: 회귀 시험(시험용·예시 논문 빌드, 템플릿 문법 확인)
 

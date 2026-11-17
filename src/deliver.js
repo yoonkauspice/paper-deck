@@ -6,7 +6,8 @@ const fs=require('fs'),path=require('path');
 const {paper}=require('./paths');
 let P;try{P=paper(process.argv[2]);}catch(e){console.error('usage: node src/deliver.js <키>');process.exit(1);}
 const dst=path.join(P.root,'deliver',P.key);fs.mkdirSync(dst,{recursive:true});
-const files=['deck.html','story.html','deck.pptx','story.pptx','04_numbers.md'].filter(f=>fs.existsSync(path.join(P.output,f)));
+const mp=path.join(P.work,'meta.json'),nm=fs.existsSync(mp)?JSON.parse(fs.readFileSync(mp,'utf8')).file:'';  // meta.json의 file 이름(있으면)
+const files=['deck.html','story.html','deck.pptx','story.pptx','04_numbers.md'].concat(nm?[nm+'.html',nm+'.pptx']:[]).filter(f=>fs.existsSync(path.join(P.output,f)));
 if(!files.length){console.error('output/'+P.key+'/ 에 결과물이 없습니다. 먼저 node src/build.js '+P.key);process.exit(1);}
 let total=0;for(const f of files){fs.copyFileSync(path.join(P.output,f),path.join(dst,f));total+=fs.statSync(path.join(dst,f)).size;}
 console.log('deliver/'+P.key+'/ 에 복사: '+files.join(', ')+' ('+(total/1048576).toFixed(1)+'MB)');
