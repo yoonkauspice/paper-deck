@@ -1,0 +1,79 @@
+<section class="slide cover">
+  <div class="cv-l">
+    <div class="kick an">논문 이해 노트 · LLM 사회 시뮬레이션</div>
+    <h1 class="an" style="--d:.08s">생성형 에이전트 사회로<br>백신 정책 실험하기</h1>
+    <div class="en an" style="--d:.16s">Hou, Du, Wang, Zhang, Wang, Liang, Khashabi, Gardner, He (2025)<i>Can A Society of Generative Agents Simulate Human Behavior and Inform Public Health Policy? A Case Study on Vaccine Hesitancy · COLM 2025 · arXiv 2503.09639</i></div>
+    <div class="rule an" style="--d:.24s"></div>
+    <div class="who an" style="--d:.3s">2026. 11</div>
+  </div>
+  <div class="cv-r">
+    <div class="lb an" style="--d:.2s">문제에서 원문 감사까지</div>
+    <div class="big an" style="--d:.26s"><em>5</em>부 구성</div>
+    <ul>
+      <li class="an" style="--d:.34s"><svg class="ic lg"><use href="#i-target"/></svg>왜, 무엇을 위해<span>03–05</span></li>
+      <li class="an" style="--d:.4s"><svg class="ic lg"><use href="#i-users"/></svg>VacSim 구조<span>07–11</span></li>
+      <li class="an" style="--d:.46s"><svg class="ic lg"><use href="#i-sort"/></svg>평가: 어떤 LLM이 쓸 만한가<span>13–17</span></li>
+      <li class="an" style="--d:.52s"><svg class="ic lg"><use href="#i-msg"/></svg>에이전트의 목소리<span>19–20</span></li>
+      <li class="an" style="--d:.58s"><svg class="ic lg"><use href="#i-search"/></svg>해석과 감사<span>22–24</span></li>
+    </ul>
+  </div>
+  <div class="ft"><div class="fr2"><span></span><span class="no" style="color:#AFC0DA"></span></div></div>
+</section>
+
+<section class="slide dv">
+  <div class="dl"><div class="lb an">PART</div><div class="pn an" style="--d:.06s">1</div><h2 class="an" style="--d:.12s">왜, 무엇을<br>위해</h2></div>
+  <div class="dr"><div class="dm an" style="--d:.16s">백신 정책은 사람들의 안녕에 직접 영향을 주는 결정이지만 사람을 대상으로 미리 실험하기는 어렵습니다. 연구진이 생성형 에이전트 사회를 실험 도구로 고른 이유, 선행 연구와의 차이, 시뮬레이터가 갖춰야 할 세 가지 기준을 봅니다.</div><ul class="dpg"><li class="an" style="--d:0.20s"><span>03</span>문제: 정책은 고위험, 사람 실험은 고비용</li><li class="an" style="--d:0.25s"><span>04</span>선행 연구와 차별점</li><li class="an" style="--d:0.30s"><span>05</span>세 가지 설계 기준과 기여</li></ul></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>문제: 정책은 고위험, 사람 실험은 고비용</h2><span class="sec">연구 배경</span></div>
+  <div class="msg"><span class="tip" tabindex="0" data-tip="백신 접종 서비스를 이용할 수 있는데도 접종을 미루거나 거부하는 것(MacDonald, 2015). 이 논문은 접종 의향을 1~4점으로 묻고 1·2점을 망설임으로 분류합니다.">백신 망설임</span>은 WHO가 2019년 세계 보건 10대 위협으로 꼽은 문제이고 정부는 의무화·인센티브·지역 프로그램으로 대응합니다.<br>정책 선택은 고위험 결정인데 사회 실험과 장기 자료 수집은 비싸서 연구진은 생성형 에이전트로 사람 실험을 흉내 내려 했습니다.</div>
+  <div class="ct"><span>정책 효과를 확인하는 두 가지 길</span><span>그림은 설명용 개념도</span></div>
+  <div class="body "><div class="tos an" style="--d:.05s"><svg viewBox="0 0 760 420" width="100%" height="420">
+  <defs><marker id="ah3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#203044"/></marker></defs>
+  <rect x="20" y="150" width="190" height="120" fill="#203044"/><text x="115" y="196" font-size="18" fill="#fff" text-anchor="middle" font-weight="700">정책 후보</text><text x="115" y="222" font-size="13.33" fill="#fff" text-anchor="middle">의무화 · 금전 인센티브</text><text x="115" y="242" font-size="13.33" fill="#fff" text-anchor="middle">지역 홍보 프로그램</text>
+  <path d="M210 190 C 270 190 270 100 330 100" stroke="#203044" stroke-width="2" fill="none" marker-end="url(#ah3)"/>
+  <path d="M210 230 C 270 230 270 320 330 320" stroke="#0046CB" stroke-width="2.5" fill="none" marker-end="url(#ah3)"/>
+  <rect x="336" y="40" width="400" height="120" fill="#F3F4F6" stroke="#C9D1DD"/><text x="356" y="72" font-size="18" fill="#203044" font-weight="700">실제 사회 실험 · 장기 추적 조사</text>
+  <text x="356" y="102" font-size="14.5" fill="#203044">· 사회 실험과 장기 태도 자료 수집이 비쌈</text><text x="356" y="126" font-size="14.5" fill="#203044">· 정책 선택이 사람들의 안녕에 직접 영향을 줌</text><text x="356" y="150" font-size="14.5" fill="#6B7280">원문: expensive, high stakes</text>
+  <rect x="336" y="260" width="400" height="120" fill="#fff" stroke="#0046CB" stroke-width="2.5"/><text x="356" y="292" font-size="18" fill="#0046CB" font-weight="700">생성형 에이전트 사회 (VacSim)</text>
+  <text x="356" y="322" font-size="14.5" fill="#203044">· LLM 에이전트 100명이 뉴스·정책·트윗을 읽음</text><text x="356" y="346" font-size="14.5" fill="#203044">· 정책을 바꿔 가며 망설임 비율 변화를 비교</text><text x="356" y="370" font-size="14.5" fill="#6B7280">사람 실험을 대신하는 사전 점검 도구</text>
+</svg></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-heart"/></svg>문제 설정</h4><ol>
+      <li><div><b>백신 망설임</b>접종할 수 있는데도 미루거나 거부함(MacDonald, 2015)</div></li>
+      <li><div><b>심각성</b>WHO가 2019년 세계 보건 10대 위협으로 지정</div></li>
+      <li><div><b>정책 수단</b>의무화, 금전 인센티브, 지역사회 프로그램</div></li>
+      <li><div><b>연구 질문</b>생성형 에이전트 사회가 사람의 행동을 흉내 내 정책 결정에 정보를 줄 수 있는가</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>생성형 에이전트:</i>LLM이 페르소나대로 읽고 쓰는 가상 개인</span></div><div class="fr2"><span class="src">출처: Hou et al. (2025) §1</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>선행 연구와 차별점</h2><span class="sec">관련 연구</span></div>
+  <div class="msg">전통적인 <span class="tip" tabindex="0" data-tip="규칙에 따라 행동하는 가상의 개인(에이전트)을 많이 만들어 상호작용시키고 집단 수준의 결과를 관찰하는 시뮬레이션 방법입니다.">행위자 기반 모형(ABM)</span>은 고정된 속성과 갱신 함수로 움직여 복잡한 의사결정을 표현하기 어렵습니다.<br>VacSim은 LLM이 태도를 직접 정하고 그 이유를 글로 남기게 하며 백신 망설임과 정책 효과 평가에 집중합니다.</div>
+  <div class="ct"><span>접근 방법별 비교</span><span>§2의 서술을 표로 정리</span></div>
+  <div class="body full"><table class="mt an" style="--d:.05s"><thead><tr><th style="width:230px">접근</th><th style="width:420px">대표 연구</th><th>이 논문이 본 한계 또는 차이</th></tr></thead><tbody>
+      <tr><th>전통 ABM</th><td>에이전트마다 고정 속성과 태도 갱신 함수</td><td>복잡한 의사결정과 이유를 표현하기 어려움(Chopra et al., 2024)</td></tr>
+      <tr><th>LLM 사회 시뮬레이션</th><td>샌드박스 마을(Park et al., 2023), 소셜 미디어(Törnberg et al., 2023), 사회 규범·거시경제·법정·교육</td><td>공중보건 정책 효과를 직접 평가한 사례는 드묾</td></tr>
+      <tr><th>가장 가까운 연구</th><td>Chopra et al. (2024): 에이전트 860만 명으로 COVID-19 전파와 실업을 예측(AgentTorch 위에 LLM 모듈)</td><td>규모에 초점. 백신 망설임 전용 틀과 정책 평가는 다루지 않음</td></tr>
+      <tr class="on"><th>VacSim (이 논문)</th><td>LLM 에이전트 100명이 뉴스·정책·트윗을 읽고 매주 태도를 답함</td><td>태도를 LLM이 정하고 이유를 글로 남김. 어떤 LLM이 쓸 만한지 평가 기준 제시</td></tr>
+      </tbody></table></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>AgentTorch:</i>대규모 에이전트 시뮬레이션 프레임워크</span></div><div class="fr2"><span class="src">출처: Hou et al. (2025) §2</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>세 가지 설계 기준과 기여</h2><span class="sec">연구 목표</span></div>
+  <div class="msg">연구진은 시뮬레이션 인식론의 <span class="tip" tabindex="0" data-tip="검증(verification)은 모형이 설계대로 일관되게 움직이는지, 타당화(validation)는 모형이 현실과 맞는지를 확인하는 일입니다.">검증과 타당화</span>에서 착안해 정책 시뮬레이터가 갖춰야 할 세 기준을 세웠습니다.<br>세 기준은 3부 평가의 P1~P4로 이어지고 기준을 통과하는 LLM만 정책 비교에 씁니다.</div>
+  <div class="ct"><span>세 가지 설계 기준</span><span>평가 단계와의 대응은 덱에서 정리</span></div>
+  <div class="body full"><div style="display:flex;flex-direction:column;gap:14px;height:100%"><div class="au3" style="height:auto;flex:1">
+      <div class="au an" style="--d:.05s"><h5><svg class="ic"><use href="#i-chart"/></svg>① 실제 정렬 · 타당화</h5>
+        <p>시뮬레이션을 실제 자료에 맞출 수 있어야 합니다. 실제 초기 망설임 비율과 실제 정책 효과에 맞추고 앞으로는 예측까지 노립니다.</p>
+        <div class="bt">평가 P1(초기값), 실제 궤적, 전문가 순위(13·14·17장)</div></div>
+      <div class="au an" style="--d:.12s"><h5><svg class="ic"><use href="#i-scale"/></svg>② 전역 일관성 · 검증</h5>
+        <p>입력을 바꾸면 사회 전체가 일관되게 반응해야 합니다. 정책이 강할수록, 긍정 뉴스가 많을수록 망설임이 더 줄어야 합니다.</p>
+        <div class="bt">평가 P2(정책 강도), P3(뉴스 방향)(15장)</div></div>
+      <div class="au an" style="--d:.19s"><h5><svg class="ic"><use href="#i-user"/></svg>③ 지역 일관성 · 검증</h5>
+        <p>개별 에이전트가 맥락과 페르소나에 충실해야 합니다. 태도, 기억, 대화가 자기 인구학적 배경과 앞뒤가 맞아야 합니다.</p>
+        <div class="bt">평가 P4(GPT-4o 심사)(16장)</div></div></div>
+    <div class="base an" style="--d:.26s"><svg class="ic lg"><use href="#i-target"/></svg><div><b>저자가 밝힌 기여</b> · ① 공중보건 정책 맥락에서 생성형 다중 에이전트로 백신 망설임을 모형화 ② 태도 조절과 워밍업을 넣은 시뮬레이션 틀 ③ 여러 LLM의 정량·정성 평가</div></div></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>시뮬레이션 인식론:</i>결과를 믿을 근거를 따지는 분야</span></div><div class="fr2"><span class="src">출처: Hou et al. (2025) §1, §3</span><span class="no"></span></div></div>
+</section>

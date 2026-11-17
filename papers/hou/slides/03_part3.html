@@ -1,0 +1,93 @@
+<section class="slide dv">
+  <div class="dl"><div class="lb an">PART</div><div class="pn an" style="--d:.06s">3</div><h2 class="an" style="--d:.12s">평가: 어떤<br>LLM이 쓸 만한가</h2></div>
+  <div class="dr"><div class="dm an" style="--d:.16s">연구진은 후보 LLM 9개를 같은 VacSim에 넣고 세 설계 기준에 따라 단계별로 걸러 냈습니다. 실제 초기값, 정책 강도와 뉴스 방향, 개인의 충실도를 차례로 보고 남은 모델을 실제 궤적과 전문가 순위에 비교합니다.</div><ul class="dpg"><li class="an" style="--d:0.20s"><span>13</span>평가 설계: 9개에서 단계별로 거르기</li><li class="an" style="--d:0.25s"><span>14</span>P1 실제 초기값에 맞추기</li><li class="an" style="--d:0.30s"><span>15</span>P2·P3 전역 일관성</li><li class="an" style="--d:0.35s"><span>16</span>P4 지역 일관성</li><li class="an" style="--d:0.40s"><span>17</span>실제 궤적과 전문가 순위</li></ul></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>평가 설계: 9개에서 단계별로 거르기</h2><span class="sec">논문 §4</span></div>
+  <div class="msg">연구진은 공개 모델과 상용 모델 9개를 VacSim의 두뇌 후보로 놓고 세 설계 기준을 차례로 적용했습니다.<br>앞 단계를 통과하지 못한 모델은 다음 평가에서 빼고 남은 4개 가운데 Llama-3.1로 실제 궤적을 비교했습니다.</div>
+  <div class="ct"><span>평가 단계와 남은 모델 수</span><span>오른쪽 숫자 = 그 단계에서 평가한 모델 수</span></div>
+  <div class="body "><div class="tos an" style="--d:.05s"><svg viewBox="0 0 760 420" width="100%" height="420"><rect x="10" y="8" width="740" height="62" fill="#C9D1DD"/><text x="26" y="34" font-size="16" fill="#203044" font-weight="700">후보 LLM 9개</text><text x="26" y="56" font-size="13.33" fill="#203044">Llama-3·3-AB·3.1·3.2, Phi-3.5, Qwen-2.5, GPT-4o mini, GPT-4o, Haiku-3.5</text><text x="736" y="48" font-size="24" fill="#203044" font-weight="700" text-anchor="end">9</text><rect x="40" y="90" width="680" height="62" fill="#203044"/><text x="56" y="116" font-size="16" fill="#fff" font-weight="700">P1 실제 초기값</text><text x="56" y="138" font-size="13.33" fill="#fff">실제 초기 망설임 45%에 맞춰지는가</text><text x="706" y="130" font-size="24" fill="#fff" font-weight="700" text-anchor="end">7</text><rect x="70" y="172" width="620" height="62" fill="#203044"/><text x="86" y="198" font-size="16" fill="#fff" font-weight="700">P2 정책 강도</text><text x="86" y="220" font-size="13.33" fill="#fff">강한 정책이 약한 정책보다 효과가 큰가</text><text x="676" y="212" font-size="24" fill="#fff" font-weight="700" text-anchor="end">4</text><rect x="100" y="254" width="560" height="62" fill="#203044"/><text x="116" y="280" font-size="16" fill="#fff" font-weight="700">P3 뉴스 방향 · P4 페르소나 충실도</text><text x="116" y="302" font-size="13.33" fill="#fff">긍정·부정 뉴스에 맞게 반응하는가, 개인이 일관된가</text><text x="646" y="294" font-size="24" fill="#fff" font-weight="700" text-anchor="end">4</text><rect x="130" y="336" width="500" height="62" fill="#0046CB"/><text x="146" y="362" font-size="16" fill="#fff" font-weight="700">실제 궤적 · 전문가 순위</text><text x="146" y="384" font-size="13.33" fill="#fff">Delphi 실제 곡선과 비교, 전문가 18명의 정책 순위와 비교</text><text x="616" y="376" font-size="24" fill="#fff" font-weight="700" text-anchor="end">4</text></svg></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-search"/></svg>단계별 탈락</h4><ol>
+      <li><div><b>P1 실제 초기값</b>Llama-3.2, GPT-4o mini 제외. 실제 초기값과 20%p 넘게 어긋남</div></li>
+      <li><div><b>P2 정책 강도</b>GPT-4o, Haiku-3.5, Phi-3.5 제외. 정책이 오히려 망설임을 늘림</div></li>
+      <li><div><b>P3·P4</b>남은 4개(Llama-3, Llama-3-AB, Llama-3.1, Qwen-2.5)를 비교</div></li>
+      <li><div><b>실제 궤적</b>Llama-3.1로 35주 실행해 Delphi 곡선과 비교</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>Llama-3-AB:</i>거절을 우회하게 고친 Llama-3-8B</span><span><b>2</b><i>모델 크기:</i>공개 모델은 3B~8B의 instruct 버전</span></div><div class="fr2"><span class="src">출처: Hou et al. (2025) §4, 그림 4</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>P1 실제 초기값에 맞추기</h2><span class="sec">실제 정렬</span></div>
+  <div class="msg">워밍업 5주 뒤의 망설임 비율이 Delphi 설문의 실제 초기값 45%와 얼마나 다른지 온도 6개마다 쟀습니다.<br>Llama-3.1의 최소 오차가 0.20%p로 가장 작았고 Llama-3.2와 GPT-4o mini는 어떤 온도에서도 20%p 넘게 어긋났습니다.</div>
+  <div class="ct"><span>논문 그림 4 P1: 모델 × 조절 온도의 평균 오차(%p)</span><span>양수 = 실제보다 더 망설임 · 음수 = 덜 망설임 · 굵은 글씨 = 모델별 최소</span></div>
+  <div class="body "><div style="display:flex;gap:20px;height:100%;align-items:flex-start">
+      <img class="an" style="--d:.05s;height:420px;width:auto" src="{{IMG:fig4_p1.png}}" alt="그림 4 P1 히트맵">
+      <table class="sm an" style="--d:.1s;flex:1"><thead><tr><th>모델</th><th>최소 오차</th><th>판정</th></tr></thead><tbody>
+      <tr class="on"><th>Llama-3.1</th><td>0.20</td><td>통과</td></tr>
+      <tr><th>Phi-3.5</th><td>0.60</td><td>통과</td></tr>
+      <tr><th>Qwen-2.5</th><td>0.60</td><td>통과</td></tr>
+      <tr><th>Llama-3-AB</th><td>3.60</td><td>통과</td></tr>
+      <tr><th>Haiku-3.5</th><td>6.80</td><td>통과</td></tr>
+      <tr><th>GPT-4o</th><td>9.80</td><td>통과</td></tr>
+      <tr><th>Llama-3</th><td>13.20</td><td>통과</td></tr>
+      <tr><th>Llama-3.2</th><td class="dn">−20.40</td><td class="dn">제외</td></tr>
+      <tr><th>GPT-4o mini</th><td class="dn">26.60</td><td class="dn">제외</td></tr></tbody></table></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-target"/></svg>P1 읽는 법</h4><ol>
+      <li><div><b>측정</b>정책 없이 워밍업 5주 뒤 망설임 비율 − 실제 45%, 시드 5개 평균</div></li>
+      <li><div><b>온도 선택</b>모델마다 오차의 절댓값이 가장 작은 온도를 이후 평가에 고정</div></li>
+      <li><div><b>방향</b>Llama-3.2는 덜 망설이고(−20.40) GPT-4o mini는 더 망설임(+26.60)</div></li>
+      <li><div><b>저자 해석</b>학습 자료에서 얻은 편향 때문일 수 있음(원문 표현은 22장)</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>%p:</i>망설임 비율(%)의 차이</span><span><b>2</b><i>온도 격자:</i>0.1, 0.5, 0.7, 1.0, 1.5, 2.0</span></div><div class="fr2"><span class="src">출처: Hou et al. (2025) §4.1, 그림 4 P1(원본)</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>P2·P3 전역 일관성</h2><span class="sec">정책 강도와 뉴스 방향</span></div>
+  <div class="msg">강한 인센티브가 약한 인센티브보다 망설임을 더 줄이는지 보니 Llama 계열 3개와 Qwen-2.5가 2%p 이상 차이를 냈습니다.<br>GPT-4o, Haiku-3.5, Phi-3.5는 정책이 망설임을 오히려 늘려(음의 효과) 이후 평가에서 빠졌습니다.</div>
+  <div class="ct"><span>P2: 금전 인센티브의 정책 효과 ΔH (%p, 클수록 망설임 감소)</span><span>논문 그림 4 P2의 값을 덱에서 다시 그림 · 세 정책 전체는 부록 그림 6</span></div>
+  <div class="body "><div class="tos an" style="--d:.05s"><svg viewBox="0 0 760 420" width="100%" height="420"><line x1="90" y1="40.0" x2="740" y2="40.0" stroke="#E3E8EF" stroke-width="1"/><text x="82" y="45.0" font-size="13.33" fill="#6B7280" text-anchor="end">+20</text><line x1="90" y1="108.9" x2="740" y2="108.9" stroke="#E3E8EF" stroke-width="1"/><text x="82" y="113.9" font-size="13.33" fill="#6B7280" text-anchor="end">+10</text><line x1="90" y1="177.8" x2="740" y2="177.8" stroke="#203044" stroke-width="1.5"/><text x="82" y="182.8" font-size="13.33" fill="#6B7280" text-anchor="end">0</text><line x1="90" y1="246.7" x2="740" y2="246.7" stroke="#E3E8EF" stroke-width="1"/><text x="82" y="251.7" font-size="13.33" fill="#6B7280" text-anchor="end">−10</text><line x1="90" y1="315.6" x2="740" y2="315.6" stroke="#E3E8EF" stroke-width="1"/><text x="82" y="320.6" font-size="13.33" fill="#6B7280" text-anchor="end">−20</text><text x="82" y="24" font-size="13.33" fill="#203044" text-anchor="end" font-weight="700">ΔH (%p)</text><rect x="461.4" y="30" width="278.6" height="320" fill="#F3F4F6"/><text x="600.7" y="46" font-size="13.33" fill="#6B7280" text-anchor="middle" font-weight="700">음의 효과 → 이후 평가에서 제외</text><rect x="108.4" y="168.1" width="26" height="9.6" fill="#9AA8BC"/><text x="121.4" y="162.1" font-size="13.33" fill="#203044" text-anchor="middle">1.4</text><rect x="138.4" y="140.6" width="26" height="37.2" fill="#0046CB"/><text x="151.4" y="134.6" font-size="13.33" fill="#203044" text-anchor="middle">5.4</text><text x="136.4" y="374" font-size="13.33" fill="#203044" text-anchor="middle" font-weight="700">Llama-3</text><text x="136.4" y="394" font-size="13.33" fill="#0046CB" text-anchor="middle">차이 +4.0</text><rect x="201.3" y="170.2" width="26" height="7.6" fill="#9AA8BC"/><text x="214.3" y="164.2" font-size="13.33" fill="#203044" text-anchor="middle">1.1</text><rect x="231.3" y="150.9" width="26" height="26.9" fill="#0046CB"/><text x="244.3" y="144.9" font-size="13.33" fill="#203044" text-anchor="middle">3.9</text><text x="229.3" y="374" font-size="13.33" fill="#203044" text-anchor="middle" font-weight="700">Llama-3-AB</text><text x="229.3" y="394" font-size="13.33" fill="#0046CB" text-anchor="middle">차이 +2.8</text><rect x="294.1" y="117.8" width="26" height="59.9" fill="#9AA8BC"/><text x="307.1" y="111.8" font-size="13.33" fill="#203044" text-anchor="middle">8.7</text><rect x="324.1" y="72.4" width="26" height="105.4" fill="#0046CB"/><text x="337.1" y="66.4" font-size="13.33" fill="#203044" text-anchor="middle">15.3</text><text x="322.1" y="374" font-size="13.33" fill="#203044" text-anchor="middle" font-weight="700">Llama-3.1</text><text x="322.1" y="394" font-size="13.33" fill="#0046CB" text-anchor="middle">차이 +6.6</text><rect x="387.0" y="177.8" width="26" height="20.7" fill="#9AA8BC"/><text x="400.0" y="214.4" font-size="13.33" fill="#203044" text-anchor="middle">−3.0</text><rect x="417.0" y="142.6" width="26" height="35.1" fill="#0046CB"/><text x="430.0" y="136.6" font-size="13.33" fill="#203044" text-anchor="middle">5.1</text><text x="415.0" y="374" font-size="13.33" fill="#203044" text-anchor="middle" font-weight="700">Qwen-2.5</text><text x="415.0" y="394" font-size="13.33" fill="#0046CB" text-anchor="middle">차이 +8.1</text><rect x="479.9" y="177.8" width="26" height="15.8" fill="#9AA8BC"/><text x="492.9" y="209.6" font-size="13.33" fill="#203044" text-anchor="middle">−2.3</text><rect x="509.9" y="177.8" width="26" height="18.6" fill="#6B7280"/><text x="522.9" y="212.4" font-size="13.33" fill="#203044" text-anchor="middle">−2.7</text><text x="507.9" y="374" font-size="13.33" fill="#203044" text-anchor="middle" font-weight="700">GPT-4o</text><text x="507.9" y="394" font-size="13.33" fill="#6B7280" text-anchor="middle">차이 −0.4</text><rect x="572.7" y="177.8" width="26" height="157.1" fill="#9AA8BC"/><text x="585.7" y="350.8" font-size="13.33" fill="#203044" text-anchor="middle">−22.8</text><rect x="602.7" y="177.8" width="26" height="47.5" fill="#6B7280"/><text x="615.7" y="241.3" font-size="13.33" fill="#203044" text-anchor="middle">−6.9</text><text x="600.7" y="374" font-size="13.33" fill="#203044" text-anchor="middle" font-weight="700">Haiku-3.5</text><text x="600.7" y="394" font-size="13.33" fill="#6B7280" text-anchor="middle">차이 +15.9</text><rect x="665.6" y="177.8" width="26" height="11.0" fill="#9AA8BC"/><text x="678.6" y="204.8" font-size="13.33" fill="#203044" text-anchor="middle">−1.6</text><rect x="695.6" y="177.8" width="26" height="9.0" fill="#6B7280"/><text x="708.6" y="202.7" font-size="13.33" fill="#203044" text-anchor="middle">−1.3</text><text x="693.6" y="374" font-size="13.33" fill="#203044" text-anchor="middle" font-weight="700">Phi-3.5</text><text x="693.6" y="394" font-size="13.33" fill="#6B7280" text-anchor="middle">차이 +0.3</text><rect x="150" y="300" width="14" height="14" fill="#9AA8BC"/><text x="170" y="312" font-size="13.33" fill="#203044">약한 인센티브</text><rect x="290" y="300" width="14" height="14" fill="#0046CB"/><text x="310" y="312" font-size="13.33" fill="#203044">강한 인센티브</text></svg></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-scale"/></svg>P2·P3 결과</h4><ol>
+      <li><div><b>P2 설정</b>워밍업 5주 + 정책 15주, 시드 5개</div></li>
+      <li><div><b>P2 통과</b>강−약 차이 Qwen-2.5 8.1, Llama-3.1 6.6, Llama-3 4.0, Llama-3-AB 2.8</div></li>
+      <li><div><b>P3 설정</b>정책 없이 20주 동안 긍정 뉴스만 또는 부정 뉴스만 제공</div></li>
+      <li><div><b>P3 결과</b>4개 모두 긍정 뉴스에 감소, 부정 뉴스에 증가. 긍정 / 부정 ΔH: Llama-3.1 3.86 / −2.53, Qwen 1.86 / −1.73, Llama-3-AB 2.40 / −3.00, Llama-3 0.86 / −0.93</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>음의 효과:</i>ΔH &lt; 0, 정책이 없을 때보다 망설임이 많음</span></div><div class="fr2"><span class="src">출처: Hou et al. (2025) §4.2, 그림 4 P2·P3, 부록 그림 6</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>P4 지역 일관성</h2><span class="sec">개인의 충실도</span></div>
+  <div class="msg">GPT-4o가 심사자가 되어 에이전트의 태도, 기억, 대화가 페르소나와 맥락에 충실한지 1~5점으로 매겼습니다.<br>기억과 대화는 네 모델이 모두 높았고 차이는 태도에서 났으며 Llama-3.1과 Qwen-2.5가 가장 높았습니다.</div>
+  <div class="ct"><span>논문 그림 4 P4: 응답 품질 점수 (1~5, 높을수록 충실)</span><span>강한 정책마다 에이전트 25명 × 10에피소드 표본</span></div>
+  <div class="body "><table class="ex an" style="--d:.05s"><thead><tr><th class="l" style="width:220px">모델</th><th>태도</th><th>기억</th><th>대화</th></tr></thead><tbody>
+      <tr><th class="l">Llama-3</th><td>3.60</td><td>4.62</td><td>4.95</td></tr>
+      <tr><th class="l">Llama-3-AB</th><td>3.42</td><td>4.65</td><td>4.91</td></tr>
+      <tr><th class="l">Llama-3.1</th><td class="up">4.50</td><td>4.67</td><td>4.95</td></tr>
+      <tr><th class="l">Qwen-2.5</th><td class="up">4.28</td><td>4.64</td><td>4.96</td></tr></tbody></table>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-user"/></svg>세 가지 심사 항목</h4><ol>
+      <li><div><b>태도</b>답한 태도가 페르소나·기억과 맞는가</div></li>
+      <li><div><b>기억</b>교훈과 중요도가 페르소나에 맞는가</div></li>
+      <li><div><b>대화</b>트윗이 기억과 맥락에 충실한가</div></li>
+      <li><div><b>저자 가설</b>조절 온도가 높으면 분포가 고르게 펴져 페르소나와 맞지 않는 태도가 뽑힐 수 있음</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>심사 기준:</i>부록 D.4, 심사 이유의 예는 부록 표 27</span></div><div class="fr2"><span class="src">출처: Hou et al. (2025) §4.3, 그림 4 P4</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>실제 궤적과 전문가 순위</h2><span class="sec">논문 그림 5 · 표 1 · 표 25</span></div>
+  <div class="msg">Llama-3.1로 강한 정책마다 35주를 실행해 Delphi의 실제 망설임 곡선과 비교하니 강한 의무화의 평균 절대 오차가 2.82%로 가장 작았습니다.<br>전문가 18명의 정책 순위와 비교한 Kendall τ는 Llama-3.1 0.733, Qwen-2.5 0.690이었고 두 값 모두 p = 0.056입니다.</div>
+  <div class="ct"><span>왼쪽: 논문 그림 5(원본) · 오른쪽: 정책 순위와 순위 일치도</span><span>저자는 "결정적 증거는 아니다"라고 씀 · 순위 1 = 효과가 가장 큼</span></div>
+  <div class="body full"><div style="display:flex;gap:22px;height:100%;align-items:flex-start">
+      <img class="an" style="--d:.05s;width:560px;height:auto" src="{{IMG:fig5.png}}" alt="그림 5 망설임 궤적">
+      <div style="flex:1;display:flex;flex-direction:column;gap:12px">
+      <table class="sm an" style="--d:.1s"><thead><tr><th>정책</th><th>전문가 18명</th><th>Llama-3.1</th></tr></thead><tbody>
+      <tr><th>강한 의무화</th><td>1</td><td>1</td></tr>
+      <tr><th>강한 인센티브</th><td>2</td><td class="dn">3</td></tr>
+      <tr><th>약한 의무화</th><td>3</td><td class="dn">4</td></tr>
+      <tr><th>강한 홍보 대사</th><td>4</td><td class="up">2</td></tr>
+      <tr><th>약한 인센티브</th><td>5</td><td>5</td></tr>
+      <tr><th>약한 홍보 대사</th><td>6</td><td>6</td></tr></tbody></table>
+      <table class="sm an" style="--d:.15s"><thead><tr><th>모델</th><th>Kendall τ</th><th>p</th></tr></thead><tbody>
+      <tr class="on"><th>Llama-3.1</th><td>0.733</td><td>0.056</td></tr>
+      <tr><th>Qwen-2.5</th><td>0.690</td><td>0.056</td></tr>
+      <tr><th>Llama-3</th><td>0.333</td><td>0.469</td></tr>
+      <tr><th>Llama-3-AB</th><td>0.276</td><td>0.444</td></tr></tbody></table></div></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>MAE:</i>평균 절대 오차(그림 5 범례)</span><span><b>2</b><i>전문가 순위:</i>석사 이상 연구자 18명, Borda 합산</span></div><div class="fr2"><span class="src">출처: Hou et al. (2025) §4.4–4.5, 그림 5, 표 1, 부록 표 25</span><span class="no"></span></div></div>
+</section>

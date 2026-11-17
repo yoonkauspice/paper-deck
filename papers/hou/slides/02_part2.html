@@ -1,0 +1,111 @@
+<section class="slide dv">
+  <div class="dl"><div class="lb an">PART</div><div class="pn an" style="--d:.06s">2</div><h2 class="an" style="--d:.12s">VacSim<br>구조</h2></div>
+  <div class="dr"><div class="dm an" style="--d:.16s">VacSim은 미국 설문 분포에서 뽑은 에이전트 100명이 매주 뉴스·정책·트윗을 읽고 백신 태도를 답하는 시뮬레이터입니다. 전체 흐름, 에이전트의 한 주, 태도를 확률로 받는 방법, 정보 환경, 정책과 효과 측정을 차례로 봅니다.</div><ul class="dpg"><li class="an" style="--d:0.20s"><span>07</span>전체 흐름: 준비와 주 단위 반복</li><li class="an" style="--d:0.25s"><span>08</span>에이전트의 한 주와 기억</li><li class="an" style="--d:0.30s"><span>09</span>태도를 확률로 묻고 온도로 조절</li><li class="an" style="--d:0.35s"><span>10</span>정보 환경: 뉴스·트윗·질병 위험</li><li class="an" style="--d:0.40s"><span>11</span>정책 6종과 효과 측정</li></ul></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>전체 흐름: 준비와 주 단위 반복</h2><span class="sec">논문 그림 1</span></div>
+  <div class="msg">먼저 실제 설문 분포로 페르소나 100개를 만들고 뉴스 1만 건과 팔로우 관계를 미리 준비합니다.<br>시뮬레이션은 1주를 한 단계로 진행하고 정책은 워밍업 5주가 지난 뒤부터 적용합니다.</div>
+  <div class="ct"><span>VacSim의 준비와 진행 순서</span><span>논문 그림 1을 덱에서 다시 그림</span></div>
+  <div class="body "><div class="fl an" style="--d:.05s">
+      <div class="fl5"><div class="fb"><span class="n">준비 1</span><svg class="ic lg"><use href="#i-users"/></svg><b>페르소나 100명</b><p><span class="tip" tabindex="0" data-tip="Nguyen et al. (2022)의 COVID-19 백신 망설임 설문. 미국에서 2021년 1월~2022년 2월에 1,300만 건의 응답을 모았습니다. VacSim은 이 설문의 주변 분포에서 인구학 속성을 뽑습니다.">Delphi 설문</span> 분포에서 연령·학력·성별·인종·직업·정치 성향·종교를 뽑음</p></div>
+        <div class="fb"><span class="n">준비 2</span><svg class="ic lg"><use href="#i-news"/></svg><b>뉴스 1만 건</b><p>Llama-3.1-8B로 미리 생성. 백신 이점·우려, 질병 영향 작음·큼의 4유형</p></div>
+        <div class="fb"><span class="n">준비 3</span><svg class="ic lg"><use href="#i-net"/></svg><b>팔로우 관계</b><p>에이전트가 서로의 프로필을 보고 팔로우할지 직접 정함</p></div>
+        <div class="fb"><span class="n">진행</span><svg class="ic lg"><use href="#i-repeat"/></svg><b>1주 = 한 단계</b><p>읽기, 트윗, 태도 응답(8장). 정책은 5주 뒤부터 적용</p></div>
+        <div class="fb"><span class="n">결과</span><svg class="ic lg"><use href="#i-chart"/></svg><b>망설임 비율 H</b><p>1·2점을 고른 에이전트의 비율. 마지막 3주 평균, 5시드 평균(11장)</p></div></div>
+      <div class="fi2"><div><b>설문 규모</b> · Delphi 설문은 미국 2021년 1월~2022년 2월, 응답 1,300만 건. 페르소나 속성의 목록은 부록 표 10</div><div><b>질병 위험</b> · 매주 CDC의 COVID-19 응급실 방문율(같은 기간)을 에이전트에게 알림(10장)</div></div>
+      <div class="base"><svg class="ic lg"><use href="#i-alert"/></svg><div><b>워밍업</b> · 예비 실험에서 시작 직후 태도가 급변해 정책은 W = 5주 뒤부터 적용합니다. 연구진은 실제로도 정책이 유행 시작 뒤에 나온다는 점을 근거로 들었습니다.</div></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-file"/></svg>설정 요약</h4><ol>
+      <li><div><b>에이전트</b>100명, 각자 기억 모듈을 가짐</div></li>
+      <li><div><b>시간 단위</b>1단계 = 1주. 보통 L = 20주 실행</div></li>
+      <li><div><b>정책</b>3유형 × 약·강 = 6종(11장)</div></li>
+      <li><div><b>조정하는 값</b>태도 조절 온도 T 하나(9장)</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>Delphi:</i>COVID-19 설문(Nguyen et al., 2022)</span><span><b>2</b><i>CDC:</i>미국 질병통제예방센터</span></div><div class="fr2"><span class="src">출처: Hou et al. (2025) §3.1–3.3, 그림 1, 부록 표 10</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>에이전트의 한 주와 기억</h2><span class="sec">시뮬레이션 한 단계</span></div>
+  <div class="msg">에이전트는 매주 뉴스와 정책을 읽고, 다른 에이전트의 트윗을 읽고, 트윗을 쓴 뒤 백신 태도를 답합니다.<br>읽을 때마다 배운 점을 "교훈"으로 요약해 쌓고 다음 주에는 가장 두드러진 교훈 5개만 맥락에 넣습니다.</div>
+  <div class="ct"><span>에이전트 한 명의 한 주</span><span>다음 ▶으로 단계가 차례로 켜짐 · 행동 번호는 논문 그림 1·3 기준</span></div>
+  <div class="body "><div class="fl" id="wkx"><div class="sbar"><button data-a="next">다음 ▶</button><button data-a="play">자동 재생</button><button data-a="reset">처음으로</button><span class="stl"></span></div>
+      <div class="fl5"><div class="fb" data-k="1"><span class="n">행동 1 · 뉴스</span><svg class="ic lg"><use href="#i-news"/></svg><b>뉴스 읽기</b><p>추천받은 뉴스 3건과 이번 주 응급실 방문율을 읽음</p></div>
+        <div class="fb" data-k="2"><span class="n">행동 1 · 정책</span><svg class="ic lg"><use href="#i-file"/></svg><b>정책 읽기</b><p>접종을 권하는 정부 정책을 읽음(워밍업 5주 뒤부터)</p></div>
+        <div class="fb" data-k="3"><span class="n">행동 2</span><svg class="ic lg"><use href="#i-msg"/></svg><b>트윗 읽기</b><p>다른 에이전트의 트윗 3개를 읽음. 팔로우한 사람의 글이 더 잘 보임</p></div>
+        <div class="fb" data-k="4"><span class="n">행동 3</span><svg class="ic lg"><use href="#i-user"/></svg><b>트윗 쓰기</b><p>백신에 대한 생각을 트윗 1개로 씀. 다음 주부터 다른 에이전트가 읽음</p></div>
+        <div class="fb" data-k="5"><span class="n">행동 4</span><svg class="ic lg"><use href="#i-thermo"/></svg><b>태도 응답</b><p>"오늘 백신을 맞겠습니까?"에 1~4점의 확률 분포로 답함(9장)</p></div></div>
+      <div class="fi2"><div data-s="1"><b>교훈(lesson)</b> · 뉴스·정책·트윗을 읽을 때마다 배운 점을 짧은 글로 요약하고 중요도 α(0~1)를 스스로 매김</div><div data-s="1"><b>맥락</b> · 매번 페르소나와 두드러짐 γ가 가장 큰 교훈 K = 5개만 넣음</div></div>
+      <div class="fx"><span class="eq">γ<sub>i</sub> = α<sub>i</sub> + λ<sub>l</sub><sup style="color:inherit;font-size:.7em">d − d<sub>i</sub></sup></span><span>두드러짐 = 중요도 + 시간 감쇠. λ<sub>l</sub> = 0.995, d는 현재 시점, d<sub>i</sub>는 교훈이 생긴 시점. 최솟값~최댓값으로 정규화(식 1)</span></div></div>
+    <div class="kf st an" style="--d:.15s"><h4><svg class="ic"><use href="#i-clock"/></svg>단계별 설명</h4><ol>
+      <li><div><b>뉴스</b>과거 트윗과 비슷한 뉴스를 추천받음(10장)</div></li>
+      <li><div><b>정책</b>6종 가운데 실험 조건의 정책 하나</div></li>
+      <li><div><b>트윗 읽기</b>유사도 × 시간 감쇠 + 팔로우 가중치로 고름</div></li>
+      <li><div><b>트윗 쓰기</b>쓴 글은 저장되어 이후 추천 대상이 됨</div></li>
+      <li><div><b>태도</b>1·2점이면 망설임으로 분류</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>α<sub>i</sub>:</i>에이전트가 매긴 i번째 교훈의 중요도</span><span><b>2</b><i>γ<sub>i</sub>:</i>두드러짐(saliency). Park et al. (2023)의 방식을 따름</span></div><div class="fr2"><span class="src">출처: Hou et al. (2025) §3.1, 식 (1), 그림 1·3</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>태도를 확률로 묻고 온도로 조절</h2><span class="sec">태도 조절</span></div>
+  <div class="msg">연구진은 1~4점 가운데 하나를 고르게 하는 대신 네 점수의 확률 분포를 답하게 하고 온도 T로 분포의 모양을 조절했습니다.<br>LLM의 사전 학습 편향이 결과를 한쪽으로 몰아가는 것을 줄이려는 장치이고 T는 연구진이 조정한 유일한 값입니다.</div>
+  <div class="ct"><span>같은 분포에 온도 T를 바꿔 적용 (식 2)</span><span>버튼으로 T를 바꿀 수 있음 · 분포 A는 §3.1 예시, B는 51번 에이전트(§4.6) · 바뀐 값은 덱에서 계산</span></div>
+  <div class="body "><div class="th" id="tmx"><div class="sbar"><button data-go="1">T = 0.5</button><button data-go="2">T = 0.7</button><button data-go="3">T = 1.0 (원래 분포)</button><button data-go="4">T = 2.0</button><span class="stl" style="display:none"></span></div>
+      <div class="fi2">
+        <div class="tmd" style="display:flex;flex-direction:column;gap:8px" data-p="0.1,0.1,0.35,0.45"><b>분포 A · 접종 쪽 에이전트</b>
+          <div class="tbar"><span class="k">1 절대 아니오</span><div class="tr"><i class="r" style="width:10%"></i></div><span class="v">0.10</span></div>
+          <div class="tbar"><span class="k">2 아마 아니오</span><div class="tr"><i class="r" style="width:10%"></i></div><span class="v">0.10</span></div>
+          <div class="tbar"><span class="k">3 아마 예</span><div class="tr"><i class="d" style="width:35%"></i></div><span class="v">0.35</span></div>
+          <div class="tbar"><span class="k">4 반드시 예</span><div class="tr"><i class="d" style="width:45%"></i></div><span class="v">0.45</span></div></div>
+        <div class="tmd" style="display:flex;flex-direction:column;gap:8px" data-p="0.7,0.26,0.02,0.02"><b>분포 B · 51번 에이전트(14~17주)</b>
+          <div class="tbar"><span class="k">1 절대 아니오</span><div class="tr"><i class="r" style="width:70%"></i></div><span class="v">0.70</span></div>
+          <div class="tbar"><span class="k">2 아마 아니오</span><div class="tr"><i class="r" style="width:26%"></i></div><span class="v">0.26</span></div>
+          <div class="tbar"><span class="k">3 아마 예</span><div class="tr"><i class="d" style="width:2%"></i></div><span class="v">0.02</span></div>
+          <div class="tbar"><span class="k">4 반드시 예</span><div class="tr"><i class="d" style="width:2%"></i></div><span class="v">0.02</span></div></div></div>
+      <div class="calc">P̃<sub>i</sub> = P<sub>i</sub><sup>1/T</sup> ÷ Σ<sub>k</sub> P<sub>k</sub><sup>1/T</sup> · <b class="ac" id="tmc">T = 1.0: 원래 분포 그대로</b></div>
+      <div class="stm"><b>망설임 확률(1·2점 합)</b><span id="tms">A 0.20 · B 0.96</span></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-thermo"/></svg>태도 조절</h4><ol>
+      <li><div><b>질문</b>"오늘 백신을 제공받으면 맞겠습니까?" 1 절대 아니오 ~ 4 반드시 예</div></li>
+      <li><div><b>T &lt; 1</b>큰 확률이 더 커져 분포가 뾰족해짐</div></li>
+      <li><div><b>T &gt; 1</b>분포가 고르게 펴져 덜 그럴듯한 점수도 뽑힐 수 있음</div></li>
+      <li><div><b>순서 유지</b>어떤 T에서도 점수 사이의 확률 순서는 바뀌지 않음</div></li>
+      <li><div><b>논문 예</b>Llama-3.1, T = 0.7에서 [0, 0, 0.2, 0.8] → [0, 0, 0.12, 0.88]</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>P<sub>i</sub>:</i>에이전트가 답한 i점의 확률</span><span><b>2</b><i>온도 탐색:</i>6개 값 가운데 실제에 가장 가까운 T(14장)</span></div><div class="fr2"><span class="src">출처: Hou et al. (2025) §3.1, 식 (2), 그림 3, §4.6</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>정보 환경: 뉴스·트윗·질병 위험</h2><span class="sec">시뮬레이션 틀</span></div>
+  <div class="msg">에이전트는 처음에 백신을 잘 모르므로 연구진은 생성한 뉴스로 정보를 주고 과거 트윗과 비슷한 뉴스를 추천했습니다.<br>트윗은 유사도에 시간 감쇠를 곱하고 팔로우 관계면 가중치를 더해 추천하며 매주 CDC 응급실 방문율도 알려 줍니다.</div>
+  <div class="ct"><span>세 가지 정보 통로와 추천 점수</span><span>식 (3)·(4), 값은 원문</span></div>
+  <div class="body "><div style="display:flex;flex-direction:column;gap:12px;height:100%">
+      <table class="sm an" style="--d:.05s"><thead><tr><th style="width:120px">뉴스 유형</th><th>내용</th><th style="width:150px">접종에 미치는 방향</th></tr></thead><tbody>
+      <tr><th>(1)</th><td>백신의 이점</td><td class="up">긍정 N<sub>pos</sub></td></tr>
+      <tr><th>(4)</th><td>질병이 일상을 크게 흔듦</td><td class="up">긍정 N<sub>pos</sub></td></tr>
+      <tr><th>(2)</th><td>백신에 대한 우려</td><td class="dn">부정 N<sub>neg</sub></td></tr>
+      <tr><th>(3)</th><td>질병의 영향이 작음</td><td class="dn">부정 N<sub>neg</sub></td></tr></tbody></table>
+      <div class="fx an" style="--d:.1s"><span class="eq">s<sub>ν</sub> = MaxSim<sub>i</sub>(τ<sub>i</sub>, ν)</span><span><b>뉴스 추천(식 3)</b> · 뉴스 ν와 에이전트의 과거 트윗 τ<sub>i</sub> 사이 코사인 유사도의 최댓값. 매주 9건을 받아 상위 3건을 줌</span></div>
+      <div class="fx an" style="--d:.15s"><span class="eq">s = MaxSim × λ<sub>r</sub><sup style="color:inherit;font-size:.7em">d − d<sub>k</sub></sup> + φ·I</span><span><b>트윗 추천(식 4)</b> · λ<sub>r</sub> = 0.9의 시간 감쇠. 글쓴이를 팔로우하면 I = 1이고 φ = 0.3을 더함</span></div>
+      <div class="fx an" style="--d:.2s"><svg class="ic lg"><use href="#i-alert"/></svg><span><b>질병 위험</b> · CDC의 COVID-19 응급실 방문율(2021.1~2022.2)을 매주 알려 체감 위험을 반영</span></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-news"/></svg>정보 환경</h4><ol>
+      <li><div><b>뉴스 생성</b>Llama-3.1-8B, 1건 약 250토큰, 실제 뉴스 20건을 예시로 주고 생성 온도 1.5</div></li>
+      <li><div><b>임베딩</b>all-MiniLM-L6-v2 문장 임베딩</div></li>
+      <li><div><b>팔로우 관계</b>Chang et al. (2024a)의 방식으로 에이전트가 직접 정함</div></li>
+      <li><div><b>트윗</b>매주 3개 읽고 1개 씀</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>MaxSim:</i>유사도의 최댓값(Khattab &amp; Zaharia, 2020)</span><span><b>2</b><i>I:</i>팔로우 여부를 나타내는 지시 함수</span></div><div class="fr2"><span class="src">출처: Hou et al. (2025) §3.2, 식 (3)·(4)</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>정책 6종과 효과 측정</h2><span class="sec">논문 표 11 · 식 5</span></div>
+  <div class="msg">정책은 CDC 권장 전략 가운데 금전 인센티브, 홍보 대사, 의무화 3유형이고 유형마다 약한 정책과 강한 정책을 둡니다.<br>정책 효과 ΔH는 정책이 없을 때의 망설임 비율에서 정책이 있을 때의 비율을 뺀 값이고 클수록 효과가 큽니다.</div>
+  <div class="ct"><span>정책 6종 (원문 표 11 요약)</span><span>정책 문안은 영어 원문을 덱에서 요약</span></div>
+  <div class="body "><div style="display:flex;flex-direction:column;gap:12px;height:100%">
+      <table class="ex an" style="--d:.05s"><thead><tr><th class="l" style="width:150px">유형</th><th class="l">약한 정책</th><th class="l">강한 정책</th></tr></thead><tbody>
+      <tr><th class="l">금전 인센티브</th><td class="l">첫 접종 성인에게 $10 현금 카드(물량 소진 시까지)</td><td class="l">첫 접종을 받거나 다른 사람을 접종하러 데려간 성인 모두에게 $50 현금 카드 + 취약 지역 홍보</td></tr>
+      <tr><th class="l">홍보 대사</th><td class="l">자원봉사자가 지역 행사에서 일반 정보 제공(교육 없음)</td><td class="l">교육을 마친 자원봉사자가 학교·공원 등에서 워크숍과 질의응답 진행</td></tr>
+      <tr><th class="l">의무화</th><td class="l">직장·학교 출입 전 접종을 강하게 권고(강제는 최소)</td><td class="l">직장·학교·공공장소·교통 거점 출입자 모두 접종 의무, 위반 시 처벌</td></tr></tbody></table>
+      <div class="fx an" style="--d:.12s"><span class="eq">ΔH<sub>L</sub>(p, N) = H<sub>L</sub>(p<sub>0</sub>, N) − H<sub>L</sub>(p, N)</span><span>p<sub>0</sub>는 정책 없음, N은 뉴스 조건. H<sub>L</sub>은 L주째 망설임 비율(식 5)</span></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-chart"/></svg>측정 방법</h4><ol>
+      <li><div><b>실행 길이</b>보통 L = 20주, 정책은 5주 뒤부터</div></li>
+      <li><div><b>끝 값</b>무작위성 때문에 마지막 3주의 평균을 씀</div></li>
+      <li><div><b>반복</b>시드 5개의 평균 H<sub>L</sub>(p, N)</div></li>
+      <li><div><b>정책 강도</b>Ancona et al. (2022)의 정책 노력(effort) 개념</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>ΔH:</i>망설임 비율의 감소 폭(%p)</span><span><b>2</b><i>홍보 대사:</i>원문 Ambassador. 'VaxUp Neighbors' 프로그램</span></div><div class="fr2"><span class="src">출처: Hou et al. (2025) §3.3, 식 (5), 부록 표 11</span><span class="no"></span></div></div>
+</section>
