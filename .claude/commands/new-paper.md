@@ -11,5 +11,5 @@ paper-deck 스킬과 프로젝트 루트의 CLAUDE.md 규칙에 따라 새 논�
 순서:
 1. `node src/new_paper.js <키> <PDF 경로>` 실행(이미 있으면 건너뜀). 쪽 수와 텍스트 양을 보고, 스캔본 경고가 나오면 알린다.
 2. 본문을 읽고 표·그림은 `node src/pdf_figure.js <키> <쪽>`로 쪽 이미지를 만들어 확인한다.
-3. `papers/<키>/02_notes.md` 정독 노트(모든 항목에 원문 위치)와 `papers/<키>/03_outline.md` 아웃라인을 쓴다.
+3. `papers/<키>/work/02_notes.md` 정독 노트(모든 항목에 원문 위치)와 `papers/<키>/work/03_outline.md` 아웃라인을 쓴다.
 4. 아웃라인을 보여 주고 승인을 기다린다. 승인 전에는 슬라이드나 스토리 파일을 만들지 않는다.

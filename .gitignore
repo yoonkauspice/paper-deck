@@ -6,26 +6,25 @@
 # 의존성
 node_modules/
 
-# 입력: 논문 PDF와 원문에서 나온 것(저작권·비공개). 폴더 구조만 커밋
-input/*
-!input/.gitkeep
+# PC 전용 폴더(GitHub에 올리지 않음)
+#  input/  : 논문 PDF와 원문에서 나온 것(저작권·비공개)
+#  output/ : 빌드 중간 결과(언제든 다시 만들 수 있음). 최종본은 papers/<논문>/final/ 에 커밋
+input/
+output/
 
-# 출력: 다시 만들 수 있는 결과물(HTML, PPTX, 캡처, 보고서, 실험 결과)
-output/*
-!output/.gitkeep
-
-# 혹시 작업 원고 폴더에 들어간 원문·결과물
-papers/*/source.pdf
-papers/*/01_extract/
-papers/*/sources/
-papers/*/export/
-papers/*/*.pptx
+# 혹시 작업 원고 폴더에 들어간 원문·부산물
+papers/**/source.pdf
+papers/**/extract/
+papers/**/01_extract/
+papers/**/sources/
+papers/**/export/
+papers/*/work/*.pptx
 *.pdf
 # 단, Claude Code 웹으로 보낼 PDF는 inbox/ 에 올린다(저장소는 반드시 Private)
 !inbox/*.pdf
 
-# 비공개 논문의 작업 원고(기관 데이터·비공개 리뷰 포함)
-papers/dashboard/
+# 비공개 작업(기관 데이터·비공개 리뷰 포함): papers/90번대
+papers/9[0-9]_*/
 
 # 백업과 OS·편집기 파일
 *.tar.gz

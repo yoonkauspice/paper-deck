@@ -4,7 +4,7 @@
 // 맞음 판정: 같은 값, 표시 자릿수만큼 반올림한 값(88.39 → 88.4), 100배·1/100 차이(%와 소수)
 // 건너뜀: 0~10의 정수, 연도와 연월, § p. 표 그림 식 쪽 뒤의 번호, 장/부/강/번/단계/주차 앞의 번호
 // 결과: 콘솔 요약 + output/<키>/04_numbers.md (근거를 못 찾은 숫자와 위치, 앞뒤 글)
-// 의도적으로 계산한 값은 papers/<키>/numbers_ok.txt 에 "값<TAB>이유" 로 적으면 다음부터 통과
+// 의도적으로 계산한 값은 papers/<키>/work/numbers_ok.txt 에 "값<TAB>이유" 로 적으면 다음부터 통과
 const fs=require('fs'),path=require('path');
 const {paper}=require('./paths');
 let P;try{P=paper(process.argv[2]);}catch(e){console.error('usage: node src/check_numbers.js <키> [deck|story]');process.exit(1);}
@@ -61,7 +61,7 @@ function check(kind){
 }
 const kinds=(only?[only]:['deck','story']).map(k=>k==='deck'?'slides':'story');
 const reports=kinds.map(check).filter(Boolean);
-if(!reports.length){console.error('papers/'+P.key+'/slides/ 또는 story/ 가 없습니다');process.exit(1);}
+if(!reports.length){console.error('papers/'+P.key+'/work/slides/ 또는 story/ 가 없습니다');process.exit(1);}
 let md='# 수치 대조 결과 ('+P.key+')\n\n근거: input/'+P.key+'/extract/full.txt'+(fs.existsSync(P.sources)?', input/'+P.key+'/sources/':'')+(fs.existsSync(rj)?', output/'+P.key+'/results.json':'')+'\n';
 for(const r of reports){
   console.log((r.kind==='slides'?'파랑이':'노랑이')+': 숫자 '+r.total+'개 중 근거를 못 찾은 것 '+r.miss.length+'개');

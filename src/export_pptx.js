@@ -1,6 +1,6 @@
 // PPTX 내보내기 (파랑이 deck.html, 노랑이 story.html 공통)
 // 사용: node src/export_pptx.js <키> [deck|story]   (생략하면 있는 것 모두. 또는 npm run export -- <키>)
-//  - 파랑이: 슬라이드마다 1280×720을 1.5배로 캡처(1920×1080) → output/<키>/deck.pptx. 노트 = papers/<키>/script.md의 "## 번호" 절(없으면 장 제목 + 2줄 메시지)
+//  - 파랑이: 슬라이드마다 1280×720을 1.5배로 캡처(1920×1080) → output/<키>/deck.pptx. 노트 = papers/<키>/work/script.md의 "## 번호" 절(없으면 장 제목 + 2줄 메시지)
 //    meta.json에 "file":"이름"이 있으면 output/<키>/이름.pptx 로 저장하고 deck.html도 이름.html 로 복사
 //    템플릿은 건드리지 않고, 캡처용 임시 사본(output/<키>/export/_deck_shot.html)에만 "한 장 꽉 차게" 스타일을 덧붙임
 //  - 노랑이: 표지와 단계마다 1600×900 캡처(?shot=번호) → output/<키>/story.pptx. 노트 = 숫자가 채워진 단계 글
@@ -47,7 +47,7 @@ async function deck(port,shotDir){
   fs.writeFileSync(path.join(shotDir,'_deck_shot.html'),src.replace('</head>',css+'</head>'));
   const secs=[...src.matchAll(/<section class="slide[^"]*">([\s\S]*?)<\/section>/g)].map(m=>m[1]);
   const notes=secs.map(b=>{const t=(b.match(/<h[12][^>]*>([\s\S]*?)<\/h[12]>/)||[])[1]||'',m=(b.match(/<div class="(?:msg|dm[^"]*)"[^>]*>([\s\S]*?)<\/div>/)||[])[1]||'';return strip(t)+(m?'\n'+strip(m):'');});
-  // 발표 스크립트(papers/<키>/script.md의 "## 번호" 절)가 있으면 그 장의 노트로 씀
+  // 발표 스크립트(papers/<키>/work/script.md의 "## 번호" 절)가 있으면 그 장의 노트로 씀
   const sp=path.join(P.work,'script.md'),script={};
   if(fs.existsSync(sp))fs.readFileSync(sp,'utf8').split(/^## +(\d+)[^\n]*\n/m).forEach((t,i,a)=>{if(i%2)script[+t]=a[i+1].trim();});
   const nS=Object.keys(script).length;if(nS&&nS!==secs.length)console.warn('주의: script.md는 '+nS+'장, 덱은 '+secs.length+'장입니다. 없는 장은 제목과 메시지를 노트로 씁니다.');

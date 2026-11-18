@@ -5,25 +5,37 @@
 - **파랑이**: 16:9 슬라이드 덱(HTML + PPTX). 발표용
 - **노랑이**: 스크롤형 레플리케이션 관찰일지(HTML + PPTX). 모형을 다시 구현해 돌려 보는 용도
 
+## 결과물은 어디에?
+
+**`papers/<번호_저자연도_주제>/final/`** 에 완성 HTML과 PPTX가 있습니다. 전체 목록과 바로가기는 **[papers/README.md](papers/README.md)** 입니다.
+
 ## 폴더
 
 ```
 paper-deck/
-├── CLAUDE.md            파이프라인 규칙(Claude가 읽음)
-├── README.md            이 문서(새 PC 세팅)
+├── papers/              ★ 논문 하나 = 폴더 하나 (번호_저자연도_주제)
+│   ├── README.md        논문 목록과 최종 파일 바로가기(자동 생성)
+│   └── 04_Hou2025_VacSim/
+│       ├── final/       최종 결과물(HTML, PPTX)
+│       └── work/        원고: 슬라이드 원고, 노트, 아웃라인, 발표 스크립트(고치는 곳)
+├── inbox/               Claude Code 웹으로 보낼 논문 PDF
+├── src/                 도구(Node.js)와 공용 부품
+│   ├── templates/       파랑이·노랑이·시뮬레이션 디자인 틀
+│   ├── reference/       기준 덱(TOR)
+│   ├── examples/        슬라이드 마크업 예시
+│   └── scripts/         웹 세션 자동 준비
+├── docs/WEB_GUIDE.md    Claude Code 웹 사용 안내
 ├── .claude/             스킬(paper-deck)과 슬래시 명령(/new-paper, /build, /check, /export)
-├── src/                 도구(Node.js)
-├── templates/           파랑이·노랑이·시뮬레이션 템플릿
-├── reference/, examples/  기준 덱과 마크업 예시
-├── input/<키>/          논문 PDF와 원문에서 나온 것 (git 제외)
-├── papers/<키>/         작업 원고: 노트, 아웃라인, 슬라이드, 스토리, 모형 코드 (git 포함)
-├── output/<키>/         결과물: HTML, PPTX, 보고서 (git 제외)
-├── package.json, package-lock.json
+├── CLAUDE.md            파이프라인 규칙(Claude가 읽음)
 ├── setup.sh             의존성 설치와 확인
-└── .env.example         설정 이름(값은 비움)
+└── package.json, package-lock.json, .env.example, .gitignore
+
+PC에만 있는 폴더(GitHub에 없음)
+├── input/<논문>/        논문 PDF와 원문에서 나온 것(저작권)
+└── output/<논문>/       빌드 중간 결과(언제든 다시 만듦)
 ```
 
-논문 PDF와 결과물은 저장소에 들어가지 않습니다. 다른 PC에서는 PDF를 다시 넣고 빌드하면 같은 결과가 나옵니다(논문 그림은 `node src/pdf_figure.js <키> --all`로 다시 잘라냄).
+논문 PDF는 저장소에 들어가지 않습니다. 다른 PC에서는 PDF를 다시 넣고 빌드하면 같은 결과가 나옵니다(논문 그림은 `node src/pdf_figure.js <키> --all`로 다시 잘라냄).
 
 ## 새 PC 세팅
 
@@ -63,25 +75,25 @@ cd ~/projects/paper-deck && claude
 프로젝트 안의 `.claude/`에 스킬과 명령이 있어 따로 복사할 필요가 없습니다.
 
 ### D. Claude Code 웹(브라우저)에서 쓰기
-설치 없이 claude.ai/code에서 쓰려면 GitHub에 올린 뒤 연결합니다. GitHub 연결부터 웹 세션 사용, 결과 받기까지는 **`WEB_GUIDE.md`**에 단계별로 정리했습니다.
+설치 없이 claude.ai/code에서 쓰려면 GitHub에 올린 뒤 연결합니다. GitHub 연결부터 웹 세션 사용, 결과 받기까지는 **`docs/WEB_GUIDE.md`**에 단계별로 정리했습니다.
 
 ## 사용법
 ```bash
-node src/new_paper.js schelling "C:\Users\me\Downloads\Schelling1971.pdf"   # 또는 Claude에게 경로만 알려 줌
+node src/new_paper.js Schelling1971_Segregation "C:\Users\me\Downloads\Schelling1971.pdf"   # papers/05_Schelling1971_Segregation 이 생김
 ```
-그다음 Claude에게 "schelling 논문 파랑이로 만들어줘"(또는 노랑이로)라고 하면 정독 노트와 아웃라인부터 보여 주고, 승인 뒤 제작합니다.
+그다음 Claude에게 "05 논문 파랑이로 만들어줘"(또는 노랑이로)라고 하면 정독 노트와 아웃라인부터 보여 주고, 승인 뒤 제작합니다.
 
 | 명령 | 하는 일 |
 |---|---|
-| `npm run new -- <키> <PDF>` | 새 논문 폴더와 텍스트 추출 |
+| `npm run new -- <저자연도_주제> <PDF>` | 새 논문 폴더(다음 번호)와 텍스트 추출 |
 | `npm run figure -- <키> <쪽>` | 쪽 이미지(그림·표 확인용) |
 | `npm run build -- <키>` | `output/<키>/deck.html`, `story.html` |
 | `npm run check -- <키>` | 숫자를 원문과 대조 → `output/<키>/04_numbers.md` |
 | `npm run export -- <키>` | PPTX(`output/<키>/deck.pptx`, `story.pptx`) |
-| `npm run deliver -- <키>` | 최종본을 `deliver/<키>/`로 복사(웹 세션에서 받아 가기용) |
+| `npm run final -- <키>` | 최종본을 `papers/<키>/final/`로 복사하고 목록 갱신 |
 | `npm test` | 회귀 시험 |
 
-Claude Code 안에서는 `/new-paper`, `/build`, `/check`, `/export`로도 부를 수 있습니다.
+`<키>`는 폴더 이름 전체, 번호(`04`), 짧은 이름(`hou`) 가운데 무엇이든 됩니다. Claude Code 안에서는 `/new-paper`, `/build`, `/check`, `/export`로도 부를 수 있습니다.
 
 ## 문제 해결
 - **`npm test`가 `CMD.EXE`, `UNC 경로` 오류를 냄**: WSL에서 윈도우 쪽 npm이 잡힌 것입니다. `sudo apt-get install -y npm`으로 Linux npm을 설치하세요(`setup.sh`가 확인함).

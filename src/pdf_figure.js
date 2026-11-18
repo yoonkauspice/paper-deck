@@ -3,7 +3,7 @@
 //                → input/<키>/extract/pages/p<쪽>.png (읽고 그림 위치를 정할 때)
 // 그림 잘라내기: node src/pdf_figure.js <키> <쪽> <이름> --crop x0,y0,x1,y1 [--dpi 200]
 //                → input/<키>/figures/<이름>.png  (crop은 쪽 크기 대비 비율 0~1, 왼쪽 위가 0,0)
-//                자른 기록은 papers/<키>/figures.txt 에 남아(커밋됨) 다른 PC에서 다시 만들 수 있음
+//                자른 기록은 papers/<키>/work/figures.txt 에 남아(커밋됨) 다른 PC에서 다시 만들 수 있음
 // 기록대로 모두 다시 만들기: node src/pdf_figure.js <키> --all
 // 페이지 HTML에서는 <img src="{{IMG:<이름>.png}}"> 로 넣는다(빌드 때 파일 안에 포함)
 const fs=require('fs'),path=require('path'),cp=require('child_process');
@@ -30,7 +30,7 @@ function render(page,name,crop,dpi){
 }
 function readLog(){return fs.existsSync(logFile)?fs.readFileSync(logFile,'utf8').split('\n').filter(l=>l.trim()&&!l.startsWith('#')).map(l=>l.trim().split(/\s+/)):[];}
 try{
-  if(argv.includes('--all')){const rows=readLog();if(!rows.length){console.log('papers/'+P.key+'/figures.txt 에 기록이 없습니다');process.exit(0);}
+  if(argv.includes('--all')){const rows=readLog();if(!rows.length){console.log('papers/'+P.key+'/work/figures.txt 에 기록이 없습니다');process.exit(0);}
     for(const [name,page,crop,dpi] of rows)render(+page,name.replace(/\.png$/,''),crop,+(dpi||200));}
   else{const page=+pos[1],name=pos[2];if(!page){console.error('쪽 번호가 필요합니다');process.exit(1);}
     const dpi=+(opt('dpi')||(name?200:110)),crop=opt('crop')||'0,0,1,1';

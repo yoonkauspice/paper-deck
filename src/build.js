@@ -1,8 +1,8 @@
 // 사용: node src/build.js <키>      (또는 npm run build -- <키>)
-//  - papers/<키>/slides/*.html 이 있으면 output/<키>/deck.html (파랑이, 16:9 슬라이드)
-//  - papers/<키>/story/*.html  이 있으면 output/<키>/story.html (노랑이, 스크롤형)
+//  - papers/<키>/work/slides/*.html 이 있으면 output/<키>/deck.html (파랑이, 16:9 슬라이드)
+//  - papers/<키>/work/story/*.html  이 있으면 output/<키>/story.html (노랑이, 스크롤형)
 // 작업 원고의 선택 파일: meta.json(title, parts, short), extra.js(덱 단계 위젯), sims/*.js(시뮬레이션 모형),
-//   story/*.js(스크롤 그래픽 핸들러), {{IMG:파일}}(papers/<키>/assets → input/<키>/figures 순서로 찾아 파일 안에 포함),
+//   story/*.js(스크롤 그래픽 핸들러), {{IMG:파일}}(papers/<키>/work/assets → input/<키>/figures 순서로 찾아 파일 안에 포함),
 //   {{JSON:파일}}(papers/<키> → output/<키> 순서로 찾음. 예: 실험 결과 results.json)
 const fs=require('fs'),path=require('path');
 const {paper,findAsset}=require('./paths');
@@ -10,7 +10,7 @@ let P;try{P=paper(process.argv[2]);}catch(e){console.error('usage: node src/buil
 const dir=P.work,T=P.templates;
 const rd=p=>fs.readFileSync(p,'utf8');
 const ex=p=>fs.existsSync(p);
-if(!ex(path.join(dir,'meta.json'))){console.error('papers/'+P.key+'/meta.json 이 없습니다. 먼저 node src/new_paper.js '+P.key+' <PDF>');process.exit(1);}
+if(!ex(path.join(dir,'meta.json'))){console.error('papers/'+P.key+'/work/meta.json 이 없습니다. 먼저 node src/new_paper.js '+P.key+' <PDF>');process.exit(1);}
 const meta=JSON.parse(rd(path.join(dir,'meta.json')));
 const list=(d,ext)=>ex(d)?fs.readdirSync(d).filter(f=>f.endsWith(ext)).sort().map(f=>rd(path.join(d,f))):[];
 fs.mkdirSync(P.output,{recursive:true});
@@ -49,7 +49,7 @@ try{
   const story=list(path.join(dir,'story'),'.html').join('\n\n');
   if(story){
     const sim=simParts(story);
-    // 노랑이는 파랑이와 다른 전용 테마(templates/story.css, Pretendard). 아이콘만 파랑이 템플릿에서 가져옴
+    // 노랑이는 파랑이와 다른 전용 테마(src/templates/story.css, Pretendard). 아이콘만 파랑이 템플릿에서 가져옴
     const sprite=(headHtml.match(/<svg width="0"[\s\S]*?<\/svg>/)||[''])[0];
     const head='<!DOCTYPE html>\n<html lang="ko"><head><meta charset="utf-8">\n<title>'+meta.title+'</title>\n'
       +'<meta name="viewport" content="width=device-width,initial-scale=1">\n'
@@ -67,5 +67,5 @@ try{
     fs.writeFileSync(out,embed(head+'\n'+bar+'\n<main>\n'+story+'\n</main>\n'+js+tip));
     console.log('built',rel(out),'chapters:',chs.length,'steps:',(story.match(/class="sc-step"/g)||[]).length,sim.js?'(sim)':'');
   }
-  if(!slides&&!story)console.error('papers/'+P.key+'/slides/ 또는 story/ 에 html 파일이 없습니다');
+  if(!slides&&!story)console.error('papers/'+P.key+'/work/slides/ 또는 story/ 에 html 파일이 없습니다');
 }catch(e){console.error(e.message);process.exit(1);}

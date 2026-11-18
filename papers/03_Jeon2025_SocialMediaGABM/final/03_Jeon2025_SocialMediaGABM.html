@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<title>ABM과 LLM으로 만드는 소셜 미디어 대화 가이드</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap">
+<style>
+:root{--paper:#fff;--text:#262626;--navy:#203044;--accent:#0046CB;--gray:#6B7280;--pale:#EEF1F6;
+  --font:"Noto Sans KR","맑은 고딕","Malgun Gothic",sans-serif;color-scheme:light}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:#DCE1E8;color:var(--text);font-family:var(--font);font-size:16px;-webkit-font-smoothing:antialiased}
+#deck{position:relative;width:100%;height:calc(100% - 46px);overflow:hidden}
+.slide{position:absolute;left:50%;top:50%;width:1280px;height:720px;background:var(--paper);display:none;transform:translate(-50%,-50%) scale(.5);
+  transform-origin:center center;overflow:hidden;padding:28px 44px 0;box-shadow:0 2px 12px rgba(32,48,68,.18)}
+.slide.active{display:block}
+h1,h2,h3,h4,h5,h6,p,li,td,th,div,span{word-break:keep-all}
+b{font-weight:700}
+.hd{display:flex;align-items:flex-end;gap:16px;height:52px;padding-bottom:8px;border-bottom:1px solid #BFC6D1}
+.hd .no-big{font-size:32px;font-weight:300;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
+.hd h2{font-size:32px;font-weight:700;color:var(--navy);line-height:1.1;white-space:nowrap}
+.hd .sec{font-size:20px;color:var(--gray);font-weight:500;padding-bottom:1px;white-space:nowrap}
+.hd .pp5{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13.33px;color:var(--gray);white-space:nowrap;padding-bottom:4px}
+.hd .pp5 b{color:var(--navy)}
+.hd .pp5 span{display:flex;gap:3px}
+.hd .pp5 i{display:block;width:16px;height:5px;background:#DFE3EA}
+.hd .pp5 i.pv{background:#9AA8BC}
+.hd .pp5 i.on{background:var(--accent)}
+.msg{font-size:20px;font-weight:500;line-height:1.5;margin:12px 0 10px;height:60px;overflow:hidden}
+.ct{display:flex;justify-content:space-between;align-items:center;gap:16px;font-size:16px;font-weight:700;color:var(--navy);height:34px;
+  border-top:2px solid var(--navy);border-bottom:1px solid var(--pale);padding:3px 0;margin-bottom:12px;white-space:nowrap;overflow:hidden}
+.ct>span:last-child{color:var(--gray);font-weight:400;font-size:13.33px}
+.body{display:grid;grid-template-columns:2fr 1fr;gap:24px;height:436px;overflow:hidden}
+.body.full{grid-template-columns:1fr}
+.body>*{min-width:0;min-height:0}
+.ft{position:absolute;left:44px;right:44px;bottom:6px;display:flex;flex-direction:column;gap:2px;font-size:13.33px;color:var(--gray)}
+.ft .fr2{display:flex;justify-content:space-between;gap:24px;align-items:flex-end}
+.nt{display:grid;grid-template-columns:repeat(3,1fr);gap:0 18px;line-height:1.35;border-top:1px solid #DFE3EA;padding-top:4px}
+.nt span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-bottom:2px}
+.nt b{color:var(--accent);margin-right:4px}
+.nt i{font-style:normal;font-weight:700;color:var(--navy);margin-right:3px}
+.ft .no{color:var(--text);font-variant-numeric:tabular-nums}
+sup{font-size:.6em;color:var(--accent);font-weight:700;margin-left:1px;line-height:0;vertical-align:super}
+sub{font-size:.7em;line-height:0;vertical-align:baseline;position:relative;top:.3em}
+.kf{background:var(--pale);padding:16px 18px;display:flex;flex-direction:column;gap:10px;height:100%}
+.kf h4{font-size:20px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px;border-bottom:1px solid #C9D1DD;padding-bottom:8px}
+.kf h4 .ic{color:var(--accent)}
+.kf ol{list-style:none;display:flex;flex-direction:column;gap:8px;counter-reset:k;flex:1;justify-content:space-around}
+.kf li{display:grid;grid-template-columns:26px 1fr;gap:10px;font-size:16px;line-height:1.45}
+.kf li::before{counter-increment:k;content:counter(k);width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;font-size:13.33px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.kf li b{display:block;color:var(--navy)}
+.kf.st li{padding:3px 4px;border-radius:3px;transition:background .3s}
+.kf.st li.cur{background:#fff}
+.kf.st li.cur::before{background:var(--accent)}
+.kf.st li.cur b{color:var(--accent)}
+.ic{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic.lg{width:34px;height:34px;stroke-width:1.6}
+.ic.xl{width:48px;height:48px;stroke-width:1.5}
+table{border-collapse:collapse;width:100%;font-size:16px;line-height:1.45}
+th,td{padding:8px 10px;text-align:left;vertical-align:middle;border-bottom:1px solid #DFE3EA}
+thead th{background:var(--navy);color:#fff;font-weight:700}
+tbody tr:last-child td,tbody tr:last-child th{border-bottom:2px solid var(--navy)}
+tbody th{font-weight:700;color:var(--navy)}
+table.sm td,table.sm th{font-size:13.33px;padding:6px 8px}
+.base{background:var(--pale);border-left:4px solid var(--accent);padding:10px 16px;font-size:16px;line-height:1.5;display:flex;align-items:center;gap:14px}
+.base .ic{color:var(--accent)}
+.base b{color:var(--navy)}
+.g{color:var(--gray)}
+.ac{color:var(--accent);font-weight:700}
+.s13{font-size:13.33px}
+code,.mono{font-family:Consolas,"D2Coding",monospace;font-size:13.33px}
+.pb{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-style:normal;font-size:13.33px;font-weight:700;flex:none;vertical-align:-4px}
+.pb.d{background:var(--accent);color:#fff}
+.pb.r{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.pb.n{background:#C9D1DD;color:var(--navy)}
+.xb{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:13.33px;font-weight:700;margin-right:6px;vertical-align:1px;line-height:1;flex:none}
+thead .xb{background:#fff;color:var(--navy)}
+
+/* 단계 버튼 */
+.sbar{display:flex;align-items:center;gap:8px;font-size:13.33px;color:var(--gray)}
+.sbar button{font-family:inherit;font-size:13.33px;font-weight:700;border:1.5px solid var(--navy);background:#fff;color:var(--navy);padding:3px 12px;border-radius:3px;cursor:pointer}
+.sbar button.pr{background:var(--accent);border-color:var(--accent);color:#fff}
+.sbar .stl{margin-left:auto;font-weight:700;color:var(--navy)}
+@media print{.sbar button{display:none}}
+.noanim,.noanim *{transition:none!important}
+[data-s]{transition:opacity .45s}
+.fade [data-s]{opacity:.18}
+.fade [data-s].act{opacity:1}
+
+/* 마우스오버 주석 */
+.tip{font-style:normal;cursor:help;border-radius:2px;transition:background .15s}
+.tip::after{content:"";display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--accent);vertical-align:.55em;margin-left:1px;opacity:.85}
+.tip:hover,.tip:focus{background:var(--pale);outline:none}
+#tipbox{position:fixed;z-index:9999;max-width:340px;padding:8px 11px;background:var(--navy);color:#fff;font-size:13.33px;font-weight:400;line-height:1.5;border-radius:2px;box-shadow:0 2px 8px rgba(0,0,0,.18);pointer-events:none;display:none}
+@media print{.tip::after{display:none}#tipbox{display:none!important}}
+
+/* 표지 */
+.cover{padding:0}
+.cover .cv-l{position:absolute;left:0;top:0;bottom:0;width:760px;padding:110px 64px 0}
+.cover .kick{font-size:16px;font-weight:500;color:var(--gray)}
+.cover h1{font-size:48px;font-weight:700;color:var(--navy);line-height:1.2;margin-top:20px}
+.cover .en{font-size:20px;line-height:1.5;margin-top:18px}
+.cover .en i{font-style:normal;color:var(--gray);font-size:16px;display:block;margin-top:6px}
+.cover .rule{width:110px;height:4px;background:var(--accent);margin:36px 0 20px}
+.cover .who{font-size:16px;line-height:1.8;color:var(--gray)}
+.cover .cv-r{position:absolute;right:0;top:0;bottom:0;width:520px;background:var(--navy);padding:84px 48px 0;color:#fff}
+.cover .cv-r .lb{font-size:16px;color:#AFC0DA}
+.cover .cv-r .big{font-size:48px;font-weight:700;line-height:1.1;margin:6px 0 28px}
+.cover .cv-r .big em{font-style:normal;color:#7FA7FF}
+.cover .cv-r ul{list-style:none;display:flex;flex-direction:column;gap:14px}
+.cover .cv-r li{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;font-size:20px;border-bottom:1px solid #3A4A63;padding-bottom:10px}
+.cover .cv-r li .ic{color:#7FA7FF}
+.cover .cv-r li span{font-size:13.33px;font-weight:700;padding:2px 9px;border-radius:3px;border:1px solid #AFC0DA;color:#D6DFEE}
+
+/* 간지 */
+.dv{padding:0}
+.dv .dl{position:absolute;left:0;top:0;bottom:0;width:470px;background:var(--navy);color:#fff;padding:150px 56px 0}
+.dv .dl .lb{font-size:20px;color:#AFC0DA;font-weight:500}
+.dv .dl .pn{font-size:96px;font-weight:700;line-height:1;color:#7FA7FF;margin:10px 0 22px}
+.dv .dl h2{font-size:48px;font-weight:700;line-height:1.2}
+.dv .dr{position:absolute;left:470px;right:0;top:0;bottom:0;padding:120px 64px 0;display:flex;flex-direction:column;gap:26px}
+.dv .dm{font-size:20px;font-weight:500;line-height:1.6;color:var(--text);border-left:4px solid var(--accent);padding-left:18px}
+.dv .dpg{list-style:none;display:flex;flex-direction:column}
+.dv .dpg li{display:grid;grid-template-columns:60px 1fr;align-items:center;font-size:20px;padding:10px 0;border-bottom:1px solid #DFE3EA;color:var(--navy)}
+.dv .dpg li span{font-weight:300;color:var(--accent);font-variant-numeric:tabular-nums}
+
+/* 애니메이션 */
+@media (prefers-reduced-motion:no-preference){
+  .slide.active .an{animation:up .55s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0s)}
+}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+#nav{position:fixed;left:0;right:0;bottom:0;height:46px;display:flex;align-items:center;justify-content:center;gap:14px;font-size:16px;color:var(--navy);z-index:10}
+#nav .grp{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #C9D1DD;border-radius:18px;padding:3px 10px}
+#nav button{font-family:inherit;font-size:20px;background:none;border:0;color:var(--navy);cursor:pointer;width:28px;height:28px}
+@media print{
+  @page{size:1280px 720px;margin:0}
+  html,body{height:auto;background:#fff}
+  #deck{height:auto;overflow:visible}
+  .slide{display:block!important;position:relative;left:0;top:0;transform:none!important;box-shadow:none;break-after:page;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #nav{display:none!important}
+}
+
+/* 03 상충 그림 */
+.tos{display:grid;grid-template-columns:1fr;height:100%}
+.tos svg text{font-family:var(--font)}
+/* 04 순위 비교 */
+.rk2{display:grid;grid-template-columns:1fr 60px 1fr;align-items:center;height:100%}
+.rkc h5{font-size:16px;color:var(--navy);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.rkc h5 .ic{color:var(--accent)}
+.rkc ol{list-style:none;display:flex;flex-direction:column;gap:8px}
+.rkc li{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;border:1px solid #C9D1DD;padding:8px 10px;font-size:16px}
+.rkc li .r{font-size:20px;font-weight:300;color:var(--accent)}
+.rkc li .t b{display:block;color:var(--navy)}
+.rkc li .t span{font-size:13.33px;color:var(--gray)}
+.rkc li .v{font-weight:700;color:var(--navy);text-align:right;font-size:16px}
+.rkc.on li:first-child{border:2px solid var(--accent)}
+.rk2 .arr{font-size:32px;color:var(--accent);text-align:center}
+/* 05 방법 표 */
+table.mt td,table.mt th{padding:18px 12px}
+table.mt tr.on td,table.mt tr.on th{background:#F3F7FF}
+table.mt tr.on th{color:var(--accent)}
+/* 07 페르소나 */
+.ps{display:flex;flex-direction:column;gap:8px;height:100%}
+.term{background:#1B2534;color:#D6DFEE;font-family:Consolas,"D2Coding",monospace;font-size:13.33px;line-height:1.5;padding:10px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.term .gp{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:start}
+.term .lb{font-family:var(--font);font-size:13.33px;font-weight:700;padding:1px 8px;border-radius:3px;text-align:center}
+.term .lb.a{background:#3A4A63;color:#fff}
+.term .lb.g{background:var(--accent);color:#fff}
+.term .tx span{display:block}
+/* 08 온도계 */
+.th{display:flex;flex-direction:column;gap:12px;height:100%}
+.tbar{display:grid;grid-template-columns:110px 1fr 60px;gap:10px;align-items:center;font-size:16px}
+.tbar .k{font-weight:700;color:var(--navy)}
+.tbar .tr{height:26px;background:var(--pale);position:relative}
+.tbar .tr i{position:absolute;left:0;top:0;bottom:0;transition:width .8s}
+.tbar .tr i.d{background:var(--accent)}
+.tbar .tr i.r{background:var(--navy)}
+.tbar .v{font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.pax{position:relative;height:70px;margin:8px 70px 0}
+.pax .ln{position:absolute;left:0;right:0;top:30px;height:3px;background:#C9D1DD}
+.pax .tk{position:absolute;top:24px;width:2px;height:15px;background:var(--gray)}
+.pax .lab{position:absolute;top:44px;font-size:13.33px;color:var(--gray);transform:translateX(-50%);white-space:nowrap}
+.pax .mk{position:absolute;top:14px;width:20px;height:20px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 0 0 2px var(--accent);transform:translateX(-50%);transition:left .8s}
+.pax .mv{position:absolute;top:-10px;font-size:16px;font-weight:700;color:var(--accent);transform:translateX(-50%);transition:left .8s;white-space:nowrap}
+.stm{background:#1B2534;color:#F2C46D;font-family:Consolas,monospace;font-size:16px;padding:10px 16px}
+.stm b{font-family:var(--font);color:#AFC0DA;font-size:13.33px;font-weight:400;margin-right:10px}
+.calc{font-size:16px;color:var(--navy);background:var(--pale);padding:8px 14px}
+/* 09 네트워크 */
+.nw{display:flex;flex-direction:column;gap:8px;height:100%}
+.nw svg text{font-family:var(--font)}
+.fx{display:flex;align-items:center;gap:18px;background:var(--pale);padding:10px 16px;font-size:16px}
+.fx .eq{font-family:"Times New Roman",serif;font-size:20px;color:var(--navy);white-space:nowrap}
+/* 10 흐름 */
+.fl{display:flex;flex-direction:column;gap:12px;height:100%}
+.fl5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;position:relative}
+.fb{border:1.5px solid #C9D1DD;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-height:186px;background:#fff;transition:all .4s}
+.fb .n{font-size:13.33px;font-weight:700;color:var(--gray)}
+.fb .ic{color:var(--navy)}
+.fb b{font-size:16px;color:var(--navy);line-height:1.35}
+.fb p{font-size:13.33px;line-height:1.5;color:var(--text)}
+.fb.cur{border:2px solid var(--accent);background:#F3F7FF}
+.fb.cur .ic,.fb.cur .n{color:var(--accent)}
+.loop{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;height:34px}
+.loop div{grid-column:3/6;border:2px solid var(--accent);border-top:0;height:24px;position:relative}
+.loop div span{position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);background:#fff;padding:0 8px;font-size:13.33px;font-weight:700;color:var(--accent);white-space:nowrap}
+.loop div::before{content:"";position:absolute;left:-7px;top:-8px;border:6px solid transparent;border-bottom:8px solid var(--accent)}
+.fi2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fi2>div{background:var(--pale);padding:10px 14px;font-size:16px;line-height:1.5}
+.fi2 b{color:var(--navy)}
+/* 11 지시문 */
+.pr3{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:14px;height:100%}
+.pc{display:flex;flex-direction:column;gap:8px;min-width:0}
+.pc h5{font-size:16px;color:var(--navy);display:flex;align-items:center;gap:8px}
+.pc h5 .ic{color:var(--accent)}
+.pc .en{background:#1B2534;color:#D6DFEE;font-family:GulimChe,"굴림체",Gulim,"굴림",monospace;font-size:16px;line-height:1.6;padding:10px 12px;flex:1}
+.pc .en em{font-style:normal;color:#F2C46D}
+.pc .ko{background:var(--pale);font-size:13.33px;line-height:1.5;padding:8px 12px;min-height:86px}
+.pc.on .en{outline:3px solid var(--accent);outline-offset:-3px}
+
+/* 13 세 플랫폼 */
+.pf{display:flex;flex-direction:column;gap:10px;height:100%}
+.pf3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pfc{border:1.5px solid #C9D1DD;padding:10px 14px;display:flex;flex-direction:column;gap:4px;transition:all .3s}
+.pfc h5{font-size:16px;color:var(--navy);display:flex;align-items:center;gap:6px}
+.pfc dl{display:grid;grid-template-columns:72px 1fr;gap:2px 8px;font-size:13.33px;line-height:1.45}
+.pfc dt{color:var(--gray);font-weight:700}
+.pfc.on{border:2px solid var(--accent);background:#F3F7FF}
+.fd{display:grid;grid-template-columns:230px 1fr;gap:14px;flex:1;min-height:0}
+.fdv{background:var(--pale);padding:10px 14px;font-size:13.33px;line-height:1.55}
+.fdv b{display:block;color:var(--navy);font-size:16px;margin-bottom:4px}
+.fdl{list-style:none;display:flex;flex-direction:column;gap:5px}
+.fdl li{display:grid;grid-template-columns:30px 1fr 200px 70px;gap:10px;align-items:center;border:1px solid #DFE3EA;padding:4px 10px;font-size:13.33px;transition:opacity .3s}
+.fdl li .rn{font-size:16px;font-weight:700;color:var(--accent);text-align:center}
+.fdl li .nm b{font-size:16px;color:var(--navy)}
+.fdl li .sc{text-align:right;font-weight:700;color:var(--navy);font-size:16px}
+.fdl li.off{opacity:.3}
+.fdl li.off .rn{color:var(--gray)}
+/* 14 브릿징 계산 */
+.bc{display:flex;flex-direction:column;gap:10px;height:100%}
+.bcl{list-style:none;display:flex;flex-direction:column;gap:14px}
+.bcl li{display:grid;grid-template-columns:44px 170px 1fr 90px;gap:12px;align-items:center;border:1.5px solid #C9D1DD;padding:18px 14px;transition:all .5s}
+.bcl li .rn{font-size:20px;font-weight:300;color:var(--accent);text-align:center}
+.bcl li .nm b{color:var(--navy)}
+.bcl li .ch{display:flex;gap:4px;flex-wrap:wrap}
+.bcl li .ch .pb{transition:opacity .4s}
+.bc[data-step="2"] .ch .same,.bc[data-step="3"] .ch .same,.bc[data-step="4"] .ch .same{opacity:.15}
+.bcl li .sc{font-size:20px;font-weight:700;color:var(--accent);text-align:right;opacity:0;transition:opacity .4s}
+.bc[data-step="3"] .sc,.bc[data-step="4"] .sc{opacity:1}
+.bc[data-step="4"] .bcl li:first-child{border:2px solid var(--accent);background:#F3F7FF}
+/* 15 독설 */
+.tx2{display:flex;flex-direction:column;gap:12px;height:100%}
+.scl{position:relative;height:70px;margin:6px 10px 0}
+.scl .bar{position:absolute;left:0;right:0;top:22px;height:16px;background:linear-gradient(90deg,#EEF1F6,#203044)}
+.scl .lb{position:absolute;top:44px;font-size:13.33px;color:var(--gray);transform:translateX(-50%)}
+.scl .tt{position:absolute;top:0;font-size:13.33px;font-weight:700;color:var(--navy)}
+.ex2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.exc{border:1px solid #C9D1DD;padding:10px 14px;font-size:16px;line-height:1.5}
+.tfl{display:grid;grid-template-columns:1fr 24px 1fr 24px 1fr 24px 1fr;align-items:center}
+.tfl>div{background:var(--pale);padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-height:118px}
+.tfl .ic{color:var(--accent)}
+.tfl b{color:var(--navy)}
+.tfl span{font-size:13.33px;color:var(--gray)}
+.tfl i{font-style:normal;text-align:center;color:var(--accent);font-weight:700;font-size:20px}
+.exc .h{font-size:13.33px;font-weight:700;color:var(--gray);margin-bottom:4px}
+.exc .en{font-style:italic;color:var(--navy)}
+.exc .ko{font-size:13.33px;color:var(--gray);margin-top:4px}
+/* 16 E-I */
+.ei{display:flex;flex-direction:column;gap:12px;height:100%}
+.eib{display:flex;height:44px;font-size:16px;font-weight:700;color:#fff}
+.eib i{font-style:normal;display:flex;align-items:center;justify-content:center;transition:flex .6s}
+.eib .e{background:var(--accent)}
+.eib .i{background:var(--navy)}
+.eiq{font-size:20px;color:var(--navy);background:var(--pale);padding:10px 16px}
+table.eit td,table.eit th{text-align:center}
+table.eit tr.cur td,table.eit tr.cur th{background:#F3F7FF;color:var(--accent);font-weight:700}
+.eiq b{color:var(--accent)}
+.eax{position:relative;height:64px;margin:10px 70px 0}
+.eax .ln{position:absolute;left:0;right:0;top:28px;height:3px;background:#C9D1DD}
+.eax .lab{position:absolute;top:42px;font-size:13.33px;color:var(--gray);transform:translateX(-50%);white-space:nowrap}
+.eax .tk{position:absolute;top:22px;width:2px;height:15px;background:var(--gray)}
+.eax .mk{position:absolute;top:12px;width:20px;height:20px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 0 0 2px var(--accent);transform:translateX(-50%);transition:left .6s}
+.eax .mv{position:absolute;top:-12px;font-size:16px;font-weight:700;color:var(--accent);transform:translateX(-50%);transition:left .6s}
+/* 17 예상 */
+table.ex th,table.ex td{text-align:center;padding:12px 10px}
+table.ex td.l,table.ex th.l{text-align:left}
+.up{color:var(--accent);font-weight:700}
+.dn{color:var(--navy);font-weight:700}
+/* 19 결과 */
+.rs3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;height:100%}
+.rc{display:flex;flex-direction:column;gap:8px;border-top:3px solid var(--navy);padding-top:8px}
+.rc h5{font-size:16px;color:var(--navy)}
+.rc h5 span{display:block;font-size:13.33px;font-weight:400;color:var(--gray)}
+.rcb{display:flex;flex-direction:column;gap:18px;margin-top:14px}
+.rr{display:grid;grid-template-columns:64px 1fr 52px;gap:8px;align-items:center;font-size:13.33px}
+.rr .vv{font-size:16px;font-weight:700;color:var(--navy);text-align:right}
+.rr .vv.on{color:var(--accent)}
+.rr .k{font-weight:700;color:var(--navy)}
+.rtk{position:relative;height:56px;background:var(--pale)}
+.rtk i{position:absolute;top:4px;bottom:4px;background:#9AA8BC}
+.rtk i.on{background:var(--accent)}
+.rtk span{position:absolute;top:50%;transform:translateY(-50%);font-size:16px;font-weight:700;color:var(--navy);white-space:nowrap}
+.rtk .z{position:absolute;top:0;bottom:0;left:50%;width:2px;background:var(--navy)}
+.rax{display:flex;justify-content:space-between;font-size:13.33px;color:var(--gray);margin:0 60px 0 72px}
+/* 20·21 발췌 */
+.xp{display:grid;grid-template-columns:1fr 1fr;gap:14px;height:100%}
+.xp.one{grid-template-columns:1fr}
+.thd{border:1px solid #C9D1DD;display:flex;flex-direction:column}
+.thd .h{background:var(--navy);color:#fff;font-size:13.33px;font-weight:700;padding:5px 12px;display:flex;justify-content:space-between}
+.thd .p{padding:8px 12px;font-size:13.33px;line-height:1.5;border-bottom:1px solid #DFE3EA}
+.thd .p b{color:var(--navy);font-size:13.33px}
+.thd .p.root{background:var(--pale)}
+.thd .p .ko{color:var(--gray)}
+.thd .note{padding:8px 12px;font-size:13.33px;color:var(--accent);font-weight:700;margin-top:auto}
+/* 23 한계 카드 */
+.ck{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr;gap:14px;height:100%}
+.ck>div{display:grid;grid-template-columns:40px 1fr;gap:10px;align-items:start;border-top:3px solid var(--navy);padding-top:10px}
+.ck>div.on{border-top-color:var(--accent)}
+.ck .ic{color:var(--accent)}
+.ck b{display:block;color:var(--navy);font-size:16px;margin-bottom:4px}
+.ck p{font-size:16px;line-height:1.5}
+/* 24 감사 */
+.au3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;height:100%}
+.au{background:var(--pale);padding:12px 16px;display:flex;flex-direction:column;gap:8px;border-top:4px solid var(--accent)}
+.au h5{font-size:16px;color:var(--navy);display:flex;align-items:center;gap:8px}
+.au h5 .ic{color:var(--accent)}
+.au p{font-size:16px;line-height:1.5}
+.au .lp{display:flex;flex-direction:column;gap:4px;font-size:13.33px}
+.au .lp span{background:#fff;border:1px solid #C9D1DD;padding:4px 8px;text-align:center}
+.au .lp i{font-style:normal;text-align:center;color:var(--accent);font-weight:700;line-height:1}
+.au .bt{margin-top:auto;font-size:13.33px;color:var(--navy);background:#fff;padding:6px 10px;border-left:3px solid var(--navy)}
+
+/* 20·21 움직이는 댓글 스레드 */
+.fdx{display:flex;flex-direction:column;gap:6px;height:100%}
+.fd2{display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1;min-height:0}
+.thr{border:1px solid #C9D1DD;border-radius:6px;display:flex;flex-direction:column;background:#fff;overflow:hidden;min-height:0}
+.thr .tb{background:var(--navy);color:#fff;font-size:13.33px;font-weight:700;padding:5px 12px;display:flex;justify-content:space-between;align-items:center}
+.thr .tb .lk{display:flex;align-items:center;gap:4px;font-variant-numeric:tabular-nums}
+.thr .tb .lk .ic{width:16px;height:16px;stroke-width:2.2}
+.thr .tbody{padding:6px 10px;display:flex;flex-direction:column;gap:4px}
+.pst{display:grid;grid-template-columns:30px 1fr;gap:8px}
+.av{width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;font-size:13.33px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pst .who{font-size:13.33px;color:var(--gray)}
+.pst .who b{color:var(--navy)}
+.news{border:1px solid #DFE3EA;border-left:3px solid var(--accent);background:var(--pale);padding:3px 8px;margin:2px 0;font-size:13.33px;line-height:1.35}
+.news i{font-style:normal;color:var(--gray);display:block}
+.pst p,.cm p{font-size:13.33px;line-height:1.4}
+.cm{display:grid;grid-template-columns:24px 1fr;gap:6px;margin-left:30px;opacity:0;transform:translateY(8px);transition:opacity .45s,transform .45s}
+.cm .av{width:24px;height:24px;background:#9AA8BC;font-size:13.33px}
+.cm .bb{background:var(--pale);border-radius:10px;padding:4px 10px}
+.cm .bb b{font-size:13.33px;color:var(--navy);display:block}
+.cm.on{opacity:1;transform:none}
+.cm .ty{display:none;gap:3px;padding:6px 2px}
+.cm .ty i{width:6px;height:6px;border-radius:50%;background:#9AA8BC;display:block;animation:ty 1s infinite}
+.cm .ty i:nth-child(2){animation-delay:.15s}.cm .ty i:nth-child(3){animation-delay:.3s}
+@keyframes ty{0%,60%,100%{opacity:.25}30%{opacity:1}}
+.cm.typing .ty{display:flex}.cm.typing p{display:none}
+.thr .note{margin-top:auto;padding:6px 12px;font-size:13.33px;font-weight:700;color:var(--accent);border-top:1px solid #DFE3EA;opacity:0;transition:opacity .45s}
+.thr .note.act{opacity:1}
+.lpx{display:flex;align-items:center;gap:8px;font-size:13.33px;background:var(--pale);padding:6px 12px;opacity:0;transition:opacity .45s}
+.lpx.act{opacity:1}
+.lpx b{color:var(--navy)}
+.lpx span{background:#fff;border:1px solid #C9D1DD;padding:2px 8px}
+.lpx i{font-style:normal;color:var(--accent);font-weight:700}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6a8 3 0 0 0 16 0v-6"/><path d="M4 12v6a8 3 0 0 0 16 0v-6"/></symbol>
+<symbol id="i-split" viewBox="0 0 24 24"><path d="M21 17h-8l-3.5 -5h-6.5"/><path d="M21 7h-8l-3.495 5"/><path d="M18 10l3 -3l-3 -3"/><path d="M18 20l3 -3l-3 -3"/></symbol>
+<symbol id="i-msg" viewBox="0 0 24 24"><path d="M8 9h8"/><path d="M8 13h6"/><path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></symbol>
+<symbol id="i-adj" viewBox="0 0 24 24"><path d="M4 10a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M6 4v4"/><path d="M6 12v8"/><path d="M10 16a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M12 4v10"/><path d="M12 18v2"/><path d="M16 7a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M18 4v1"/><path d="M18 9v11"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 20h14"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/><path d="M12 16h.01"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2l4 -4"/></symbol>
+<symbol id="i-cpu" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="1"/><path d="M9 9h6v6h-6z"/><path d="M3 10h2"/><path d="M3 14h2"/><path d="M10 3v2"/><path d="M14 3v2"/><path d="M21 10h-2"/><path d="M21 14h-2"/><path d="M14 21v-2"/><path d="M10 21v-2"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/></symbol>
+<symbol id="i-repeat" viewBox="0 0 24 24"><path d="M4 12v-3a3 3 0 0 1 3 -3h13m-3 -3l3 3l-3 3"/><path d="M20 12v3a3 3 0 0 1 -3 3h-13m3 3l-3 -3l3 -3"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="7"/><path d="M21 21l-6 -6"/></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8"/><path d="M3.6 15h16.8"/><path d="M11.5 3a17 17 0 0 0 0 18"/><path d="M12.5 3a17 17 0 0 1 0 18"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path d="M9 13h6"/><path d="M9 17h4"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"/></symbol>
+<symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5a4 4 0 1 0 4 0v-8.5a2 2 0 0 0 -4 0v8.5"/><path d="M10 9h4"/></symbol>
+<symbol id="i-net" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><path d="M7 11l10 -5"/><path d="M7 13l10 5"/></symbol>
+<symbol id="i-news" viewBox="0 0 24 24"><path d="M16 6h3a1 1 0 0 1 1 1v11a2 2 0 0 1 -4 0v-13a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v12a3 3 0 0 0 3 3h11"/><path d="M8 8h4"/><path d="M8 12h4"/><path d="M8 16h4"/></symbol>
+<symbol id="i-sort" viewBox="0 0 24 24"><path d="M4 6h7"/><path d="M4 12h7"/><path d="M4 18h9"/><path d="M15 9l3 -3l3 3"/><path d="M18 6v12"/></symbol>
+<symbol id="i-bridge" viewBox="0 0 24 24"><path d="M3 17h18"/><path d="M5 7v10"/><path d="M19 7v10"/><path d="M5 8c4 5 10 5 14 0"/><path d="M9 11v6"/><path d="M15 11v6"/></symbol>
+<symbol id="i-scale" viewBox="0 0 24 24"><path d="M7 20h10"/><path d="M6 6l6 -1l6 1"/><path d="M12 3v17"/><path d="M9 12l-3 -6l-3 6a3 3 0 0 0 6 0"/><path d="M21 12l-3 -6l-3 6a3 3 0 0 0 6 0"/></symbol>
+<symbol id="i-robot" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="2"/><path d="M12 3v4"/><circle cx="9" cy="13" r="1"/><circle cx="15" cy="13" r="1"/><path d="M9 16h6"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></symbol>
+</svg>
+<div id="deck">
+
+<section class="slide cover">
+  <div class="cv-l">
+    <div class="kick an">논문 이해 노트 · LLM 사회 시뮬레이션</div>
+    <h1 class="an" style="--d:.08s">ABM과 LLM으로 만드는<br>소셜 미디어 대화 가이드</h1>
+    <div class="en an" style="--d:.16s">Jeon, Mendoza, Fernández, Providel, Rodríguez, Espina, Carvallo, Abeliuk (2025)<i>Simulating conversations on social media with generative agent-based models · EPJ Data Science 14:79</i></div>
+    <div class="rule an" style="--d:.24s"></div>
+    <div class="who an" style="--d:.3s">2026. 11</div>
+  </div>
+  <div class="cv-r">
+    <div class="lb an" style="--d:.2s">왜부터 결과와 한계까지</div>
+    <div class="big an" style="--d:.26s"><em>5</em>부 구성</div>
+    <ul>
+      <li class="an" style="--d:.34s"><svg class="ic lg"><use href="#i-target"/></svg>왜, 무엇을 위해<span>03–06</span></li>
+      <li class="an" style="--d:.4s"><svg class="ic lg"><use href="#i-robot"/></svg>시뮬레이터 구조<span>08–13</span></li>
+      <li class="an" style="--d:.46s"><svg class="ic lg"><use href="#i-adj"/></svg>실험 설계<span>15–18</span></li>
+      <li class="an" style="--d:.52s"><svg class="ic lg"><use href="#i-chart"/></svg>결과<span>20–23</span></li>
+      <li class="an" style="--d:.58s"><svg class="ic lg"><use href="#i-search"/></svg>해석과 한계<span>25–27</span></li>
+    </ul>
+  </div>
+  <div class="ft"><div class="fr2"><span></span><span class="no" style="color:#AFC0DA"></span></div></div>
+</section>
+
+<section class="slide dv">
+  <div class="dl"><div class="lb an">PART</div><div class="pn an" style="--d:.06s">1</div><h2 class="an" style="--d:.12s">왜, 무엇을<br>위해</h2></div>
+  <div class="dr"><div class="dm an" style="--d:.16s">LLM은 두 사람이 주고받는 대화에는 익숙하지만, 한 글이 모든 팔로워에게 퍼지는 소셜 미디어 대화는 덜 연구되었습니다. 연구 배경, 비슷한 연구와의 차이, 이 논문이 내세우는 기여와 두 가지 연구 목표를 차례로 봅니다.</div><ul class="dpg"><li class="an" style="--d:0.20s"><span>03</span>연구 동기: 이자 대화와 멀티캐스트 대화</li><li class="an" style="--d:0.25s"><span>04</span>선행 연구 지형</li><li class="an" style="--d:0.30s"><span>05</span>연구 공백</li><li class="an" style="--d:0.35s"><span>06</span>기여와 연구 질문</li></ul></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>연구 동기: 이자 대화와 멀티캐스트</h2><span class="sec">연구 배경</span></div>
+  <div class="msg">LLM은 두 상대가 번갈아 말하는 이자 대화에 익숙합니다.<br>소셜 미디어는 한 글이 모든 팔로워에게 닿는 멀티캐스트라서 아직 덜 연구되었습니다.</div>
+  <div class="ct"><span>두 가지 대화 구조</span><span>그림은 설명용 개념도</span></div>
+  <div class="body "><div class="tos an" style="--d:.05s"><svg viewBox="0 0 760 420" width="100%" height="420">
+  <defs><marker id="ah" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#203044"/></marker></defs>
+  <line x1="380" y1="40" x2="380" y2="400" stroke="#C9D1DD" stroke-width="2" stroke-dasharray="6 5"/>
+  <text x="190" y="50" font-size="20" fill="#203044" text-anchor="middle" font-weight="700">이자(dyadic) 대화</text>
+  <circle cx="100" cy="200" r="42" fill="#C9D1DD"/><text x="100" y="205" font-size="16" fill="#203044" text-anchor="middle" font-weight="700">보내는 쪽</text>
+  <circle cx="280" cy="200" r="42" fill="#C9D1DD"/><text x="280" y="205" font-size="16" fill="#203044" text-anchor="middle" font-weight="700">받는 쪽</text>
+  <line x1="146" y1="188" x2="232" y2="188" stroke="#203044" stroke-width="2" marker-end="url(#ah)"/>
+  <line x1="234" y1="214" x2="148" y2="214" stroke="#203044" stroke-width="2" marker-end="url(#ah)"/>
+  <text x="190" y="300" font-size="16" fill="#203044" text-anchor="middle">한 번에 한 상대와 역할을 번갈아 맡음</text>
+  <text x="190" y="324" font-size="13.33" fill="#6B7280" text-anchor="middle">질문과 답변 상황에 잘 맞음</text>
+  <text x="570" y="50" font-size="20" fill="#0046CB" text-anchor="middle" font-weight="700">멀티캐스트 대화</text>
+  <circle cx="450" cy="210" r="40" fill="#203044"/><text x="450" y="215" font-size="16" fill="#fff" text-anchor="middle" font-weight="700">글쓴이</text>
+  <circle cx="650" cy="100" r="26" fill="#C9D1DD"/><circle cx="710" cy="170" r="26" fill="#C9D1DD"/><circle cx="710" cy="250" r="26" fill="#C9D1DD"/><circle cx="650" cy="320" r="26" fill="#C9D1DD"/><circle cx="560" cy="360" r="26" fill="#C9D1DD"/>
+  <line x1="486" y1="192" x2="622" y2="110" stroke="#0046CB" stroke-width="2" marker-end="url(#ah)"/>
+  <line x1="490" y1="204" x2="680" y2="168" stroke="#0046CB" stroke-width="2" marker-end="url(#ah)"/>
+  <line x1="490" y1="216" x2="680" y2="248" stroke="#0046CB" stroke-width="2" marker-end="url(#ah)"/>
+  <line x1="480" y1="238" x2="628" y2="310" stroke="#0046CB" stroke-width="2" marker-end="url(#ah)"/>
+  <line x1="462" y1="248" x2="540" y2="344" stroke="#0046CB" stroke-width="2" marker-end="url(#ah)"/>
+  <text x="560" y="410" font-size="16" fill="#0046CB" text-anchor="middle">한 글이 모든 팔로워에게 도달</text>
+</svg></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-file"/></svg>배경</h4><ol>
+      <li><div><b>이자 대화에 강한 LLM</b>보내는 쪽과 받는 쪽이 번갈아 말하는 질의응답에 잘 맞음</div></li>
+      <li><div><b>멀티캐스트의 영향</b>한 사용자의 글이 모든 팔로워에게 닿아 생각이 빠르게 퍼짐</div></li>
+      <li><div><b>시뮬레이션의 쓸모</b>통제된 실험 상황에서 창발 패턴을 관찰할 수 있음</div></li>
+      <li><div><b>ABM 선택</b>개인별 규칙을 통합해 네트워크 상호작용을 모형화함</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>창발:</i>개별 규칙에서 전체 수준 패턴이 생기는 것</span><span><b>2</b><i>디지털 트윈:</i>실제 네트워크를 본뜬 가상 복제본</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §1, p.1–2</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>선행 연구 지형</h2><span class="sec">관련 연구</span></div>
+  <div class="msg">LLM과 ABM을 결합한 소셜 미디어 시뮬레이션은 이미 여러 편이 나와 있습니다.<br>연구마다 규모와 관심 주제가 달라서 이 논문의 위치를 잡으려면 먼저 이 흐름을 봐야 합니다.</div>
+  <div class="ct"><span>LLM으로 소셜 미디어를 시뮬레이션한 주요 연구</span><span>서술 순서는 원문 문헌 검토 기준</span></div>
+  <div class="body full"><table class="sm an" style="--d:.05s"><thead><tr><th style="width:190px">연구</th><th style="width:300px">방법</th><th style="width:330px">대상과 규모</th><th>핵심 결과</th></tr></thead><tbody>
+      <tr><th>Törnberg et al. (2023) [15]</th><td>LLM과 ABM으로 뉴스 피드 알고리즘 평가</td><td>피드 알고리즘 비교</td><td>서로 다른 집단이 좋아한 글을 올리면 합의를 돕고 적대적 행동의 매력을 줄일 수 있음</td></tr>
+      <tr><th>Chuang et al. (2024) [19]</th><td>LLM 에이전트 네트워크의 의견 동역학</td><td>토론 종료 시점의 에이전트 의견 측정</td><td>메모리 종류와 내용의 신뢰성에 따라 의견이 달라짐</td></tr>
+      <tr><th>Ferraro et al. (2024) [22]</th><td>추론 모듈과 상호작용 모듈(RAG 기억)</td><td>2020년 미국 대선 트윗, 실제 사용자 100명의 이력</td><td>원본 데이터와 비슷한 언어 패턴을 재현할 수 있음</td></tr>
+      <tr><th>Gao et al. (2023) [23] S3</th><td>감정·태도 상태 벡터를 쓰는 LLM 추론기</td><td>핵에너지와 성차별 주제, 연령·성별·직업 정보</td><td>생성한 반응이 실제 네트워크의 관측과 일치함</td></tr>
+      <tr><th>Zheng &amp; Tang (2024) [24]</th><td>스케일프리와 스몰월드 네트워크에서 LLM 에이전트</td><td>에이전트 15명, 10단계, 로 대 웨이드 사건 하나</td><td>스몰월드는 에코 체임버가 약하고 태도가 안정되지 않음</td></tr>
+      <tr><th>Jiang &amp; Porter (2022) [20]</th><td>다변량 호크스 과정과 ABM</td><td>트위터 가짜 뉴스 확산</td><td>시간별 트윗 수와 입장 분포를 근사함(텍스트 생성 없음)</td></tr>
+      </tbody></table></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>RAG:</i>검색한 기억을 불러와 답을 만드는 방식</span><span><b>2</b><i>호크스 과정:</i>사건이 다음 사건 확률을 높이는 모형</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §1 문헌 검토, p.3–4</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>연구 공백</h2><span class="sec">차별점</span></div>
+  <div class="msg">멀티캐스트 구조와 텍스트 시뮬레이션을 함께 쓴 연구는 진실과 거짓의 효과를 보지 않았습니다.<br>진실과 거짓을 본 연구 중에는 이 두 가지를 모두 갖춘 것이 없었습니다.</div>
+  <div class="ct"><span>원문 표 1을 서술 기준으로 정리한 비교</span><span>표 1의 체크 표시는 원문 서술(p.5)로 재구성</span></div>
+  <div class="body full"><div style="display:flex;flex-direction:column;gap:14px"><table class="ex an" style="--d:.05s"><thead><tr><th class="l" style="width:300px">연구 묶음</th><th>멀티캐스트 상호작용</th><th>텍스트 시뮬레이션</th><th>진실·거짓 틀 효과</th></tr></thead><tbody>
+      <tr><th class="l">[15], [22], [24], [31]</th><td class="up">○</td><td class="up">○</td><td>×</td></tr>
+      <tr><th class="l">[19]</th><td>×</td><td class="up">○</td><td class="up">○</td></tr>
+      <tr><th class="l">[16], [20]</th><td colspan="2" style="color:var(--gray)">텍스트 시뮬레이션 없음</td><td class="up">○</td></tr>
+      <tr style="background:#F3F7FF"><th class="l" style="color:var(--accent)">이 논문</th><td class="up">○</td><td class="up">○</td><td class="up">○</td></tr>
+      </tbody></table>
+    <div class="base an" style="--d:.15s"><svg class="ic lg"><use href="#i-target"/></svg><div><b>이 논문의 자리</b> · 거시 수준은 멀티캐스트 상호작용 모형, 미시 수준은 시뮬레이션 텍스트로 두고, 그 안에서 진실 틀과 거짓 틀의 효과를 비교함</div></div></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>[15]:</i>Törnberg et al. (2023)</span><span><b>2</b><i>[19]:</i>Chuang et al. (2024)</span><span><b>3</b><i>[22]:</i>Ferraro et al. (2024)</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) 표 1, 「Gap analysis」, p.4–5</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>기여와 연구 질문</h2><span class="sec">연구 목표</span></div>
+  <div class="msg">저자들은 세 가지 기여를 내세우고 두 개의 실험 목표(O1, O2)를 세웠습니다.<br>O1은 실제 대화와의 비교이고, O2는 진실 내용과 거짓 내용이 만드는 차이입니다.</div>
+  <div class="ct"><span>세 가지 기여와 두 가지 목표</span><span>기여와 목표는 원문 §1, §3.1</span></div>
+  <div class="body full"><div style="display:flex;flex-direction:column;gap:14px"><div class="au3" style="height:250px">
+      <div class="au an" style="--d:.05s"><h5><svg class="ic"><use href="#i-net"/></svg>기여 1 · 구조와 텍스트</h5><p>멀티캐스트 상호작용 구조에 ABM과 LLM으로 만든 텍스트를 결합하고 진실·거짓 틀의 효과를 살핌</p></div>
+      <div class="au an" style="--d:.12s"><h5><svg class="ic"><use href="#i-scale"/></svg>기여 2 · 실제와 비교</h5><p>시뮬레이션 대화를 실제 소셜 미디어 대화와 견주어 합성 글을 알아차리는 단서를 찾음</p></div>
+      <div class="au an" style="--d:.19s"><h5><svg class="ic"><use href="#i-cpu"/></svg>기여 3 · 오픈소스</h5><p>합성 텍스트를 만드는 시스템을 공개해 연구를 재현할 수 있게 함</p></div></div>
+    <div class="fi2 an" style="--d:.25s"><div><b>O1 평가</b> · 실제 온라인 대화와 시뮬레이션 대화의 차이와 유사점을 문체 지표와 모델 기반 지표로 비교</div><div><b>O2 사례 연구</b> · 검증된 진실·거짓 내용이 집단의 감성 편향에 어떤 차이를 만드는지 분석</div></div></div></div>
+  <div class="ft"><div class="fr2"><span class="src">출처: Jeon et al. (2025) §1 기여 정리, §3.1, p.5, p.10</span><span class="no"></span></div></div>
+</section>
+
+
+<section class="slide dv">
+  <div class="dl"><div class="lb an">PART</div><div class="pn an" style="--d:.06s">2</div><h2 class="an" style="--d:.12s">시뮬레이터 구조</h2></div>
+  <div class="dr"><div class="dm an" style="--d:.16s">ABM이 누가 누구에게 어떤 유형으로 반응하는지 거시 구조를 만들고, 그 구조에 맞춰 LLM이 댓글을 씁니다. 상태 전이 모형, 에이전트 유형, 프롬프트 조건화, 소프트웨어 구성을 차례로 봅니다.</div><ul class="dpg"><li class="an" style="--d:0.20s"><span>08</span>전체 구조: 거시와 미시</li><li class="an" style="--d:0.25s"><span>09</span>SISa에서 이 모델로</li><li class="an" style="--d:0.30s"><span>10</span>파라미터 한눈에</li><li class="an" style="--d:0.35s"><span>11</span>에이전트 3유형</li><li class="an" style="--d:0.40s"><span>12</span>프롬프트 조건화</li><li class="an" style="--d:0.45s"><span>13</span>Informed가 아는 것과 소프트웨어</li></ul></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>전체 구조: 거시와 미시</h2><span class="sec">시뮬레이터 개요</span></div>
+  <div class="msg">ABM이 대화의 뼈대를 만들고, 뼈대의 각 상호작용마다 LLM이 댓글을 씁니다.<br>글의 내용은 직전 글, 반응 유형, 입장 세 가지 조건으로 결정됩니다.</div>
+  <div class="ct"><span>거시 시뮬레이션에서 미시 텍스트까지</span><span>원문 그림 1을 다시 그림</span></div>
+  <div class="body "><div class="fl an" style="--d:.05s"><div class="fl5">
+      <div class="fb"><span class="n">단계 1</span><svg class="ic lg"><use href="#i-net"/></svg><b>ABM이 거시 구조 생성</b><p>누가 누구와 상호작용하는지, 어떤 유형인지, 입장은 무엇인지 정함</p></div>
+      <div class="fb"><span class="n">단계 2</span><svg class="ic lg"><use href="#i-split"/></svg><b>상호작용마다 프롬프트</b><p>대상 노드마다 프롬프트를 하나씩 정의함</p></div>
+      <div class="fb"><span class="n">단계 3</span><svg class="ic lg"><use href="#i-adj"/></svg><b>입장과 유형 샘플</b><p>찬성·반대·중립 입장과 반응 유형을 시뮬레이션에서 뽑음</p></div>
+      <div class="fb"><span class="n">단계 4</span><svg class="ic lg"><use href="#i-robot"/></svg><b>LLM이 댓글 작성</b><p>직전 글에 맞춰 조건을 반영한 텍스트를 생성함</p></div>
+      <div class="fb"><span class="n">단계 5</span><svg class="ic lg"><use href="#i-msg"/></svg><b>대화 트리 완성</b><p>상호작용을 트리로 색인하고 레벨 순서로 채움</p></div></div>
+      <div class="fi2"><div><b>거시(ABM)</b> · 누가, 누구에게, 어떤 유형으로, 어떤 입장에서 반응하는가</div><div><b>미시(LLM)</b> · 그 조건 아래에서 실제로 어떤 말을 하는가</div></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-file"/></svg>읽는 법</h4><ol>
+      <li><div><b>조건 3가지</b>직전 글, 반응 유형, 입장이 프롬프트를 바꿈</div></li>
+      <li><div><b>반응 유형</b>지지, 부정, 의문, 추가 의견 중 하나</div></li>
+      <li><div><b>입장</b>찬성, 반대, 중립 중 하나</div></li>
+      <li><div><b>출발점</b>대화를 일으키는 뉴스의 제목과 본문이 루트</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>거시:</i>구조 수준(누가, 누구에게)</span><span><b>2</b><i>미시:</i>텍스트 수준(어떤 말)</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) 그림 1, §1, §2.5, p.2–3, p.9</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>SISa에서 이 모델로</h2><span class="sec">ABM 설계</span></div>
+  <div class="msg">기본 틀은 감염병 모형을 바꾼 SISa이고, 저자들은 소셜 미디어에 맞게 네 가지를 덧붙였습니다.<br>접속 시각, 재게시와 댓글, 뒤늦은 재참여, 영구 이탈이 확장 부분입니다.</div>
+  <div class="ct"><span>에이전트 상태와 전이</span><span>원문 그림 2를 단순화함</span></div>
+  <div class="body "><div class="tos an" style="--d:.05s"><svg viewBox="0 0 760 420" width="100%" height="420">
+  <defs><marker id="ah2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#203044"/></marker></defs>
+  <rect x="20" y="120" width="140" height="56" rx="4" fill="#C9D1DD"/><text x="90" y="144" font-size="16" fill="#203044" text-anchor="middle" font-weight="700">CONNECTED</text><text x="90" y="164" font-size="13.33" fill="#203044" text-anchor="middle">접속, 아직 노출 전</text>
+  <rect x="300" y="120" width="140" height="56" rx="4" fill="#fff" stroke="#203044" stroke-width="2"/><text x="370" y="144" font-size="16" fill="#203044" text-anchor="middle" font-weight="700">LISTENING</text><text x="370" y="164" font-size="13.33" fill="#203044" text-anchor="middle">내용을 보는 중</text>
+  <rect x="580" y="120" width="160" height="56" rx="4" fill="#0046CB"/><text x="660" y="144" font-size="16" fill="#fff" text-anchor="middle" font-weight="700">PARTICIPATING</text><text x="660" y="164" font-size="13.33" fill="#fff" text-anchor="middle">토론에 참여하는 중</text>
+  <line x1="160" y1="148" x2="298" y2="148" stroke="#203044" stroke-width="2" marker-end="url(#ah2)"/>
+  <text x="230" y="104" font-size="13.33" fill="#6B7280" text-anchor="middle">접속 시각이 지나면</text><text x="230" y="120" font-size="13.33" fill="#6B7280" text-anchor="middle">(가우시안 분포)</text>
+  <line x1="440" y1="138" x2="578" y2="138" stroke="#0046CB" stroke-width="2" marker-end="url(#ah2)"/>
+  <text x="510" y="82" font-size="13.33" fill="#0046CB" text-anchor="middle">이웃 전파 · 자발적 참여</text><text x="510" y="98" font-size="13.33" fill="#0046CB" text-anchor="middle">· backsliding(재참여)</text>
+  <line x1="580" y1="162" x2="442" y2="162" stroke="#203044" stroke-width="2" marker-end="url(#ah2)"/>
+  <text x="510" y="200" font-size="13.33" fill="#203044" text-anchor="middle">cure (Informed만)</text>
+  <text x="660" y="98" font-size="13.33" fill="#0046CB" text-anchor="middle" font-weight="700">행동: POST 또는 REPOST</text><text x="660" y="114" font-size="13.33" fill="#6B7280" text-anchor="middle">전이 직후 한 번 실행</text>
+  <rect x="290" y="320" width="160" height="56" rx="4" fill="#203044"/><text x="370" y="344" font-size="16" fill="#fff" text-anchor="middle" font-weight="700">DISCONNECTED</text><text x="370" y="364" font-size="13.33" fill="#fff" text-anchor="middle">네트워크 이탈</text>
+  <line x1="90" y1="178" x2="296" y2="324" stroke="#6B7280" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ah2)"/>
+  <line x1="370" y1="178" x2="370" y2="318" stroke="#6B7280" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ah2)"/>
+  <line x1="660" y1="178" x2="446" y2="324" stroke="#6B7280" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ah2)"/>
+  <text x="370" y="404" font-size="13.33" fill="#6B7280" text-anchor="middle">어느 상태에서나 prob_disconnected로 이탈</text>
+</svg></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-adj"/></svg>네 가지 확장</h4><ol>
+      <li><div><b>접속 시각</b>에이전트마다 가우시안으로 뽑은 시각이 지나야 LISTENING이 됨</div></li>
+      <li><div><b>두 가지 행동</b>참여 직후 재게시(prob_repost)나 댓글(1−prob_repost)</div></li>
+      <li><div><b>backsliding</b>차수가 큰 감염 노드 중에서 이웃이 아니어도 골라 답함</div></li>
+      <li><div><b>영구 이탈</b>어느 상태에서든 DISCONNECTED로 이동</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>SISa:</i>자발적 참여를 더한 SIS 감염 모형</span><span><b>2</b><i>FSM:</i>상태와 전이로 행동을 정하는 에이전트</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §1, §2.1–2.2, 그림 2, p.2, p.5–7</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>파라미터 한눈에</h2><span class="sec">표 2 정리</span></div>
+  <div class="msg">모형은 여덟 개 확률과 시간 모수로 움직이고 앞의 세 개는 SISa에서 가져왔습니다.<br>나머지 다섯 개가 소셜 미디어에 맞춘 확장입니다.</div>
+  <div class="ct"><span>시뮬레이션 파라미터와 의미</span><span>정리 기준은 원문 §2.1–2.2 서술(표 2 정렬 확인 필요)</span></div>
+  <div class="body full"><table class="sm an" style="--d:.05s"><thead><tr><th style="width:60px">구분</th><th style="width:240px">파라미터</th><th>의미</th></tr></thead><tbody>
+      <tr><th>SISa</th><td class="mono">prob_neighbor_spread</td><td>참여 중인 이웃이 청취 중인 접촉에게 토론을 퍼뜨리는 비율(사회적 접촉 참여)</td></tr>
+      <tr><th>SISa</th><td class="mono">prob_tv_spread</td><td>접촉 상태와 무관하게 자발적으로 참여하는 비율(외부 환경의 영향)</td></tr>
+      <tr><th>SISa</th><td class="mono">prob_neighbor_cure</td><td>참여에서 청취로 돌아가는 전이율(Informed 에이전트에만 적용)</td></tr>
+      <tr><th>확장</th><td class="mono">mean_time_connection<br>var_time_connection</td><td>에이전트의 접속 시각을 정하는 가우시안 분포의 평균과 분산</td></tr>
+      <tr><th>확장</th><td class="mono">prob_repost</td><td>참여 직후 재게시할 비율. 댓글 비율은 1−prob_repost</td></tr>
+      <tr><th>확장</th><td class="mono">prob_backsliding</td><td>청취로 돌아간 뒤 다시 참여하는 비율</td></tr>
+      <tr><th>확장</th><td class="mono">prob_disconnected</td><td>어느 상태에서든 네트워크를 떠나는 비율</td></tr>
+      </tbody></table></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>prob_tv:</i>TV처럼 네트워크 밖 정보의 영향</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §2.1–2.2, 표 2, p.6–7</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>에이전트 3유형</h2><span class="sec">에이전트 설계</span></div>
+  <div class="msg">에이전트는 믿는 정도와 정보 접근에 따라 Naive, Dubious, Informed 세 유형입니다.<br>유형마다 입장을 바꾸는 방식과 반응 유형의 비율이 다릅니다.</div>
+  <div class="ct"><span>유형별 입장과 반응 경향</span><span>상호작용 4종: 지지·부정·의문·추가 의견</span></div>
+  <div class="body full"><div style="display:flex;flex-direction:column;gap:14px"><div class="au3" style="height:290px">
+      <div class="au an" style="--d:.05s"><h5><svg class="ic"><use href="#i-user"/></svg>NaiveViewer · 쉽게 믿는 사용자</h5><p>보는 내용을 신뢰하고 환경의 메시지에 동조하는 경향이 큼. 입장은 바뀌지 않음</p><div class="bt">지지와 댓글 비율이 높음. 일부는 네트워크 밖 정보도 받음</div></div>
+      <div class="au an" style="--d:.12s"><h5><svg class="ic"><use href="#i-thermo"/></svg>DubiousViewer · 의심하는 사용자</h5><p>중립이 기본이고 찬성과 반대 사이를 오갈 수 있음. 영향받기 쉽지만 중립을 지키려 함</p><div class="bt">네 가지 반응이 모두 나타나며 부정과 의문이 Naive보다 많고 추가 의견이 조금 더 잦음</div></div>
+      <div class="au an" style="--d:.19s"><h5><svg class="ic"><use href="#i-search"/></svg>InformedViewer · 정보를 가진 사용자</h5><p>중립이 많고 일부는 반대. 반대 입장으로 바뀔 수 있고 다른 에이전트의 입장을 바꾸려 시도(cure)함</p><div class="bt">지지가 가장 적고 의문과 부정이 두드러짐</div></div></div>
+    <div class="base an" style="--d:.25s"><svg class="ic lg"><use href="#i-check"/></svg><div><b>진실·거짓 실험에서의 역할</b> · Informed는 팩트체커와 그 평가를 따르는 사용자, Dubious와 Naive는 팩트체크에 반응하는 사용자에 해당함</div></div></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>cure 확률:</i>prob_neighbor_cure × 치유된 이웃 ÷ 감염된 이웃</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §2.3–2.4, p.7–8</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>프롬프트 조건화</h2><span class="sec">텍스트 생성</span></div>
+  <div class="msg">프롬프트는 전체에 적용되는 전역 변수와 상호작용마다 달라지는 지역 변수로 이루어집니다.<br>지역 변수 세 개가 ABM 시뮬레이션에서 그대로 넘어옵니다.</div>
+  <div class="ct"><span>프롬프트 구성 요소</span><span>구조 요약이며 실제 문구는 원문 부록 S1</span></div>
+  <div class="body "><div class="ps an" style="--d:.05s"><div class="term">
+      <div class="gp"><span class="lb a">전역 변수</span><div class="tx"><span>language</span><span>min_chars, max_chars (데이터 기반 또는 플랫폼 제약)</span><span>사용자 설명 (예: 화나 있고 독설을 하는 평균적 사용자)</span></div></div>
+      <div class="gp"><span class="lb a">뉴스</span><div class="tx"><span>title, body (Informed는 본문 전체와 팩트체크 문서)</span></div></div>
+      <div class="gp"><span class="lb g">지역 변수 1</span><div class="tx"><span>preceding_message: 감염을 일으킨 직전 에이전트의 글</span></div></div>
+      <div class="gp"><span class="lb g">지역 변수 2</span><div class="tx"><span>interaction: support · deny · question · comment</span></div></div>
+      <div class="gp"><span class="lb g">지역 변수 3</span><div class="tx"><span>stance: favor · against · neutral</span></div></div></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-msg"/></svg>생성 순서</h4><ol>
+      <li><div><b>트리로 색인</b>상호작용을 대화 트리에 넣음</div></li>
+      <li><div><b>레벨별 순회</b>위 단계 글이 먼저 만들어지도록 함</div></li>
+      <li><div><b>프롬프트 생성</b>상호작용마다 변수를 채워 호출</div></li>
+      <li><div><b>맞춤법 검사</b>실패하면 프롬프트를 다시 실행</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>예시 문구:</i>원문 §2.5의 예를 한국어로 옮김</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §2.5, §2.7, p.9</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>Informed가 아는 것과 소프트웨어</h2><span class="sec">정보 접근과 구현</span></div>
+  <div class="msg">Informed가 비판적인 이유는 더 많은 정보를 프롬프트로 받기 때문입니다.<br>시뮬레이터는 network_simulator라는 파이썬 라이브러리로 공개되어 있습니다.</div>
+  <div class="ct"><span>유형별 정보 접근과 라이브러리 모듈 6개</span><span>PyPI와 GitHub 공개</span></div>
+  <div class="body "><div style="display:flex;flex-direction:column;gap:12px"><table class="sm an" style="--d:.05s"><thead><tr><th>에이전트</th><th>뉴스 정보</th><th>팩트체크</th></tr></thead><tbody>
+      <tr><th>Naive · Dubious</th><td>제목(헤드라인)만 받음</td><td>받지 않음</td></tr>
+      <tr><th>Informed</th><td>기사 본문 전체를 받음</td><td>검증 뉴스는 팩트체크 기관의 확인 문서까지 받음</td></tr></tbody></table>
+      <div class="ck an" style="--d:.12s;height:250px;grid-template-columns:repeat(3,1fr)">
+      <div><svg class="ic lg"><use href="#i-cpu"/></svg><div><b>IA</b><p>LLM 엔드포인트 연결</p></div></div>
+      <div><svg class="ic lg"><use href="#i-db"/></svg><div><b>get_data</b><p>결과를 sqlite3에 저장·조회</p></div></div>
+      <div><svg class="ic lg"><use href="#i-chart"/></svg><div><b>plot_data</b><p>입장별 반응 곡선 시각화</p></div></div>
+      <div><svg class="ic lg"><use href="#i-msg"/></svg><div><b>post</b><p>프롬프트 템플릿과 시간선 변환</p></div></div>
+      <div><svg class="ic lg"><use href="#i-net"/></svg><div><b>schema</b><p>에이전트, 전이 규칙, 제약 정의</p></div></div>
+      <div><svg class="ic lg"><use href="#i-check"/></svg><div><b>Spelling_checker</b><p>언어 오류 검사, 실패 시 재실행</p></div></div></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-file"/></svg>알아둘 점</h4><ol>
+      <li><div><b>정보로 만드는 비판성</b>역할을 말로 시키지 않고 입력 정보를 달리함</div></li>
+      <li><div><b>팩트체크는 일부만</b>Informed에게만 주어짐</div></li>
+      <li><div><b>공개 자료</b>PyPI, GitHub, Colab 예제와 문서 제공</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>Colab:</i>브라우저에서 실행하는 노트북 예제</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §2.6–2.7, p.9</span><span class="no"></span></div></div>
+</section>
+
+
+<section class="slide dv">
+  <div class="dl"><div class="lb an">PART</div><div class="pn an" style="--d:.06s">3</div><h2 class="an" style="--d:.12s">실험 설계</h2></div>
+  <div class="dr"><div class="dm an" style="--d:.16s">저자들은 두 가지 실험으로 시뮬레이터를 시험했습니다. 실제 트위터 대화와 견주는 평가(O1)와 진실·거짓 뉴스로 보는 사례 연구(O2)이며, 실험에 쓴 데이터, 설정, 지표를 차례로 봅니다.</div><ul class="dpg"><li class="an" style="--d:0.20s"><span>15</span>데이터와 네트워크 설정</li><li class="an" style="--d:0.25s"><span>16</span>파라미터 보정</li><li class="an" style="--d:0.30s"><span>17</span>O1: 무엇으로 비교하나</li><li class="an" style="--d:0.35s"><span>18</span>O2: 진실과 거짓 사례 연구 설계</li></ul></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>데이터와 네트워크 설정</h2><span class="sec">O1 실험 조건</span></div>
+  <div class="msg">실제 대화는 Twitter16의 뉴스 이벤트 818개이고 같은 뉴스로 시뮬레이션 대화를 만들었습니다.<br>네트워크는 LFR 모형으로 100명을 만들고 LLM은 GPT-4o를 썼습니다.</div>
+  <div class="ct"><span>시뮬레이션 설정의 주요 값</span><span>상세 설정은 원문 부록 S3 시뮬레이션 카드</span></div>
+  <div class="body "><table class="sm an" style="--d:.05s"><thead><tr><th style="width:130px">구분</th><th>설정</th></tr></thead><tbody>
+      <tr><th>실제 대화</th><td>Twitter16: 2014~2015년 뉴스 이벤트 818개, 진실성 주석, 캐스케이드 평균 길이는 수백 상호작용</td></tr>
+      <tr><th>시뮬레이션 대상</th><td>같은 뉴스 이벤트 818개로 시뮬레이션 대화 생성</td></tr>
+      <tr><th>네트워크</th><td>LFR: 노드 100, 차수 분포 지수 2.0, 커뮤니티 크기 지수 1.5, 혼합 매개변수 0.5, 평균 차수 5</td></tr>
+      <tr><th>LLM</th><td>GPT-4o(2024-05-13), 온도 0.5, 빈도·존재 페널티 0</td></tr>
+      <tr><th>팩트체크</th><td>Informed 에이전트에게만 포함</td></tr>
+      </tbody></table>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-net"/></svg>LFR 네트워크란</h4><ol>
+      <li><div><b>커뮤니티 구조</b>집단이 있고 부분적으로 겹침</div></li>
+      <li><div><b>이질적 연결</b>노드마다 연결 수가 크게 다름(<span class="tip" tabindex="0" data-tip="LFR(Lancichinetti-Fortunato-Radicchi) 모형은 커뮤니티 구조와 두꺼운 꼬리의 차수 분포를 함께 가진 네트워크를 만듭니다. 혼합 매개변수 0.5는 연결의 절반 정도가 자기 커뮤니티 밖으로 이어진다는 뜻입니다.">설명</span>)</div></li>
+      <li><div><b>선행 연구와 일치</b>트위터 커뮤니티 구조 연구가 평가한 값을 사용</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>캐스케이드:</i>한 뉴스에서 퍼져 나간 상호작용 묶음</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §3.2, p.10–11</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>파라미터 보정</h2><span class="sec">SISa 보정</span></div>
+  <div class="msg">저자들은 시뮬레이션의 메시지량 곡선을 Twitter16과 견주어 적정 범위를 골랐습니다.<br>고른 범위는 세 가지 가정을 뜻하며, 비교는 곡선 모양으로 서술되었습니다.</div>
+  <div class="ct"><span>메시지량 곡선의 모양과 적정 범위</span><span>그림은 설명용 개념도이며 실제 곡선은 원문 S2</span></div>
+  <div class="body "><div class="tos an" style="--d:.05s"><svg viewBox="0 0 760 420" width="100%" height="420">
+  <defs><marker id="ah3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#203044"/></marker></defs>
+  <line x1="70" y1="360" x2="720" y2="360" stroke="#203044" stroke-width="2" marker-end="url(#ah3)"/>
+  <line x1="70" y1="360" x2="70" y2="30" stroke="#203044" stroke-width="2" marker-end="url(#ah3)"/>
+  <text x="720" y="392" font-size="16" fill="#203044" text-anchor="end" font-weight="700">시뮬레이션 시간</text>
+  <text x="86" y="40" font-size="16" fill="#203044" font-weight="700">단위 시간당 메시지 수</text>
+  <path d="M80 350 L105 300 L140 90 L180 160 L220 230 L260 190 L300 250 L350 240 L400 285 L460 270 L520 305 L600 300 L700 320" fill="none" stroke="#0046CB" stroke-width="3"/>
+  <circle cx="140" cy="90" r="6" fill="#0046CB"/>
+  <text x="156" y="82" font-size="16" fill="#0046CB" font-weight="700">대화 초반의 큰 정점</text>
+  <path d="M260 190 L260 150" stroke="#6B7280" stroke-width="1.5" stroke-dasharray="4 4"/><text x="270" y="148" font-size="13.33" fill="#6B7280">이후 작은 정점이 이어짐</text>
+  <text x="440" y="340" font-size="13.33" fill="#6B7280">전반적으로 감소하는 흐름</text>
+</svg></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-adj"/></svg>적정 범위의 의미</h4><ol>
+      <li><div><b>사회적 영향이 더 큼</b>이웃 전파가 외부 자발 참여보다 일관되게 큼</div></li>
+      <li><div><b>소수의 영구 이탈</b>backsliding과 이탈률이 둘 다 약 0.1</div></li>
+      <li><div><b>일부는 입장 변경</b>neighbor cure는 약 0.35</div></li>
+      <li><div><b>서술 방식</b>비교는 곡선의 모양으로 설명됨</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>prob dead:</i>원문 표기, 영구 이탈률을 가리킴</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §3.2, p.11 · 곡선은 원문 부록 S2</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>O1: 무엇으로 비교하나</h2><span class="sec">평가 지표</span></div>
+  <div class="msg">실제 대화와 시뮬레이션 대화를 세 묶음의 지표로 견주었습니다.<br>문체 지표, GPT-4o 기반 지표, 합성 텍스트 탐지기 GPTZero 지표입니다.</div>
+  <div class="ct"><span>세 묶음 12개 지표</span><span>검정: 중앙값 독립표본 검정, α=0.005, n=818</span></div>
+  <div class="body full"><div style="display:flex;flex-direction:column;gap:14px"><table class="sm an" style="--d:.05s"><thead><tr><th style="width:150px">묶음</th><th style="width:330px">지표</th><th style="width:330px">보는 것</th><th>도구</th></tr></thead><tbody>
+      <tr><th>문체</th><td>단어 수, 글자 수, 평균 문장 길이, SAT 어휘 비율</td><td>대화 자체의 겉모습. 문장 길이는 댓글별로 계산해 대화 평균을 냄</td><td>직접 계산</td></tr>
+      <tr><th>GPT-4o 기반</th><td>내용 품질, 문법의 정확성, 상호작용의 관련성, 언어의 적절성</td><td>프롬프트로 평가하며 Lin et al.의 방법을 따름</td><td>GPT-4o(2024-08-06)</td></tr>
+      <tr><th>GPTZero 기반</th><td>가독성, perplexity, burstiness, simplicity</td><td>합성 텍스트를 가려내기 위한 모델이 계산한 특징</td><td>GPTZero</td></tr>
+      </tbody></table>
+    <div class="base an" style="--d:.15s"><svg class="ic lg"><use href="#i-scale"/></svg><div><b>읽는 법</b> · <span class="tip" tabindex="0" data-tip="perplexity는 앞의 단어들이 주어졌을 때 다음 단어를 맞히기 어려운 정도입니다. 값이 클수록 예측하기 어려운 글입니다. burstiness는 대화 안에서 같은 단어가 반복되는 정도입니다.">perplexity</span>가 높을수록 예측하기 어렵고, burstiness가 높을수록 특정 단어가 자주 반복됨. simplicity는 대화를 따라가기 쉬운 정도</div></div></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>SAT 어휘:</i>미국 대학입학시험의 어려운 단어</span><span><b>2</b><i>GPTZero:</i>합성 텍스트 탐지용으로 미세조정된 모델</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §3.3, p.11–14</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>O2: 진실과 거짓 사례 연구 설계</h2><span class="sec">사례 연구 설계</span></div>
+  <div class="msg">PolitiFact가 검증한 진실 40건과 거짓 40건으로 시뮬레이션 대화를 만들어 견주었습니다.<br>감성 방향, 편향어 같은 지표를 계산하고 분포 모양에 맞는 검정을 골랐습니다.</div>
+  <div class="ct"><span>설계 흐름과 감성 방향 SO</span><span>뉴스 80건, 2024년 5월~2025년 4월</span></div>
+  <div class="body "><div class="tx2 an" style="--d:.05s"><div class="tfl"><div><svg class="ic lg"><use href="#i-news"/></svg><b>PolitiFact 80건</b><span>진실 40, 거짓 40</span></div><i>→</i><div><svg class="ic lg"><use href="#i-robot"/></svg><b>시뮬레이션</b><span>뉴스마다 대화 생성</span></div><i>→</i><div><svg class="ic lg"><use href="#i-chart"/></svg><b>지표 계산</b><span>NELA, RoBERTa, 구조</span></div><i>→</i><div><svg class="ic lg"><use href="#i-scale"/></svg><b>검정</b><span>진실 대 거짓 비교</span></div></div>
+      <div class="stm"><b>감성 방향</b>SO = (P − N) ÷ (P + N)</div>
+      <div class="calc">P는 긍정 의견어 수, N은 부정 의견어 수입니다. 대화마다 SO의 평균 SO(B)와 분산 SO(D)를 구합니다.</div>
+      <div class="base" style="padding:8px 14px"><svg class="ic"><use href="#i-check"/></svg><div class="s13"><b>검정 선택</b> · 연속형은 정규성 검사 후 Levene로 등분산을 보고 Welch나 표준 t, 정규가 아니면 Mann-Whitney. H, A, LEAVES, NODES는 Freeman-Halton, HAS DRIFT는 Fisher 정확 검정</div></div></div>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-search"/></svg>계산한 지표</h4><ol>
+      <li><div><b>NELA 어휘 6종</b>편향어, assertives, factives, hedges, implicatives, report verbs</div></li>
+      <li><div><b>감성 방향</b>SO(B), SO(D)와 RoBERTa의 B, D</div></li>
+      <li><div><b>구조</b>높이 H, 너비 A, LEAVES, NODES</div></li>
+      <li><div><b>HAS DRIFT</b>긍정과 부정의 우세가 중간에 뒤바뀌었는지</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>NELA:</i>뉴스 분석용 어휘 라이브러리</span><span><b>2</b><i>RoBERTa:</i>트윗 5800만 건으로 학습한 감성 모델</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §3.4, 그림 7, p.14–17</span><span class="no"></span></div></div>
+</section>
+
+
+<section class="slide dv">
+  <div class="dl"><div class="lb an">PART</div><div class="pn an" style="--d:.06s">4</div><h2 class="an" style="--d:.12s">결과</h2></div>
+  <div class="dr"><div class="dm an" style="--d:.16s">O1에서는 시뮬레이션 대화가 더 길고 매끄럽지만 예측 가능성에서 차이가 났습니다. O2에서는 거짓 뉴스가 만든 대화가 더 부정적인 방향으로 기울었습니다. 이 수치는 원문 서술 기준이며 그림과 표의 값은 추가 확인이 필요합니다.</div><ul class="dpg"><li class="an" style="--d:0.20s"><span>20</span>O1 문체 지표</li><li class="an" style="--d:0.25s"><span>21</span>O1 GPT-4o 기반 지표</li><li class="an" style="--d:0.30s"><span>22</span>O1 GPTZero 지표</li><li class="an" style="--d:0.35s"><span>23</span>O2 진실과 거짓의 차이</li></ul></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>O1 문체 지표</h2><span class="sec">그림 3</span></div>
+  <div class="msg">시뮬레이션 대화는 더 길고 어려운 어휘를 많이 씁니다.<br>문장 길이는 중앙값이 같고 실제 대화의 흩어짐이 더 큽니다.</div>
+  <div class="ct"><span>문체 지표 4개의 비교</span><span>방향과 유의 여부만 표시, 수치는 원문 그림 3</span></div>
+  <div class="body "><table class="ex an" style="--d:.05s"><thead><tr><th class="l">지표</th><th>시뮬레이션 대 실제</th><th>중앙값 차이</th><th class="l">해석</th></tr></thead><tbody>
+      <tr><th class="l">단어 수</th><td class="up">시뮬레이션이 많음</td><td>유의(p&lt;0.001)</td><td class="l">더 장황한 텍스트</td></tr>
+      <tr><th class="l">글자 수</th><td class="up">시뮬레이션이 많음</td><td>유의(p&lt;0.001)</td><td class="l">더 장황한 텍스트</td></tr>
+      <tr><th class="l">평균 문장 길이</th><td>중앙값 일치</td><td>유의하지 않음</td><td class="l">실제 대화의 흩어짐이 큼</td></tr>
+      <tr><th class="l">SAT 어휘 비율</th><td class="up">시뮬레이션이 높음</td><td>유의(p&lt;0.001)</td><td class="l">더 복잡한 언어</td></tr>
+      </tbody></table>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-chart"/></svg>Key Findings</h4><ol>
+      <li><div><b>더 장황함</b>단어와 글자가 모두 많음</div></li>
+      <li><div><b>더 복잡한 어휘</b>SAT 어휘 비율이 높음</div></li>
+      <li><div><b>문장 길이는 비슷</b>길이 차이는 문장 수에서 생김</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>검정:</i>중앙값 독립표본 검정, α=0.005, n=818</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §3.3.1, 그림 3, p.12</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>O1 GPT-4o 기반 지표</h2><span class="sec">그림 4</span></div>
+  <div class="msg">GPT-4o가 평가했을 때 시뮬레이션 대화가 문법, 관련성, 적절성에서 더 높게 나옵니다.<br>실제 트위터 대화는 주제에서 벗어나거나 덜 격식 있는 표현이 많았습니다.</div>
+  <div class="ct"><span>GPT-4o 기반 지표 4개의 비교</span><span>네 지표의 중앙값 차이가 모두 유의</span></div>
+  <div class="body "><table class="ex an" style="--d:.05s"><thead><tr><th class="l">지표</th><th>시뮬레이션 대 실제</th><th>중앙값 차이</th><th class="l">저자의 설명</th></tr></thead><tbody>
+      <tr><th class="l">내용 품질</th><td class="up">시뮬레이션이 높음</td><td>유의(p&lt;0.001)</td><td class="l">내용, 문법, 관련성 모두에서 앞섬</td></tr>
+      <tr><th class="l">문법의 정확성</th><td class="up">시뮬레이션이 높음</td><td>유의(p&lt;0.001)</td><td class="l">문법을 더 효율적으로 사용</td></tr>
+      <tr><th class="l">상호작용의 관련성</th><td class="up">시뮬레이션이 높음</td><td>유의(p&lt;0.001)</td><td class="l">루트 댓글과 더 직접 연결</td></tr>
+      <tr><th class="l">언어의 적절성</th><td class="up">시뮬레이션이 높음</td><td>유의(p&lt;0.001)</td><td class="l">GPT-4o의 유해 표현 방지 지침 때문으로 설명</td></tr>
+      </tbody></table>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-chart"/></svg>Key Findings</h4><ol>
+      <li><div><b>더 매끄러운 대화</b>실제 대화보다 일관성과 관련성이 높음</div></li>
+      <li><div><b>더 점잖은 어조</b>모델의 안전 지침이 어조를 통제함</div></li>
+      <li><div><b>평가 방식</b>Lin et al.의 프롬프트 평가를 따름</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>평가 모델:</i>GPT-4o 2024-08-06 버전</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §3.3.2, 그림 4, p.12–13</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>O1 GPTZero 지표</h2><span class="sec">그림 5</span></div>
+  <div class="msg">탐지기 지표에서는 perplexity와 simplicity만 유의한 차이가 났습니다.<br>사람 대화가 예측하기 어렵고 시뮬레이션 대화가 따라가기 쉽습니다.</div>
+  <div class="ct"><span>GPTZero 지표 4개의 비교</span><span>유의한 것은 perplexity와 simplicity</span></div>
+  <div class="body "><table class="ex an" style="--d:.05s"><thead><tr><th class="l">지표</th><th>시뮬레이션 대 실제</th><th>중앙값 차이</th><th class="l">해석</th></tr></thead><tbody>
+      <tr><th class="l">가독성</th><td>큰 차이 없음</td><td>유의하지 않음</td><td class="l">실제 대화의 변동이 약간 큼</td></tr>
+      <tr><th class="l">burstiness</th><td>큰 차이 없음</td><td>유의하지 않음</td><td class="l">단어 반복 정도는 비슷함</td></tr>
+      <tr><th class="l">simplicity</th><td class="up">시뮬레이션이 높음</td><td>유의(p&lt;0.001)</td><td class="l">시뮬레이션이 더 쉽게 읽힘</td></tr>
+      <tr><th class="l">perplexity</th><td class="dn">실제 대화가 높음</td><td>유의(p&lt;0.001)</td><td class="l">실제 대화가 덜 예측 가능</td></tr>
+      </tbody></table>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-chart"/></svg>Key Findings</h4><ol>
+      <li><div><b>탐지 단서</b>예측 가능성이 합성 텍스트의 흔적으로 남음</div></li>
+      <li><div><b>토큰 선택 방식의 차이</b>저자는 GPT-4o와 사람의 샘플링 방식이 다르다고 해석함</div></li>
+      <li><div><b>정리</b>알고리즘 지표가 더 뚜렷하게 차이를 드러냄</div></li></ol></div></div>
+  <div class="ft"><div class="fr2"><span class="src">출처: Jeon et al. (2025) §3.3.3, 그림 5, p.13–14, §4, p.19</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>O2 진실과 거짓의 차이</h2><span class="sec">표 3</span></div>
+  <div class="msg">진실 뉴스와 거짓 뉴스의 대화는 15개 지표 중 5개에서 유의하게 달랐습니다.<br>진실은 평균 긍정, 거짓은 평균 부정이며 거짓에서 감성 반전이 더 잦았습니다.</div>
+  <div class="ct"><span>유의한 5개 지표</span><span>검정 15개, 각 틀 n=40, 수치는 원문 표 3(확인 필요)</span></div>
+  <div class="body "><table class="ex an" style="--d:.05s"><thead><tr><th class="l">유의한 지표</th><th>원문이 서술한 방향</th><th class="l">뜻</th></tr></thead><tbody>
+      <tr><th class="l">BIASED WORDS</th><td>차이가 유의함(방향은 표 3)</td><td class="l">편향어 사용량이 다름</td></tr>
+      <tr><th class="l">SO(B) 감성 방향 평균</th><td><span class="up">진실 +</span> / <span class="dn">거짓 −</span></td><td class="l">진실은 긍정, 거짓은 부정으로 기움</td></tr>
+      <tr><th class="l">B(RoBERTa)</th><td><span class="up">진실 +</span> / <span class="dn">거짓 −</span></td><td class="l">모델 기반 평균도 같은 방향</td></tr>
+      <tr><th class="l">SO(D) 감성 분산</th><td>차이가 유의함(방향은 표 3)</td><td class="l">의견 분산 정도가 다름</td></tr>
+      <tr><th class="l">HAS DRIFT</th><td class="dn">거짓에서 더 많음</td><td class="l">긍정과 부정의 우세가 뒤바뀜</td></tr>
+      </tbody></table>
+    <div class="kf an" style="--d:.15s"><h4><svg class="ic"><use href="#i-chart"/></svg>Key Findings</h4><ol>
+      <li><div><b>거짓이 더 부정적</b>NELA와 RoBERTa 두 방법에서 같은 방향</div></li>
+      <li><div><b>감성 반전</b>거짓 틀에서 더 자주 나타남</div></li>
+      <li><div><b>나머지 10개</b>다른 어휘 지표와 구조 지표는 유의하지 않음</div></li></ol></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>나머지 10개:</i>유의한 5개를 뺀 값으로, 유의 여부는 원문 서술 기준</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §3.4, 표 3, p.16–17, §4, p.17–18</span><span class="no"></span></div></div>
+</section>
+
+
+<section class="slide dv">
+  <div class="dl"><div class="lb an">PART</div><div class="pn an" style="--d:.06s">5</div><h2 class="an" style="--d:.12s">해석과<br>한계</h2></div>
+  <div class="dr"><div class="dm an" style="--d:.16s">저자들이 직접 쓴 한계를 먼저 보고, 원문을 대조해 찾은 해석상 주의점을 봅니다. 마지막 장에는 재현에 필요한 설정값을 모았습니다.</div><ul class="dpg"><li class="an" style="--d:0.20s"><span>25</span>저자의 한계 서술</li><li class="an" style="--d:0.25s"><span>26</span>원문 감사: 해석과 설계</li><li class="an" style="--d:0.30s"><span>27</span>부록 · 재현 설정값</li></ul></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>저자의 한계 서술</h2><span class="sec">논문 §4.1, §5</span></div>
+  <div class="msg">저자들은 순차 시뮬레이션, 단순한 에이전트, 비교 자료의 한계를 직접 적었습니다.<br>파란 선은 결과 해석에 직접 관련된 항목입니다.</div>
+  <div class="ct"><span>저자 서술 한계 6가지</span><span>파란 선: 결과 해석에 직접 관련</span></div>
+  <div class="body full"><div class="ck">
+    <div class="an" style="--d:.05s"><svg class="ic lg"><use href="#i-clock"/></svg><div><b>순차 시뮬레이션</b><p>한 스텝에 한 에이전트만 움직여 조직적 캠페인의 동기화나 고빈도 상호작용을 담지 못함</p></div></div>
+    <div class="an" style="--d:.1s"><svg class="ic lg"><use href="#i-user"/></svg><div><b>단순한 프로필</b><p>입장과 정보 개방성만 모형화하고 이념, 종교, 성별 프로필이 없음</p></div></div>
+    <div class="an" style="--d:.15s"><svg class="ic lg"><use href="#i-db"/></svg><div><b>제한된 맥락</b><p>원글, 직전 글, 상호작용 변수만 쓰고 장기 기억이 없음</p></div></div>
+    <div class="on an" style="--d:.2s"><svg class="ic lg"><use href="#i-users"/></svg><div><b>비교 자료의 한계</b><p>Twitter16 글이 모두 사람이 쓴 것인지 보장할 수 없음</p></div></div>
+    <div class="on an" style="--d:.25s"><svg class="ic lg"><use href="#i-scale"/></svg><div><b>지표의 한계</b><p>지표마다 한계가 있어 여러 지표의 수렴 증거로 판단함</p></div></div>
+    <div class="an" style="--d:.3s"><svg class="ic lg"><use href="#i-robot"/></svg><div><b>LLM의 한계</b><p>더 예측 가능한 글을 만들고 세션마다 초기화되어 복잡한 신념 체계를 만들지 못함</p></div></div></div></div>
+  <div class="ft"><div class="fr2"><span class="src">출처: Jeon et al. (2025) §4.1, §5, p.18–19</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>원문 감사: 해석과 설계</h2><span class="sec">덱의 검토 결과</span></div>
+  <div class="msg">결론 문장의 근거, 통계 검정의 해석, 평가 설계에서 확인할 점이 있었습니다.<br>모두 원문 본문과 대조한 것이며 부록(S1~S7)은 아직 확인하지 못했습니다.</div>
+  <div class="ct"><span>해석과 설계의 주의점 3가지</span><span>원문 대조: 덱 작성자 · 부록과 외부 모델 교차 검토는 미실시</span></div>
+  <div class="body full"><div class="au3">
+      <div class="au an" style="--d:.05s"><h5><svg class="ic"><use href="#i-alert"/></svg>결론의 팩트체크 문장</h5>
+        <div class="lp"><span>결론: 팩트체크가 있으면 부정성이 커짐</span><i>↓</i><span>본문 실험: 진실 40건 대 거짓 40건 비교</span><i>↓</i><span>팩트체크 유무를 바꾼 비교는 서술되지 않음</span></div>
+        <div class="bt">팩트체크는 Informed에게 항상 주어져 진실·거짓 효과와 분리되지 않음</div></div>
+      <div class="au an" style="--d:.12s"><h5><svg class="ic"><use href="#i-scale"/></svg>검정 15개, 유의 5개</h5>
+        <p>표 3은 15개 지표를 각각 검정했고 5개가 유의했습니다. 다중 비교 보정은 본문에 언급이 없습니다.</p>
+        <p>각 틀에서 n=40이고 한 뉴스당 시뮬레이션 횟수는 서술되지 않았습니다.</p>
+        <div class="bt">보정과 반복 횟수가 정해져야 유의한 5개의 안정성을 판단할 수 있음</div></div>
+      <div class="au an" style="--d:.19s"><h5><svg class="ic"><use href="#i-cpu"/></svg>평가 설계</h5>
+        <p>시뮬레이션은 GPT-4o(05-13)가 만들고 평가는 GPT-4o(08-06)가 했습니다. 생성 모델과 평가 모델이 같은 계열입니다.</p>
+        <p>O1은 2014~2015년 트위터, O2는 2024~2025년 뉴스로 자료 시기가 다릅니다.</p>
+        <div class="bt">모델 계열의 평가 편향과 시기 차이를 따로 확인해야 함</div></div></div></div>
+  <div class="ft"><div class="nt"><span><b>1</b><i>다중 비교:</i>검정이 많을수록 우연히 유의한 결과가 늘어나는 문제</span></div><div class="fr2"><span class="src">출처: Jeon et al. (2025) §3.2, §3.3.2, §3.4, §5, 표 3, p.11, p.13, p.15–17, p.19</span><span class="no"></span></div></div>
+</section>
+
+<section class="slide ">
+  <div class="hd"><span class="no-big"></span><h2>부록 · 재현 설정값</h2><span class="sec">재현 정보</span></div>
+  <div class="msg">본문에 적힌 설정값과 공개 자료를 한곳에 모았습니다.<br>프롬프트와 시뮬레이션 카드의 값은 원문 부록에 있어 이 덱에는 담지 못했습니다.</div>
+  <div class="ct"><span>재현에 필요한 값과 공개 위치</span><span>본문 기준, 부록 S1~S7 미확인</span></div>
+  <div class="body full"><table class="sm an" style="--d:.05s"><thead><tr><th style="width:170px">항목</th><th style="width:560px">값</th><th>위치</th></tr></thead><tbody>
+      <tr><th>시뮬레이션 엔진</th><td>SOIL(파이썬 ABM), FSM 에이전트, 이산 시간, 한 스텝에 한 에이전트</td><td>§2.1, §2.4</td></tr>
+      <tr><th>네트워크(LFR)</th><td>노드 100, 지수 2.0과 1.5, 혼합 0.5, 평균 차수 5</td><td>§3.2</td></tr>
+      <tr><th>LLM 설정</th><td>생성 GPT-4o(2024-05-13), 온도 0.5, 빈도·존재 페널티 0. 평가 GPT-4o(2024-08-06)</td><td>§3.2, §3.3.2</td></tr>
+      <tr><th>보정 범위</th><td>neighbor spread &gt; tv spread, backsliding와 이탈 약 0.1, neighbor cure 약 0.35</td><td>§3.2</td></tr>
+      <tr><th>O1 데이터</th><td>Twitter16, 뉴스 이벤트 818개, 검정 α=0.005</td><td>§3.2, §3.3</td></tr>
+      <tr><th>O2 데이터</th><td>PolitiFact 80건(진실 40, 거짓 40), 2024.5~2025.4</td><td>§3.4, S5, S6</td></tr>
+      <tr><th>공개 자료</th><td>PyPI network-simulator, GitHub minsoos/network_simulator, Zenodo 10.5281/zenodo.14544946</td><td>§2.7, 데이터 가용성</td></tr>
+      <tr><th>부록에만 있는 것</th><td>프롬프트(S1), 보정 곡선(S2), 시뮬레이션 카드(S3), 평가 프롬프트(S4), 대안 토폴로지(S7)</td><td>추가 파일</td></tr>
+      </tbody></table></div>
+  <div class="ft"><div class="fr2"><span class="src">출처: Jeon et al. (2025) §2.1, §2.4, §2.7, §3.2–3.4, 데이터 가용성, p.5–11, p.14–15, p.20</span><span class="no"></span></div></div>
+</section>
+
+</div>
+<script>window.PART_NAMES=["왜, 무엇을 위해","시뮬레이터 구조","실험 설계","결과","해석과 한계"];</script>
+<div id="nav"><div class="grp"><button id="prev" aria-label="이전 장">‹</button><span id="pg">1 / 1</span><button id="next" aria-label="다음 장">›</button></div></div>
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll(".slide"));
+  slides.forEach(function(s,k){var n=s.querySelector(".ft .no");if(n)n.textContent=String(k+1).padStart(2,"0");
+    var bg=s.querySelector(".hd .no-big");if(bg)bg.textContent=String(k+1).padStart(2,"0");});
+  var cur=0;
+  try{var h=parseInt(location.hash.slice(1),10);if(h>0&&h<=slides.length)cur=h-1;}catch(e){}
+  function fit(){var d=document.getElementById("deck"),s=Math.min((d.clientWidth-24)/1280,(d.clientHeight-16)/720);if(!(s>0))s=.5;
+    slides.forEach(function(x){x.style.transform="translate(-50%,-50%) scale("+s+")";});}
+  function show(n){cur=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach(function(x,k){x.classList.toggle("active",k===cur);});
+    document.getElementById("pg").textContent=(cur+1)+" / "+slides.length;
+    try{history.replaceState(null,"","#"+(cur+1));}catch(e){}}
+  document.addEventListener("keydown",function(e){
+    if(["ArrowRight","PageDown"," "].indexOf(e.key)>=0){e.preventDefault();show(cur+1);}
+    else if(["ArrowLeft","PageUp"].indexOf(e.key)>=0){e.preventDefault();show(cur-1);}
+    else if(e.key==="Home")show(0);else if(e.key==="End")show(slides.length-1);});
+  document.getElementById("prev").onclick=function(){show(cur-1);};
+  document.getElementById("next").onclick=function(){show(cur+1);};
+  window.addEventListener("hashchange",function(){var h=parseInt(location.hash.slice(1),10);if(h>0&&h<=slides.length&&h-1!==cur)show(h-1);});
+  window.addEventListener("resize",fit);
+  if(window.ResizeObserver)new ResizeObserver(fit).observe(document.getElementById("deck"));
+  fit();show(cur);
+  var PN=window.PART_NAMES||[],part=0,groups={};
+  slides.forEach(function(x){if(x.classList.contains("dv"))part++;else if(part&&x.querySelector(".hd")){(groups[part]=groups[part]||[]).push(x);}});
+  Object.keys(groups).forEach(function(pt){var g=groups[pt];g.forEach(function(x,k){
+    var d=document.createElement("div");d.className="pp5";var bars="";
+    for(var i=0;i<g.length;i++)bars+="<i class=\""+(i<k?"pv":(i===k?"on":""))+"\"></i>";
+    d.innerHTML="<b>"+pt+"부 "+PN[pt-1]+"</b><span>"+bars+"</span>"+(k+1)+"/"+g.length;
+    x.querySelector(".hd").appendChild(d);});});
+})();
+function mkStep(root,N,apply,init){
+  var slide=root.closest(".slide"),lab=root.querySelector(".stl"),lis=slide.querySelectorAll(".kf.st li"),step=1,timer=null;
+  function show(anim){if(!anim)root.classList.add("noanim");root.dataset.step=step;
+    slide.querySelectorAll("[data-s]").forEach(function(e){e.classList.toggle("act",step>=+e.dataset.s);});
+    lis.forEach(function(l,k){l.classList.toggle("cur",k===step-1);});if(lab)lab.textContent=step+" / "+N;
+    root.querySelectorAll(".sbar button[data-go]").forEach(function(b){b.classList.toggle("pr",+b.dataset.go===step);});
+    if(apply)apply(step,anim);if(!anim){void root.offsetWidth;root.classList.remove("noanim");}}
+  function stop(){if(timer){clearInterval(timer);timer=null;}}
+  function reset(){stop();step=init||1;show(false);}
+  function next(){if(step>=N)return false;step++;show(true);return true;}
+  root.querySelectorAll(".sbar button").forEach(function(b){b.addEventListener("click",function(){var a=b.dataset.a;b.blur();
+    if(b.dataset.go){stop();step=+b.dataset.go;show(true);return;}
+    if(a==="next"){stop();next();}else if(a==="reset")reset();
+    else{if(step>=N)reset();stop();next();timer=setInterval(function(){if(!next())stop();},2300);}});});
+  var was=false;new MutationObserver(function(){var now=slide.classList.contains("active");if(now&&!was)reset();was=now;}).observe(slide,{attributes:true,attributeFilter:["class"]});
+  window.addEventListener("beforeprint",function(){stop();step=N;show(false);});
+  window.addEventListener("afterprint",reset);
+  reset();
+}
+</script>
+
+<div id="tipbox" role="tooltip"></div>
+<script>(function(){var box=document.getElementById("tipbox");
+  function show(t){box.textContent=t.dataset.tip;box.style.display="block";var r=t.getBoundingClientRect(),w=box.offsetWidth,h=box.offsetHeight;
+    var x=Math.min(Math.max(8,r.left),window.innerWidth-w-8),y=r.bottom+8;if(y+h>window.innerHeight-8)y=r.top-h-8;
+    box.style.left=x+"px";box.style.top=y+"px";}
+  document.addEventListener("mouseover",function(e){var t=e.target.closest(".tip");if(t)show(t);});
+  document.addEventListener("mouseout",function(e){if(e.target.closest(".tip"))box.style.display="none";});
+  document.addEventListener("focusin",function(e){var t=e.target.closest(".tip");if(t)show(t);});
+  document.addEventListener("focusout",function(e){if(e.target.closest(".tip"))box.style.display="none";});
+  document.addEventListener("click",function(e){var t=e.target.closest(".tip");if(t)show(t);else box.style.display="none";});
+})();</script>
+</body></html>

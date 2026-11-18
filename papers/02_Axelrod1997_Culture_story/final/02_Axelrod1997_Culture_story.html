@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<title>같은 이웃끼리 닮아 가면 소수의 문화는 남을까?</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+/* 시뮬레이션 장 부품 (data-sim이 있는 덱에만 빌드 시 추가됨) */
+.sim{display:grid;grid-template-columns:1.45fr 1fr;gap:18px;height:100%;min-height:0}
+.sim-l{display:flex;flex-direction:column;gap:8px;min-width:0;min-height:0}
+.sim-stage{flex:1;min-height:0;background:var(--pale);position:relative}
+.sim-stage canvas{position:absolute;inset:0;width:100%;height:100%}
+.sim-lg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13.33px;color:var(--gray)}
+.sim-lg i{display:inline-block;width:12px;height:12px;margin-right:5px;vertical-align:-1px}
+.sim-bar{display:flex;align-items:center;gap:6px;font-size:13.33px;color:var(--gray)}
+.sim button{font-family:inherit;font-size:13.33px;font-weight:700;border:1.5px solid var(--navy);background:#fff;color:var(--navy);padding:3px 10px;border-radius:3px;cursor:pointer;white-space:nowrap}
+.sim button.pr,.sim button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.sim button:disabled{opacity:.4;cursor:default}
+.sim-bar .tk{margin-left:auto;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums}
+.sim-r{display:flex;flex-direction:column;gap:9px;min-width:0;min-height:0}
+.sim-g{display:grid;grid-template-columns:78px 1fr;align-items:center;gap:8px}
+.sim-g h6{font-size:13.33px;font-weight:700;color:var(--navy);display:flex;flex-direction:column;line-height:1.25}
+.sim-g h6 span{color:var(--accent);font-variant-numeric:tabular-nums}
+.sim-seg{display:flex;gap:4px;flex-wrap:wrap}
+.sim-seg button{flex:1;padding:3px 6px;font-weight:500;border-color:#C9D1DD}
+.sim-seg button.on{font-weight:700}
+.sim input[type=range]{width:100%;accent-color:var(--accent)}
+.sim-mx{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.sim-mx div{background:var(--pale);padding:6px 8px;display:flex;flex-direction:column}
+.sim-mx b{font-size:20px;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.2}
+.sim-mx span{font-size:13.33px;color:var(--gray);line-height:1.3}
+.sim-ch{flex:1;min-height:90px;position:relative;border-top:2px solid var(--navy)}
+.sim-ch canvas{position:absolute;inset:0;width:100%;height:100%}
+@media print{.sim button{display:none}}
+</style>
+<style>
+/* 스크롤형 전용 테마 (슬라이드 덱 디자인과 별개)
+   고대비 흑백 + 파랑/노랑 강조, Pretendard 굵은 글꼴, 검정 굵은 선, 둥근 모서리 */
+:root{
+  --ink:#000;--paper:#fff;--accent:#0046C8;--yellow:#FFE000;--pale:#F4F5F7;--muted:#3C3C3C;--hair:#D6D6D6;
+  --font:"Pretendard","Pretendard Variable",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  /* 공통 부품(sim, 차트)이 읽는 변수 */
+  --navy:var(--ink);--gray:var(--muted);--text:var(--ink);
+  --c-ink:#000;--c-accent:#0046C8;--c-yellow:#FFE000;--c-gray:#3C3C3C;--c-grid:#D6D6D6;--c-pale:#F4F5F7;--c-mid:#9A9A9A;
+  --sim-maj:#E3E5EA;--sim-min:#0046C8;--sim-min2:#9A9A9A;--sim-line:#000;
+  color-scheme:light}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--font);font-size:20px;line-height:1.7;font-weight:500;-webkit-font-smoothing:antialiased;word-break:keep-all}
+b{font-weight:800}
+.s13{font-size:15px}.g{color:var(--muted)}.ac{color:var(--accent);font-weight:800}
+.mono,code{font-family:Consolas,"D2Coding",monospace;font-size:16px;background:var(--pale);border-radius:6px;padding:6px 10px;display:inline-block}
+.ic{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* 상단 바와 목차 */
+.sc-top{position:sticky;top:0;z-index:30;height:64px;background:var(--paper);border-bottom:2px solid var(--ink);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:0 32px}
+.sc-top .t{font-size:18px;font-weight:800;white-space:nowrap}
+.sc-top .c{font-size:17px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.sc-top .b{justify-self:end;display:flex;gap:10px}
+.sc-top button,.sc-btn{font-family:inherit;font-size:16px;font-weight:750;border:2px solid var(--ink);background:var(--paper);color:var(--ink);padding:7px 14px;border-radius:8px;cursor:pointer;transition:background .16s}
+.sc-top button:hover,.sc-btn:hover{background:var(--yellow)}
+.sc-top button:active{transform:translateY(1px)}
+.sc-prog{position:absolute;left:0;bottom:-6px;height:6px;width:0;background:var(--accent)}
+.sc-toc{position:fixed;top:72px;right:24px;z-index:40;background:var(--paper);border:3px solid var(--ink);border-radius:12px;padding:10px 0;display:none;min-width:340px}
+.sc-toc.on{display:block}
+.sc-toc a{display:grid;grid-template-columns:44px 1fr;padding:9px 18px;color:var(--ink);text-decoration:none;font-size:18px;font-weight:750}
+.sc-toc a span{color:var(--accent);font-weight:800}
+.sc-toc a:hover,.sc-toc a.cur{background:var(--yellow)}
+
+/* 표지 */
+.sc-hero{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:40px;min-height:calc(100vh - 64px);max-width:1360px;margin:0 auto;padding:40px 48px}
+.sc-hero .kick{font-size:18px;font-weight:800}
+.sc-hero h1{font-size:64px;font-weight:800;line-height:1.12;letter-spacing:-.05em;margin-top:22px}
+.sc-hero .en{font-size:16px;line-height:1.6;margin-top:24px;font-weight:500}
+.sc-hero .en i{display:block;font-style:normal;margin-top:4px}
+.sc-hero .who{font-size:16px;font-weight:700;margin-top:10px}
+.sc-hero .down{display:inline-block;margin-top:36px;font-size:24px;font-weight:800;color:var(--accent);text-decoration:none;border-bottom:4px solid var(--ink);padding-bottom:4px}
+.sc-hero .art{position:relative}
+.sc-hero .art svg{width:100%;height:auto;display:block}
+.sc-pill{display:inline-block;background:var(--yellow);border:3px solid var(--ink);border-radius:999px;padding:8px 22px;font-size:18px;font-weight:800}
+.sc-hero .art .sc-pill{position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);white-space:nowrap}
+
+/* 장 머리 */
+.sc-ch{border-top:2px solid var(--ink)}
+.sc-chh,.sc-wrap{max-width:1360px;margin:0 auto;padding:0 48px}
+.sc-chh{padding-top:56px;padding-bottom:12px}
+.sc-chh .lb{font-size:18px;font-weight:800}
+.sc-chh .pn{display:none}
+.sc-chh h2{font-size:36px;font-weight:800;letter-spacing:-.04em;line-height:1.3;margin-top:4px}
+.sc-chh .dm{font-size:20px;font-weight:500;margin-top:10px;max-width:780px}
+
+/* 단계(왼쪽 타임라인) */
+.sc-wrap{display:grid;grid-template-columns:minmax(360px,.9fr) 1.1fr;gap:56px}
+.sc-steps{position:relative;margin:24px 0 0 14px;padding:6vh 0 38vh 36px;border-left:3px solid var(--ink)}
+.sc-step{min-height:72vh;display:flex;flex-direction:column;justify-content:center;gap:16px;opacity:.28;transition:opacity .3s}
+.sc-step.on{opacity:1}
+.sc-step h3{position:relative;font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.35}
+.sc-step h3::before{content:"";position:absolute;left:-50px;top:10px;width:22px;height:22px;border-radius:50%;background:var(--paper);border:3px solid var(--ink)}
+.sc-step.on h3::before{background:var(--yellow)}
+.sc-step p{font-size:21px;line-height:1.75}
+.sc-step .v{font-weight:800;color:var(--accent);background:linear-gradient(transparent 62%,var(--yellow) 62%);padding:0 2px;font-variant-numeric:tabular-nums}
+.sc-step ol{list-style:none;counter-reset:k;display:flex;flex-direction:column;gap:10px}
+.sc-step ol li{display:grid;grid-template-columns:30px 1fr;gap:8px;font-size:20px;line-height:1.6;font-weight:600}
+.sc-step ol li::before{counter-increment:k;content:counter(k);color:var(--accent);font-weight:800}
+.sc-tri{display:grid;grid-template-columns:108px 1fr;gap:8px 14px;font-size:19px;line-height:1.5;border-top:3px solid var(--ink);padding-top:12px;font-weight:600}
+.sc-tri dt{color:var(--accent);font-weight:800}
+.sc-memo{background:var(--yellow);border:3px solid var(--ink);border-left-width:10px;border-radius:8px;padding:16px 20px;font-size:21px;line-height:1.55;font-weight:750}
+.sc-memo::before{content:"관찰 메모";display:block;font-size:17px;font-weight:800;margin-bottom:6px}
+.sc-say{background:var(--paper);border:3px solid var(--ink);border-radius:8px;padding:14px 20px;font-size:20px;line-height:1.55;font-weight:700}
+.sc-say::before{content:attr(data-who);display:block;font-size:16px;font-weight:800;color:var(--accent);margin-bottom:4px}
+
+/* 그래픽(오른쪽 고정) */
+.sc-fig{position:relative}
+.sc-sticky{position:sticky;top:88px;height:calc(100vh - 112px)}
+.sc-g{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:12px;opacity:0;visibility:hidden;transition:opacity .35s,visibility .35s}
+.sc-g.on{opacity:1;visibility:visible}
+.sc-gh{display:flex;justify-content:space-between;align-items:baseline;gap:16px;font-size:24px;font-weight:800;letter-spacing:-.02em;border-bottom:3px solid var(--ink);padding-bottom:8px}
+.sc-gh span:last-child{font-size:15px;font-weight:600;letter-spacing:0}
+.sc-gb{position:relative}
+.sc-gb svg{width:100%;height:auto;display:block}
+.sc-gb svg text{font-family:var(--font)}
+.sc-gf{font-size:15px;font-weight:600;line-height:1.5}
+.sc-g .sim{height:min(560px,calc(100vh - 230px))}
+
+/* 표 */
+table{border-collapse:collapse;width:100%;font-size:18px;line-height:1.45}
+th,td{padding:10px 12px;text-align:left;vertical-align:middle;border-bottom:2px solid var(--ink)}
+thead th{font-weight:800;border-bottom:4px solid var(--ink)}
+tbody th{font-weight:800}
+table.sm td,table.sm th{font-size:17px}
+td.ac{background:var(--yellow);color:var(--ink)}
+
+/* 시뮬레이션 부품을 이 테마에 맞춤 */
+.sim button{border:2px solid var(--ink);border-radius:8px;font-weight:750;font-size:15px;padding:5px 12px}
+.sim button.pr,.sim button.on{background:var(--accent);border-color:var(--ink);color:#fff}
+.sim button:hover{background:var(--yellow);color:var(--ink)}
+.sim-seg button{border-color:var(--ink)}
+.sim-stage{background:var(--pale);border-radius:8px}
+.sim-mx div{background:var(--paper);border:2px solid var(--ink);border-radius:8px}
+.sim-mx b{color:var(--ink);font-weight:800}
+.sim-mx span{color:var(--muted)}
+.sim-g h6{color:var(--ink);font-weight:800;font-size:15px}
+.sim-ch{border-top:3px solid var(--ink)}
+.sim-lg{color:var(--ink);font-weight:600}
+
+/* 마우스오버 주석 */
+.tip{cursor:help;border-bottom:2px dotted var(--accent)}
+#tipbox{position:fixed;z-index:9999;max-width:360px;padding:10px 12px;background:var(--ink);color:#fff;font-size:15px;line-height:1.5;border-radius:8px;pointer-events:none;display:none}
+
+.sc-end{max-width:1360px;margin:0 auto;padding:40px 48px 120px;border-top:2px solid var(--ink)}
+
+/* 캡처 모드(?shot=번호) */
+.sc-shot .sc-hero,.sc-shot .sc-end,.sc-shot .sc-top .b{display:none}
+.sc-shot .sc-chh{padding-top:20px}.sc-shot .sc-chh .dm{display:none}.sc-shot .sc-chh h2{font-size:30px}
+.sc-shot .sc-steps{padding:10px 0 10px 36px}.sc-shot .sc-step{min-height:0;opacity:1;padding-top:10px}
+.sc-shot .sc-step h3::before{background:var(--yellow)}
+.sc-shot .sc-sticky{position:relative;top:0;height:600px}.sc-shot .sc-g .sim{height:540px}
+
+@media (max-width:960px){
+  body{font-size:18px}
+  .sc-top{grid-template-columns:1fr auto;padding:0 16px}.sc-top .c{display:none}
+  .sc-hero{grid-template-columns:1fr;padding:32px 20px}.sc-hero h1{font-size:44px}
+  .sc-chh,.sc-wrap{padding:0 16px}.sc-wrap{grid-template-columns:1fr;gap:0}
+  .sc-fig{order:-1}.sc-sticky{top:64px;height:56vh;background:var(--paper);z-index:5}
+  .sc-step{min-height:60vh}.sc-step h3{font-size:24px}.sc-step p{font-size:18px}
+}
+@media print{.sc-top,.sc-toc{display:none}.sc-step{opacity:1;min-height:0;break-inside:avoid}.sc-sticky{position:static;height:auto}.sc-g{position:static;opacity:1;visibility:visible}}
+
+/* 표지 캡처(?shot=0)와 PPTX 다운로드 버튼 */
+.sc-shot0 .sc-hero{display:grid!important}
+.sc-top a.dl{font-size:16px;font-weight:750;border:2px solid var(--ink);background:var(--yellow);color:var(--ink);padding:7px 14px;border-radius:8px;text-decoration:none}
+.sc-top a.dl:hover{background:var(--accent);color:#fff}
+.sc-shot .sc-sticky{height:calc(100vh - 190px)}.sc-shot .sc-g .sim{height:calc(100vh - 250px)}
+
+/* 논문 원본과 재현 나란히 비교: <div class="sc-cmp"><figure><figcaption><i>논문</i>그림 3</figcaption><img src="[[IMG:fig3.png 자리표시]]"></figure><figure class="re"><figcaption><i>재현</i>…</figcaption><div class="sc-gb"></div></figure></div> */
+.sc-cmp{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.sc-cmp figure{border:3px solid var(--ink);border-radius:8px;padding:12px;background:var(--paper);display:flex;flex-direction:column;gap:10px;min-width:0}
+.sc-cmp figcaption{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:800}
+.sc-cmp figcaption i{font-style:normal;border:2px solid var(--ink);border-radius:999px;padding:1px 10px;font-size:14px}
+.sc-cmp figure.re figcaption i{background:var(--yellow)}
+.sc-cmp img{width:100%;height:auto;display:block}
+.sc-cmp table{font-size:15px}.sc-cmp th,.sc-cmp td{padding:6px 8px}
+.sc-diff{display:grid;grid-template-columns:96px 1fr;gap:6px 12px;font-size:17px;line-height:1.5;font-weight:600;border-top:3px solid var(--ink);padding-top:10px}
+.sc-diff dt{font-weight:800;color:var(--accent)}
+.sc-diff dt.diff{color:var(--ink);background:var(--yellow);padding:0 6px;border-radius:4px;justify-self:start}
+.sc-cmp.stack{grid-template-columns:1fr}
+</style>
+</head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6a8 3 0 0 0 16 0v-6"/><path d="M4 12v6a8 3 0 0 0 16 0v-6"/></symbol>
+<symbol id="i-split" viewBox="0 0 24 24"><path d="M21 17h-8l-3.5 -5h-6.5"/><path d="M21 7h-8l-3.495 5"/><path d="M18 10l3 -3l-3 -3"/><path d="M18 20l3 -3l-3 -3"/></symbol>
+<symbol id="i-msg" viewBox="0 0 24 24"><path d="M8 9h8"/><path d="M8 13h6"/><path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></symbol>
+<symbol id="i-adj" viewBox="0 0 24 24"><path d="M4 10a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M6 4v4"/><path d="M6 12v8"/><path d="M10 16a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M12 4v10"/><path d="M12 18v2"/><path d="M16 7a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M18 4v1"/><path d="M18 9v11"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 20h14"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/><path d="M12 16h.01"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2l4 -4"/></symbol>
+<symbol id="i-cpu" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="1"/><path d="M9 9h6v6h-6z"/><path d="M3 10h2"/><path d="M3 14h2"/><path d="M10 3v2"/><path d="M14 3v2"/><path d="M21 10h-2"/><path d="M21 14h-2"/><path d="M14 21v-2"/><path d="M10 21v-2"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/></symbol>
+<symbol id="i-repeat" viewBox="0 0 24 24"><path d="M4 12v-3a3 3 0 0 1 3 -3h13m-3 -3l3 3l-3 3"/><path d="M20 12v3a3 3 0 0 1 -3 3h-13m3 3l-3 -3l3 -3"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="7"/><path d="M21 21l-6 -6"/></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8"/><path d="M3.6 15h16.8"/><path d="M11.5 3a17 17 0 0 0 0 18"/><path d="M12.5 3a17 17 0 0 1 0 18"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path d="M9 13h6"/><path d="M9 17h4"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"/></symbol>
+<symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5a4 4 0 1 0 4 0v-8.5a2 2 0 0 0 -4 0v8.5"/><path d="M10 9h4"/></symbol>
+<symbol id="i-net" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><path d="M7 11l10 -5"/><path d="M7 13l10 5"/></symbol>
+<symbol id="i-news" viewBox="0 0 24 24"><path d="M16 6h3a1 1 0 0 1 1 1v11a2 2 0 0 1 -4 0v-13a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v12a3 3 0 0 0 3 3h11"/><path d="M8 8h4"/><path d="M8 12h4"/><path d="M8 16h4"/></symbol>
+<symbol id="i-sort" viewBox="0 0 24 24"><path d="M4 6h7"/><path d="M4 12h7"/><path d="M4 18h9"/><path d="M15 9l3 -3l3 3"/><path d="M18 6v12"/></symbol>
+<symbol id="i-bridge" viewBox="0 0 24 24"><path d="M3 17h18"/><path d="M5 7v10"/><path d="M19 7v10"/><path d="M5 8c4 5 10 5 14 0"/><path d="M9 11v6"/><path d="M15 11v6"/></symbol>
+<symbol id="i-scale" viewBox="0 0 24 24"><path d="M7 20h10"/><path d="M6 6l6 -1l6 1"/><path d="M12 3v17"/><path d="M9 12l-3 -6l-3 6a3 3 0 0 0 6 0"/><path d="M21 12l-3 -6l-3 6a3 3 0 0 0 6 0"/></symbol>
+<symbol id="i-robot" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="2"/><path d="M12 3v4"/><circle cx="9" cy="13" r="1"/><circle cx="15" cy="13" r="1"/><path d="M9 16h6"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></symbol>
+</svg>
+<header class="sc-top"><span class="t">Axelrod 레플리케이션 관찰기</span><span class="c"></span><span class="b"><button id="sc-toc-btn">목차</button><button id="sc-full-btn">전체 화면</button><a class="dl" href="02_Axelrod1997_Culture_story.pptx" download>PPTX 받기</a></span><i class="sc-prog"></i></header><nav class="sc-toc"><a href="#ch-rule"><span>01</span>상호작용 한 번의 규칙</a><a href="#ch-org"><span>02</span>200명의 조직</a><a href="#ch-run"><span>03</span>직접 돌려 보기</a><a href="#ch-rep"><span>04</span>시드 20개로 다시 돌리기</a><a href="#ch-end"><span>05</span>한계와 제작 기록</a></nav>
+<main>
+<section class="sc-hero">
+  <div class="l">
+    <div class="kick">레플리케이션 관찰일지 · 복잡계 5강 모형</div>
+    <h1>같은 이웃끼리 닮아 가면<br>소수의 문화는 남을까?</h1>
+    <div class="en">Axelrod, R. (1997). The Dissemination of Culture: A Model with Local Convergence and Global Polarization.<i>Journal of Conflict Resolution, 41(2), 203–226 · 5강 자료의 조직 확장 모형을 다시 구현해 돌린 기록</i></div>
+    <div class="who">2026. 11</div>
+    <a class="down" href="#ch-rule">관찰 따라가기 ↓</a>
+  </div>
+  <div class="art"><svg id="hero-art" viewBox="0 0 600 440" aria-hidden="true"></svg><span class="sc-pill">20 × 10 격자 위의 200명</span></div>
+</section>
+
+
+<section class="sc-ch" id="ch-rule" data-n="관찰 01">
+  <div class="sc-chh"><div><div class="lb">관찰일지 · 01</div><div class="pn">01</div></div>
+    <div><h2>상호작용 한 번의 규칙</h2><div class="dm">모형은 한 번에 한 쌍만 움직입니다. 이 한 번의 규칙이 전체 결과를 만듭니다.</div></div></div>
+  <div class="sc-wrap">
+    <div class="sc-steps">
+      <div class="sc-step" data-g="g-rule" data-s="1">
+        <h3>행위자는 특성 6개를 가집니다.</h3>
+        <p>0번 특성은 성별이고 값이 2가지입니다.</p>
+        <p>1~5번 특성은 문화이고 각각 값이 4가지입니다.</p>
+      </div>
+      <div class="sc-step" data-g="g-rule" data-s="2">
+        <h3>무작위로 한 명을 고르고, 그 이웃 중 한 명을 고릅니다.</h3>
+        <p>고른 사람을 i, 이웃을 j라고 부릅니다.</p>
+        <p>이웃의 범위는 i가 속한 구역에 따라 다릅니다(관찰 02).</p>
+      </div>
+      <div class="sc-step" data-g="g-rule" data-s="3">
+        <h3>같은 특성이 많을수록 상호작용할 확률이 큽니다.</h3>
+        <p>예시에서 i와 j는 6개 중 <b>3개</b>가 같습니다.</p>
+        <p>그래서 이번 차례에 상호작용할 확률은 3 ÷ 6 = <b>50%</b>입니다.</p>
+      </div>
+      <div class="sc-step" data-g="g-rule" data-s="4">
+        <h3>상호작용하면 다른 특성 하나를 이웃의 값으로 바꿉니다.</h3>
+        <p>예시에서는 3번 특성이 j의 값으로 바뀝니다.</p>
+        <p>성별(0번)은 다르더라도 바꾸지 않습니다. 이 고정이 이 모형의 핵심 설정입니다.</p>
+        <div class="sc-memo">닮을수록 더 자주 만나고, 만나면 더 닮습니다. 다만 성별만은 끝까지 다르게 남습니다.</div>
+      </div>
+    </div>
+    <div class="sc-fig"><div class="sc-sticky">
+      <div class="sc-g" id="g-rule"><div class="sc-gh"><span>i와 j의 특성 벡터</span><span>설명용 예시 값</span></div><div class="sc-gb"></div>
+        <div class="sc-gf">노란 칸: i와 j가 같은 특성 · 빗금: 바꿀 수 없는 성별 특성</div></div>
+    </div></div>
+  </div>
+</section>
+
+
+<section class="sc-ch" id="ch-org" data-n="관찰 02">
+  <div class="sc-chh"><div><div class="lb">관찰일지 · 02</div><div class="pn">02</div></div>
+    <div><h2>200명의 조직</h2><div class="dm">5강 모형은 Axelrod의 격자를 조직으로 바꿔 읽습니다. 구역마다 이웃의 범위와 소수의 비율이 다릅니다.</div></div></div>
+  <div class="sc-wrap">
+    <div class="sc-steps">
+      <div class="sc-step" data-g="g-org" data-s="1">
+        <h3>20 × 10 격자에 200명이 있습니다.</h3>
+        <p>왼쪽 2/3는 기존 조직입니다. 이웃은 반경 2(대각선 포함 5×5)로 넓습니다.</p>
+        <p>오른쪽 1/3은 주변부입니다. 이웃은 반경 1(상하좌우)로 좁습니다.</p>
+      </div>
+      <div class="sc-step" data-g="g-org" data-s="2">
+        <h3>소수는 전체의 약 9%이고 주변부에 더 많이 배치됩니다.</h3>
+        <p>배치 가중치는 기존 조직 0.5, 주변부 3.0입니다.</p>
+        <p>시드 20개에서 처음 배치된 소수는 평균 <span class="v" data-v="sc.base.minNMean" data-f="f1"></span>명입니다.</p>
+      </div>
+      <div class="sc-step" data-g="g-org" data-s="3">
+        <h3>처음에는 모든 사람의 문화가 제각각입니다.</h3>
+        <p>오른쪽 그림을 문화 벡터 보기로 바꿨습니다. 색이 같으면 다섯 문화 특성이 모두 같습니다.</p>
+        <p>시작할 때 문화 영역은 200개, 즉 사람 수와 같습니다.</p>
+      </div>
+    </div>
+    <div class="sc-fig"><div class="sc-sticky">
+      <div class="sc-g" id="g-org"><div class="sc-gh"><span>시작 상태, 시드 1</span><span>오른쪽 패널의 버튼은 발표 중 직접 눌러도 됩니다</span></div>
+        <div class="sim" data-sim="axelrod-org" data-seed="1"></div></div>
+    </div></div>
+  </div>
+</section>
+
+
+<section class="sc-ch" id="ch-run" data-n="관찰 03">
+  <div class="sc-chh"><div><div class="lb">관찰일지 · 03</div><div class="pn">03</div></div>
+    <div><h2>직접 돌려 보기</h2><div class="dm">같은 시드 1로 모형을 끝까지 돌려 봅니다. 성별 특성을 고정했을 때와 풀었을 때를 비교합니다.</div></div></div>
+  <div class="sc-wrap">
+    <div class="sc-steps">
+      <div class="sc-step" data-g="g-run" data-s="1">
+        <h3>시작을 누르면 이웃끼리 닮아 갑니다.</h3>
+        <p>파란 칸은 아직 다수와 다른 문화를 가진 소수입니다.</p>
+        <p>소수의 문화 특성이 다수의 최빈값과 같아지면 회색으로 바뀝니다.</p>
+      </div>
+      <div class="sc-step" data-g="g-run" data-s="2">
+        <h3>끝까지 돌리면 소수의 문화 특성은 모두 다수와 같아집니다.</h3>
+        <p>시드 20개 중 <span class="v" data-v="sc.base.full"></span>회에서 소수 동화율이 100%가 되었습니다.</p>
+        <p>그래도 문화 영역은 1개로 합쳐지지 않습니다. 성별이 다르기 때문입니다.</p>
+        <dl class="sc-tri"><dt>바꾼 것</dt><dd>없음(기본 시나리오, 시드 1)</dd><dt>확인한 것</dt><dd>문화는 수렴하고, 성별로 구별되는 영역만 남음</dd></dl>
+      </div>
+      <div class="sc-step" data-g="g-run" data-s="3">
+        <h3>성별도 바뀔 수 있게 하면 소수 표식 자체가 사라집니다.</h3>
+        <p>정체성 가변 시나리오에서는 성별도 이웃을 따라 바뀝니다.</p>
+        <p>이 시드에서는 끝까지 돌리면 모든 사람이 같은 문화가 되고, 소수는 남지 않습니다.</p>
+        <div class="sc-memo">고정된 특성 하나가 없으면 "소수"라는 구분 자체가 유지되지 않습니다.</div>
+      </div>
+    </div>
+    <div class="sc-fig"><div class="sc-sticky">
+      <div class="sc-g" id="g-run"><div class="sc-gh"><span>시뮬레이션, 시드 1</span><span>단계에 맞춰 시나리오가 바뀝니다</span></div>
+        <div class="sim" data-sim="axelrod-org" data-seed="1"></div></div>
+    </div></div>
+  </div>
+</section>
+
+
+<section class="sc-ch" id="ch-rep" data-n="관찰 04">
+  <div class="sc-chh"><div><div class="lb">관찰일지 · 04</div><div class="pn">04</div></div>
+    <div><h2>시드 20개로 다시 돌리기</h2><div class="dm">한 번의 실행은 우연일 수 있습니다. 시나리오 4개를 시드 1~20으로 각각 돌려 결과의 범위를 봅니다.</div></div></div>
+  <div class="sc-wrap">
+    <div class="sc-steps">
+      <div class="sc-step" data-g="g-trace" data-s="1">
+        <h3>먼저 시드 1의 동화 경로를 봅니다.</h3>
+        <p>성별이 고정된 세 시나리오는 모두 동화율이 오르다가 100%에 닿습니다.</p>
+        <p>도달하는 속도는 시나리오마다 다릅니다.</p>
+      </div>
+      <div class="sc-step" data-g="g-t90" data-s="1">
+        <h3>동화율 90%에 닿는 시점은 시드마다 크게 다릅니다.</h3>
+        <p>기본 시나리오의 평균은 <span class="v" data-v="sc.base.t90Mean" data-f="man"></span> 회이고 표준편차는 <span class="v" data-v="sc.base.t90Sd" data-f="man"></span> 회입니다.</p>
+        <p>단일망은 <span class="v" data-v="sc.single.t90Mean" data-f="man"></span> 회, 군집은 <span class="v" data-v="sc.clu.t90Mean" data-f="man"></span> 회입니다.</p>
+        <dl class="sc-tri"><dt>바꾼 것</dt><dd>배치(분산·군집), 네트워크(이중·단일)</dd><dt>맞춰 둔 것</dt><dd>소수 비율 9%, 성별 고정, 시드 1~20</dd><dt>확인한 것</dt><dd>이중망과 단일망의 평균 차이는 시드 간 편차보다 작음</dd></dl>
+      </div>
+      <div class="sc-step" data-g="g-t90" data-s="2">
+        <h3>시드 5개로 본 첫 결과는 틀렸습니다.</h3>
+        <p>처음에 시드 5개, 4만 회 간격으로 쟀을 때는 단일망이 더 빨라 보였습니다.</p>
+        <p>시드를 20개로 늘리고 2천 회 간격으로 다시 재자 그 차이는 사라졌습니다.</p>
+        <div class="sc-memo">점 하나하나가 시드 하나입니다. 평균선만 보면 놓치는 흩어짐이 이 그림에 보입니다.</div>
+      </div>
+      <div class="sc-step" data-g="g-final" data-s="1">
+        <h3>끝난 뒤 남는 문화 영역의 수는 소수의 배치가 정합니다.</h3>
+        <p>분산 배치에서는 평균 <span class="v" data-v="sc.base.regionsMean" data-f="f1"></span>개, 군집 배치에서는 <span class="v" data-v="sc.clu.regionsMean" data-f="f1"></span>개입니다.</p>
+        <p>이중망과 단일망은 최종 영역 수도 같습니다. 이 설정에서 네트워크 구조는 속도와 결과 어느 쪽에도 뚜렷한 차이를 만들지 않았습니다.</p>
+      </div>
+      <div class="sc-step" data-g="g-free" data-s="1">
+        <h3>성별이 바뀔 수 있으면 결과는 두 갈래로 나뉩니다.</h3>
+        <p>20회 중 <span class="v" data-v="sc.free.vanished"></span>회는 소수 표식이 사라졌습니다.</p>
+        <p>나머지 <span class="v" data-v="sc.free.takeover"></span>회는 반대로 소수 표식이 모든 사람에게 퍼졌습니다.</p>
+        <div class="sc-memo">어느 쪽이든 끝에는 한 가지 문화만 남습니다. 이때 "동화율"은 계산할 수 없어 따로 셌습니다.</div>
+      </div>
+    </div>
+    <div class="sc-fig"><div class="sc-sticky">
+      <div class="sc-g" id="g-trace"><div class="sc-gh"><span>시드 1의 소수 동화율</span><span>2만 회마다 측정</span></div><div class="sc-gb"></div>
+        <div class="sc-gf">정체성 가변은 소수가 사라져 동화율을 계산할 수 없는 구간이 있어 제외</div></div>
+      <div class="sc-g" id="g-t90"><div class="sc-gh"><span>동화율 90% 도달 시점, 시드 20개</span><span>2천 회 간격 측정</span></div><div class="sc-gb"></div>
+        <div class="sc-gf">점: 시드 1개의 결과 · 굵은 선: 평균</div></div>
+      <div class="sc-g" id="g-final"><div class="sc-gh"><span>끝난 뒤의 상태, 시드 20개 평균</span><span>4만 회마다 비교해 3번 연속 같으면 정지</span></div><div class="sc-gb"></div></div>
+      <div class="sc-g" id="g-free"><div class="sc-gh"><span>정체성 가변 시나리오의 결말</span><span>시드 20개</span></div><div class="sc-gb"></div></div>
+    </div></div>
+  </div>
+</section>
+
+
+<section class="sc-ch" id="ch-end" data-n="관찰 05">
+  <div class="sc-chh"><div><div class="lb">관찰일지 · 05</div><div class="pn">05</div></div>
+    <div><h2>한계와 제작 기록</h2><div class="dm">무엇을 다시 구현했고 무엇을 뺐는지, 어떤 환경에서 돌렸는지 남깁니다.</div></div></div>
+  <div class="sc-wrap">
+    <div class="sc-steps">
+      <div class="sc-step" data-g="g-env" data-s="1">
+        <h3>이 관찰의 범위는 좁습니다.</h3>
+        <ol><li>원 논문의 원래 모형이 아니라 5강 자료의 조직 확장 모형을 옮겼습니다.</li>
+          <li>5강 모형의 이질성 파라미터와 순차 갱신은 이번 구현에서 뺐습니다.</li>
+          <li>격자 크기, 특성 수, 소수 비율은 한 가지 값만 썼습니다.</li>
+          <li>시나리오마다 시드 20개입니다. 통계 검정은 하지 않았습니다.</li></ol>
+      </div>
+      <div class="sc-step" data-g="g-env" data-s="2">
+        <h3>같은 결과를 다시 얻는 방법</h3>
+        <p>페이지의 시뮬레이션과 실험 코드는 같은 모형 파일을 씁니다.</p>
+        <p>실험 코드를 다시 실행하면 같은 시드에서 같은 결과가 나옵니다.</p>
+        <p class="mono">node papers/axelrod_story/replication/run.js</p>
+      </div>
+      <div class="sc-step" data-g="g-env" data-s="3">
+        <h3>처음 질문에 답합니다.</h3>
+        <p>성별이 고정되어 있으면 소수의 문화 특성은 다수와 같아지고, 소수는 성별로만 구별되는 영역으로 남습니다.</p>
+        <p>성별까지 바뀔 수 있으면 소수라는 구분 자체가 남지 않습니다.</p>
+        <div class="sc-memo">문화는 남지 않고, 고정된 표식만 남습니다.</div>
+      </div>
+    </div>
+    <div class="sc-fig"><div class="sc-sticky">
+      <div class="sc-g" id="g-env"><div class="sc-gh"><span>실험 환경과 규칙</span><span>replication/results.json 기준</span></div><div class="sc-gb"></div></div>
+    </div></div>
+  </div>
+</section>
+<div class="sc-end"><p class="s13 g">제작: paper-deck 파이프라인(스크롤형) · 모형 이식, 실험 코드, 본문 작성은 Claude(claude-opus-5-5)가 하고 사용자가 방향을 정함 · 모형 원본: 복잡계 5강 자료</p></div>
+
+</main>
+<script>
+/* ScrollStory: 스크롤 단계에 맞춰 고정 그래픽을 바꾸는 엔진 + 데이터 바인딩 + SVG 차트
+   마크업: .sc-ch > .sc-wrap > .sc-steps > .sc-step[data-g="그래픽id"][data-s="단계번호"]
+                           > .sc-fig > .sc-sticky > .sc-g#그래픽id
+   핸들러: ScrollStory.on("그래픽id", function(s, g){ ... })  // s = 현재 단계의 data-s
+   데이터: ScrollStory.data = {...};  <span data-v="경로" data-f="형식"></span> 은 값으로 채움
+   키보드: ↓ → PageDown 스페이스 = 다음 단계, ↑ ← PageUp = 이전 단계
+   주소에 ?step=번호 를 붙이면 그 단계(1부터)로 바로 이동, ?shot=번호 는 그 단계의 글과 그래픽만 한 화면에(캡처용) */
+(function(){
+  var H={},S={};
+  window.ScrollStory=S;S.data={};
+  S.on=function(id,fn){H[id]=fn;};
+
+  /* 데이터 바인딩: data-v="a.b.c" data-f="pct|man|int|f1|f2|f3" */
+  function get(o,p){return p.split(".").reduce(function(a,k){return a==null?a:a[k];},o);}
+  var F={pct:function(v){return Math.round(v*100)+"%";},man:function(v){return (v/10000).toFixed(1)+"만";},
+    int:function(v){return Math.round(v).toLocaleString();},f1:function(v){return (+v).toFixed(1);},f2:function(v){return (+v).toFixed(2);},f3:function(v){return (+v).toFixed(3);}};
+  S.fmt=F;
+  S.bind=function(root){[].forEach.call((root||document).querySelectorAll("[data-v]"),function(e){var v=get(S.data,e.dataset.v);
+    e.textContent=v==null||v!==v?"–":(F[e.dataset.f]?F[e.dataset.f](v):v);});};
+
+  /* SVG 차트 */
+  var CS=getComputedStyle(document.documentElement);function cv(n,d){var v=(CS.getPropertyValue(n)||"").trim();return v||d;}
+  var C={navy:cv("--c-ink","#203044"),accent:cv("--c-accent","#0046CB"),gray:cv("--c-gray","#6B7280"),grid:cv("--c-grid","#DFE3EA"),pale:cv("--c-pale","#EEF1F6"),mid:cv("--c-mid","#9AA8BC"),gold:cv("--c-yellow","#C98A12"),yellow:cv("--c-yellow","#FFE000")};
+  S.color=C;
+  function el(t,a,txt){var e=document.createElementNS("http://www.w3.org/2000/svg",t);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;}
+  S.svg=el;
+  function frame(box,o){box.innerHTML="";var W=o.w||760,Hh=o.h||420,s=el("svg",{viewBox:"0 0 "+W+" "+Hh});box.appendChild(s);return{s:s,W:W,H:Hh,L:o.l||70,R:W-(o.r||20),T:o.t||30,B:Hh-(o.b||50)};}
+  function axisY(f,max,step,fmt,label){for(var v=0;v<=max+1e-9;v+=step){var y=f.B-(v/max)*(f.B-f.T);
+      f.s.appendChild(el("line",{x1:f.L,x2:f.R,y1:y,y2:y,stroke:C.grid}));
+      f.s.appendChild(el("text",{x:f.L-8,y:y+5,"text-anchor":"end","font-size":15,fill:C.gray},fmt?fmt(v):v));}
+    if(label)f.s.appendChild(el("text",{x:f.L,y:f.T-12,"font-size":15,fill:C.navy,"font-weight":700},label));}
+  /* 점 그림: groups=[{label, values:[...], color}] , 평균 막대 표시 */
+  S.dots=function(box,groups,o){o=o||{};var f=frame(box,o),max=o.max,step=o.step;
+    if(!max){max=Math.max.apply(null,groups.map(function(g){return Math.max.apply(null,g.values);}));}
+    axisY(f,max,step||max/4,o.fmt,o.ylabel);
+    var bw=(f.R-f.L)/groups.length;
+    groups.forEach(function(g,i){var cx=f.L+bw*(i+.5);
+      g.values.forEach(function(v,k){var jit=((k*37)%11-5)*bw*.035,y=f.B-(v/max)*(f.B-f.T);
+        f.s.appendChild(el("circle",{cx:cx+jit,cy:y,r:7,fill:g.color||C.accent,"fill-opacity":g.opacity||.55,stroke:g.stroke||g.color||C.accent,"stroke-width":2}));});
+      if(g.values.length){var m=g.values.reduce(function(a,b){return a+b;},0)/g.values.length,ym=f.B-(m/max)*(f.B-f.T);
+        f.s.appendChild(el("line",{x1:cx-bw*.3,x2:cx+bw*.3,y1:ym,y2:ym,stroke:C.navy,"stroke-width":4}));
+        f.s.appendChild(el("text",{x:cx+bw*.32,y:ym+5,"font-size":15,fill:C.navy,"font-weight":700},"평균 "+(o.fmt?o.fmt(m):m.toFixed(1))));}
+      f.s.appendChild(el("text",{x:cx,y:f.B+24,"text-anchor":"middle","font-size":18,fill:C.navy,"font-weight":700},g.label));
+      if(g.sub)f.s.appendChild(el("text",{x:cx,y:f.B+42,"text-anchor":"middle","font-size":15,fill:C.gray},g.sub));});
+    return f;};
+  /* 선 그림: series=[{label, pts:[[x,y],...], color, dash}] */
+  S.lines=function(box,series,o){o=o||{};var f=frame(box,Object.assign({t:70},o)),xmax=o.xmax,max=o.max||1;
+    if(!xmax)xmax=Math.max.apply(null,series.map(function(s){return s.pts[s.pts.length-1][0];}));
+    axisY(f,max,o.step||max/4,o.fmt,o.ylabel);
+    for(var k=0;k<=4;k++){var x=f.L+(f.R-f.L)*k/4;f.s.appendChild(el("text",{x:x,y:f.B+22,"text-anchor":"middle","font-size":15,fill:C.gray},o.xfmt?o.xfmt(xmax*k/4):xmax*k/4));}
+    if(o.xlabel)f.s.appendChild(el("text",{x:f.R,y:f.B+42,"text-anchor":"end","font-size":15,fill:C.navy,"font-weight":700},o.xlabel));
+    series.forEach(function(s,i){var d="",pen=false;s.pts.forEach(function(p){if(!isFinite(p[1])){pen=false;return;}
+        var x=f.L+(p[0]/xmax)*(f.R-f.L),y=f.B-(p[1]/max)*(f.B-f.T);d+=(pen?"L":"M")+x.toFixed(1)+" "+y.toFixed(1);pen=true;});
+      if(s.outline)f.s.appendChild(el("path",{d:d,fill:"none",stroke:s.outline,"stroke-width":(s.w||3)+3,"stroke-dasharray":s.dash||"none"}));
+      var path=el("path",{d:d,fill:"none",stroke:s.color,"stroke-width":s.w||3,"stroke-dasharray":s.dash||"none"});f.s.appendChild(path);
+      var lx=f.L+i*150;f.s.appendChild(el("line",{x1:lx,x2:lx+22,y1:f.T-40,y2:f.T-40,stroke:s.color,"stroke-width":4,"stroke-dasharray":s.dash||"none"}));
+      f.s.appendChild(el("text",{x:lx+28,y:f.T-34,"font-size":15,fill:C.navy},s.label));});
+    return f;};
+  /* 가로 막대: items=[{label, value, color, note}] */
+  S.hbars=function(box,items,o){o=o||{};var f=frame(box,Object.assign({l:170,r:80},o)),max=o.max||Math.max.apply(null,items.map(function(i){return i.value;}));
+    var bh=(f.B-f.T)/items.length;
+    items.forEach(function(it,i){var y=f.T+bh*i+bh*.2,w=(it.value/max)*(f.R-f.L);
+      f.s.appendChild(el("rect",{x:f.L,y:y,width:f.R-f.L,height:bh*.6,fill:C.pale}));
+      f.s.appendChild(el("rect",{x:f.L,y:y,width:w,height:bh*.6,fill:it.color||C.accent}));
+      f.s.appendChild(el("text",{x:f.L-12,y:y+bh*.3+6,"text-anchor":"end","font-size":18,fill:C.navy,"font-weight":700},it.label));
+      f.s.appendChild(el("text",{x:f.L+w+10,y:y+bh*.3+6,"font-size":18,fill:C.navy,"font-weight":700},it.text||it.value));
+      if(it.note)f.s.appendChild(el("text",{x:f.L,y:y+bh*.6+16,"font-size":15,fill:C.gray},it.note));});
+    return f;};
+
+  /* 엔진 */
+  function init(){
+    S.bind();
+    var steps=[].slice.call(document.querySelectorAll(".sc-step")),cur=-1,top=document.querySelector(".sc-top");
+    var chs=[].slice.call(document.querySelectorAll(".sc-ch"));
+    function activate(i){if(i===cur||i<0)return;cur=i;var st=steps[i],ch=st.closest(".sc-ch"),gid=st.dataset.g;
+      steps.forEach(function(x,k){x.classList.toggle("on",k===i);});
+      [].forEach.call(ch.querySelectorAll(".sc-g"),function(g){g.classList.toggle("on",g.id===gid);});
+      var g=document.getElementById(gid);if(g&&H[gid])H[gid](+(st.dataset.s||1),g,st);
+      var c=top&&top.querySelector(".c"),h=ch.querySelector(".sc-chh h2");if(c&&h)c.textContent=ch.dataset.n+" · "+h.textContent;
+      [].forEach.call(document.querySelectorAll(".sc-toc a"),function(a){a.classList.toggle("cur",a.getAttribute("href")==="#"+ch.id);});}
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)activate(steps.indexOf(e.target));});},{rootMargin:"-45% 0px -45% 0px"});
+    steps.forEach(function(s){io.observe(s);});
+    function go(d){var i=cur<0?0:cur+d;if(cur<0&&d<0)return;i=Math.max(0,Math.min(steps.length-1,i));
+      var hero=document.querySelector(".sc-hero");if(d<0&&cur===0&&hero){hero.scrollIntoView({behavior:"smooth"});return;}
+      steps[i].scrollIntoView({behavior:"smooth",block:"center"});}
+    document.addEventListener("keydown",function(e){var t=e.target;if(t&&/INPUT|TEXTAREA|SELECT|BUTTON/.test(t.tagName)&&e.key===" ")return;
+      if(["ArrowDown","ArrowRight","PageDown"," "].indexOf(e.key)>=0){e.preventDefault();go(1);}
+      else if(["ArrowUp","ArrowLeft","PageUp"].indexOf(e.key)>=0){e.preventDefault();go(-1);}});
+    var sh=location.search.match(/[?&]shot=(\d+)/);if(sh&&steps[+sh[1]-1]){var tgt=steps[+sh[1]-1],tch=tgt.closest(".sc-ch");document.body.classList.add("sc-shot");
+      chs.forEach(function(c){c.style.display=c===tch?"":"none";});steps.forEach(function(x){x.style.display=x===tgt?"":"none";});activate(+sh[1]-1);return;}
+    var m=location.search.match(/[?&]step=(\d+)/);if(m&&steps[+m[1]-1]){steps[+m[1]-1].scrollIntoView({block:"center"});activate(+m[1]-1);}
+    var prog=document.querySelector(".sc-prog");
+    function onScroll(){var h=document.documentElement,max=h.scrollHeight-h.clientHeight;if(prog)prog.style.width=(max>0?h.scrollTop/max*100:0)+"%";}
+    window.addEventListener("scroll",onScroll,{passive:true});onScroll();
+    var toc=document.querySelector(".sc-toc"),tb=document.getElementById("sc-toc-btn");
+    if(toc&&tb){tb.onclick=function(e){e.stopPropagation();toc.classList.toggle("on");};document.addEventListener("click",function(){toc.classList.remove("on");});}
+    var fb=document.getElementById("sc-full-btn");if(fb)fb.onclick=function(){if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen();};
+  }
+  /* 캡처 모드는 로드 전에 바로 배치 */
+  (function(){var sh=location.search.match(/[?&]shot=(\d+)/);if(!sh)return;
+    if(sh[1]==="0"){document.body.classList.add("sc-shot","sc-shot0");[].forEach.call(document.querySelectorAll(".sc-ch,.sc-end"),function(c){c.style.display="none";});return;}
+    var st=document.querySelectorAll(".sc-step"),t=st[+sh[1]-1];if(!t)return;var ch=t.closest(".sc-ch");
+    document.body.classList.add("sc-shot");[].forEach.call(document.querySelectorAll(".sc-ch"),function(c){c.style.display=c===ch?"":"none";});[].forEach.call(st,function(x){x.style.display=x===t?"":"none";});
+    [].forEach.call(ch.querySelectorAll(".sc-g"),function(g){g.classList.toggle("on",g.id===t.dataset.g);});})();
+  document.addEventListener("DOMContentLoaded",function(){S.bind();});
+  window.addEventListener("load",function(){setTimeout(init,0);});
+})();
+
+</script>
+<script>
+/* PaperSim: 슬라이드 안의 시뮬레이션 공통 부품
+   모형 정의: PaperSim.register(이름, {
+     params:[{key,label,type:'range'|'seg',min,max,step,value,fmt,options:[[값,라벨],...]}],
+     presets:{이름:{label, values:{key:value}}},
+     views:[[값,라벨],...],            // 선택: 그리기 방식
+     legend:function(view){return [[색,라벨],...]},
+     metrics:[{key,label,fmt,chart:true,max,color}],
+     init(p,rng), step(st,p,rng,n), measure(st,p) -> {key:값}, draw(ctx,st,o)  // o={w,h,view,p}
+     batch:한 프레임당 단계 수, speeds:[1,4,16], ffChunk(정지 판정 간격), ffMeasure(측정 간격), ffMax
+   })
+   슬라이드 마크업: <div class="sim" data-sim="이름" data-seed="7"></div>
+   장이 보이면 초기화, 넘기면 멈춤. 같은 시드는 같은 결과. */
+(function(){
+  var REG={};
+  function rng32(seed){return function(){seed|=0;seed=(seed+0x6D2B79F5)|0;var t=Math.imul(seed^(seed>>>15),1|seed);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
+  function h(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;}
+  function fit(cv){var w=Math.max(1,Math.round(cv.clientWidth*2)),hh=Math.max(1,Math.round(cv.clientHeight*2));if(cv.width!==w)cv.width=w;if(cv.height!==hh)cv.height=hh;return{w:w,h:hh};}
+
+  function mount(root){
+    var def=REG[root.dataset.sim];
+    if(!def){root.textContent="등록되지 않은 모형: "+root.dataset.sim;return;}
+    var slide=root.closest(".slide")||root.closest(".sc-g")||root,ACT=slide.classList.contains("slide")?"active":"on",seed0=+(root.dataset.seed||1),seed=seed0;
+    var p={};def.params.forEach(function(q){p[q.key]=q.value;});
+    var view=def.views?def.views[0][0]:null,speeds=def.speeds||[1,4,16],spd=speeds[1]||speeds[0];
+    var st,rng,t=0,hist=[],playing=false;
+
+    /* 화면 구성 */
+    var L=h("div","sim-l"),R=h("div","sim-r");
+    var stage=h("div","sim-stage"),cv=h("canvas");stage.appendChild(cv);
+    var lg=h("div","sim-lg"),bar=h("div","sim-bar");
+    var bPlay=h("button","pr","▶ 시작"),bStep=h("button","","한 단계"),bFF=h("button","","끝까지"),bReset=h("button","","초기화"),bSeed=h("button","","새 시드"),tk=h("span","tk","");
+    [bPlay,bStep,bFF,bReset,bSeed,tk].forEach(function(e){bar.appendChild(e);});
+    L.appendChild(stage);L.appendChild(lg);L.appendChild(bar);
+    var ctrls={};
+    if(def.presets){var g=h("div","sim-g");g.appendChild(h("h6","","시나리오"));var sg=h("div","sim-seg");
+      Object.keys(def.presets).forEach(function(k){var b=h("button","",def.presets[k].label);b.dataset.pre=k;b.onclick=function(){Object.assign(p,def.presets[k].values);sync();reset();};sg.appendChild(b);});
+      g.appendChild(sg);R.appendChild(g);}
+    if(def.views){var gv=h("div","sim-g");gv.appendChild(h("h6","","보기"));var sv=h("div","sim-seg");
+      def.views.forEach(function(v){var b=h("button",v[0]===view?"on":"",v[1]);b.onclick=function(){view=v[0];[].forEach.call(sv.children,function(x){x.classList.toggle("on",x===b);});legend();paint();};sv.appendChild(b);});
+      gv.appendChild(sv);R.appendChild(gv);}
+    def.params.forEach(function(q){var g=h("div","sim-g"),t6=h("h6","",q.label+(q.type==="range"?" <span></span>":""));g.appendChild(t6);
+      if(q.type==="range"){var r=h("input");r.type="range";r.min=q.min;r.max=q.max;r.step=q.step||1;
+        r.oninput=function(){t6.querySelector("span").textContent=q.fmt?q.fmt(+r.value):r.value;};
+        r.onchange=function(){p[q.key]=+r.value;sync();reset();};g.appendChild(r);ctrls[q.key]=function(){r.value=p[q.key];r.oninput();};}
+      else{var s=h("div","sim-seg");q.options.forEach(function(o){var b=h("button","",o[1]);b.onclick=function(){p[q.key]=o[0];sync();reset();};b.dataset.opt=String(o[0]);s.appendChild(b);});
+        g.appendChild(s);ctrls[q.key]=function(){[].forEach.call(s.children,function(b){b.classList.toggle("on",b.dataset.opt===String(p[q.key]));});};}
+      R.appendChild(g);});
+    var mx=h("div","sim-mx"),tiles={};
+    def.metrics.forEach(function(m){if(m.tile===false)return;var d=h("div","","<b>–</b><span>"+m.label+"</span>");tiles[m.key]=d.querySelector("b");mx.appendChild(d);});
+    var ch=h("div","sim-ch"),cc=h("canvas");ch.appendChild(cc);
+    R.appendChild(mx);R.appendChild(ch);
+    root.appendChild(L);root.appendChild(R);
+
+    function sync(){Object.keys(ctrls).forEach(function(k){ctrls[k]();});
+      if(def.presets)[].forEach.call(R.querySelectorAll("[data-pre]"),function(b){var v=def.presets[b.dataset.pre].values;b.classList.toggle("on",Object.keys(v).every(function(k){return v[k]===p[k];}));});}
+    function legend(){lg.innerHTML="";if(def.legend)def.legend(view).forEach(function(x){lg.appendChild(h("span","","<i style=\"background:"+x[0]+"\"></i>"+x[1]));});}
+    function fmt(m,v){return m.fmt?m.fmt(v):(Math.round(v*100)/100).toLocaleString();}
+    function sample(){var v=def.measure(st,p);v._t=t;hist.push(v);if(hist.length>600)hist=hist.filter(function(_,i){return i%2===0;});
+      def.metrics.forEach(function(m){if(tiles[m.key])tiles[m.key].textContent=fmt(m,v[m.key]);});tk.textContent=(def.tLabel||"단계")+" "+t.toLocaleString();return v;}
+    function paint(){var o=fit(cv);var c=cv.getContext("2d");c.clearRect(0,0,o.w,o.h);def.draw(c,st,{w:o.w,h:o.h,view:view,p:p});chart();}
+    function chart(){var o=fit(cc),c=cc.getContext("2d");c.clearRect(0,0,o.w,o.h);var ser=def.metrics.filter(function(m){return m.chart;});
+      var pad=8,top=34;c.font="500 22px 'Noto Sans KR',sans-serif";var x=pad;
+      ser.forEach(function(m){c.fillStyle=m.color;c.fillRect(x,10,18,6);c.fillStyle="#6B7280";c.fillText(m.label,x+24,20);x+=c.measureText(m.label).width+52;});
+      if(hist.length<2)return;var tmax=Math.max(1,hist[hist.length-1]._t);
+      ser.forEach(function(m){var mxv=m.max||Math.max.apply(null,hist.map(function(v){return isFinite(v[m.key])?v[m.key]:0;}))||1;
+        c.strokeStyle=m.color;c.lineWidth=3;c.beginPath();
+        var pen=false;hist.forEach(function(v){var y=v[m.key];if(!isFinite(y)){pen=false;return;}var px=pad+(v._t/tmax)*(o.w-2*pad),py=o.h-pad-(y/mxv)*(o.h-top-pad);pen?c.lineTo(px,py):c.moveTo(px,py);pen=true;});c.stroke();});}
+    function reset(newSeed){stop();if(newSeed)seed=Math.floor(Math.random()*1e9);rng=rng32(seed);st=def.init(p,rng);t=0;hist=[];sample();paint();}
+    function adv(n){def.step(st,p,rng,n);t+=n;}
+    function frame(){if(!playing)return;adv((def.batch||100)*spd);sample();paint();requestAnimationFrame(frame);}
+    function stop(){playing=false;bPlay.textContent="▶ 시작";}
+    bPlay.onclick=function(){if(playing){stop();return;}playing=true;bPlay.textContent="❚❚ 멈춤";requestAnimationFrame(frame);};
+    bStep.onclick=function(){stop();adv(def.batch||100);sample();paint();};
+    bFF.onclick=function(){stop();var chunk=def.ffChunk||20000,max=def.ffMax||2e6,prev=null,same=0;
+      var fine=def.ffMeasure||chunk;while(t<max&&same<3){for(var k=0;k<chunk;k+=fine){adv(fine);if(k+fine<chunk)def.measure(st,p);}var v=sample();var keys=def.metrics.map(function(m){return m.key;});
+        same=(prev&&keys.every(function(k){var a=prev[k],b=v[k];return (a!==a&&b!==b)||Math.abs(a-b)<1e-9;}))?same+1:0;prev=v;}paint();};
+    bReset.onclick=function(){reset(false);};
+    bSeed.onclick=function(){reset(true);};
+    if(def.speeds){var sb=h("button","","속도 ×"+spd);sb.onclick=function(){spd=speeds[(speeds.indexOf(spd)+1)%speeds.length];sb.textContent="속도 ×"+spd;};bar.insertBefore(sb,tk);}
+
+    root._sim={preset:function(k){Object.assign(p,def.presets[k].values);sync();reset();},set:function(o){Object.assign(p,o);sync();reset();},
+      view:function(v){if(!def.views)return;[].forEach.call(sv.children,function(b,k){if(def.views[k][0]===v)b.onclick();});},
+      reset:function(){reset(false);},play:function(){if(!playing)bPlay.onclick();},stop:stop,ff:function(){bFF.onclick();},measure:function(){return hist[hist.length-1];}};
+    sync();legend();
+    rng=rng32(seed);st=def.init(p,rng);sample();
+    var was=false;
+    new MutationObserver(function(){var now=(slide===root||slide.classList.contains(ACT));if(now&&!was){seed=seed0;reset(false);}if(!now&&was)stop();was=now;}).observe(slide,{attributes:true,attributeFilter:["class"]});
+    if((slide===root||slide.classList.contains(ACT))){was=true;paint();}
+    window.addEventListener("resize",function(){if((slide===root||slide.classList.contains(ACT)))paint();});
+    window.addEventListener("beforeprint",function(){stop();paint();});
+  }
+  window.PaperSim={register:function(n,d){REG[n]=d;},rng:rng32,
+    mountAll:function(){[].forEach.call(document.querySelectorAll(".sim[data-sim]"),function(r){if(!r.dataset.mounted){r.dataset.mounted=1;mount(r);}});}};
+  window.addEventListener("load",function(){window.PaperSim.mountAll();});
+})();
+
+/* 조직 안의 Axelrod 문화 확산 모형
+   원본: 복잡계/5강/axelrod-조직내여성동학.html 의 makeSim, interactOnce, computeMetrics 로직을 그대로 옮김
+   (속도 조절, 프리셋 로직은 공통 부품으로 대체, 이질성 파라미터와 순차 갱신은 파일럿에서 제외) */
+(function(){
+  var W=20,H=10,F=6,T=4,TRAITS=[2,4,4,4,4,4];
+  function idx(x,y){return y*W+x;}
+  var C={maj:"#C9D1DD",minLo:"#0046CB",minHi:"#9AA8BC",line:"#203044"};
+  function theme(){var cs=getComputedStyle(document.documentElement),g=function(n,d){var v=(cs.getPropertyValue(n)||"").trim();return v||d;};
+    C={maj:g("--sim-maj","#C9D1DD"),minLo:g("--sim-min","#0046CB"),minHi:g("--sim-min2","#9AA8BC"),line:g("--sim-line","#203044")};}
+  var themed=false;
+  function hex(c){var n=parseInt(c.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255];}
+  function lerp(a,b,t){a=hex(a);b=hex(b);return"rgb("+[0,1,2].map(function(i){return Math.round(a[i]+(b[i]-a[i])*t);}).join(",")+")";}
+
+  function init(p,rng){
+    var N=W*H,legacyCols=Math.round(W*2/3),culture=new Int16Array(N*F),zone=new Uint8Array(N);
+    for(var y=0;y<H;y++)for(var x=0;x<W;x++){var i=idx(x,y);zone[i]=x<legacyCols?0:1;for(var f=1;f<F;f++)culture[i*F+f]=Math.floor(rng()*TRAITS[f]);}
+    var ratio=p.minorityRatio/100;
+    if(p.placement==="scattered"){
+      for(y=0;y<H;y++)for(x=0;x<W;x++){i=idx(x,y);var lf=legacyCols/W,norm=lf*0.5+(1-lf)*3.0;
+        var rate=zone[i]===0?ratio*0.5/norm:Math.min(1,ratio*3.0/norm);culture[i*F]=rng()<rate?1:0;}
+    }else{
+      var target=Math.round(ratio*N),periW=W-legacyCols,blockW=Math.max(1,Math.min(periW,Math.round(Math.sqrt(target*periW/H)))),placed=0;
+      for(i=0;i<N;i++)culture[i*F]=0;
+      for(y=0;y<H&&placed<target;y++)for(x=legacyCols;x<Math.min(W,legacyCols+blockW)&&placed<target;x++){culture[idx(x,y)*F]=1;placed++;}
+    }
+    var nb=new Array(N);
+    for(y=0;y<H;y++)for(x=0;x<W;x++){i=idx(x,y);
+      var radius,moore;if(p.dualNetwork){if(zone[i]===0){radius=2;moore=true;}else{radius=1;moore=false;}}else{radius=2;moore=true;}
+      var list=[];
+      for(var dy=-radius;dy<=radius;dy++)for(var dx=-radius;dx<=radius;dx++){
+        if(!dx&&!dy)continue;if(!moore&&Math.abs(dx)+Math.abs(dy)>radius)continue;
+        var nx=x+dx,ny=y+dy;if(nx<0||nx>=W||ny<0||ny>=H)continue;list.push(idx(nx,ny));}
+      nb[i]=list;}
+    return{N:N,culture:culture,zone:zone,nb:nb,legacyCols:legacyCols,assim:null,t:0,t90:null};
+  }
+  function interact(st,p,rng,i){
+    var c=st.culture,nb=st.nb[i];if(!nb.length)return;
+    var j=nb[Math.floor(rng()*nb.length)],shared=0,diff=[];
+    for(var f=0;f<F;f++){if(c[i*F+f]===c[j*F+f])shared++;else diff.push(f);}
+    if(rng()<shared/F){var el=p.identityFixed?diff.filter(function(f){return f!==0;}):diff;
+      if(el.length){var g=el[Math.floor(rng()*el.length)];c[i*F+g]=c[j*F+g];}}
+  }
+  function step(st,p,rng,n){for(var b=0;b<n;b++)interact(st,p,rng,Math.floor(rng()*st.N));st.t+=n;}
+
+  function measure(st){
+    var c=st.culture,N=st.N,visited=new Uint8Array(N),regions=0,femDom=0,stack=[];
+    for(var s=0;s<N;s++){if(visited[s])continue;visited[s]=1;stack.length=0;stack.push(s);var size=0,allMin=true;
+      while(stack.length){var q=stack.pop();size++;if(c[q*F]!==1)allMin=false;var qx=q%W,qy=(q/W)|0;
+        [[1,0],[-1,0],[0,1],[0,-1]].forEach(function(d){var nx=qx+d[0],ny=qy+d[1];if(nx<0||nx>=W||ny<0||ny>=H)return;var n=idx(nx,ny);if(visited[n])return;
+          for(var f=0;f<F;f++)if(c[q*F+f]!==c[n*F+f])return;visited[n]=1;stack.push(n);});}
+      regions++;if(allMin&&size>=2)femDom++;}
+    var mc=[];for(var f=1;f<F;f++)mc.push(new Array(T).fill(0));var minN=0;
+    for(var i=0;i<N;i++){if(c[i*F]===1){minN++;continue;}for(f=1;f<F;f++)mc[f-1][c[i*F+f]]++;}
+    var mode=mc.map(function(a){return a.indexOf(Math.max.apply(null,a));}),per=new Float32Array(N),sum=0;
+    for(i=0;i<N;i++){if(c[i*F]!==1)continue;var m=0;for(f=1;f<F;f++)if(c[i*F+f]===mode[f-1])m++;per[i]=m/(F-1);sum+=per[i];}
+    st.assim=per;
+    var a=(minN&&minN<N)?sum/minN:NaN;if(st.t90===null&&a>=0.9)st.t90=st.t;
+    return{assim:a,regions:regions,femDom:femDom,minN:minN,allMin:minN===N?1:0,t90:st.t90===null?NaN:st.t90};
+  }
+  function hue(c,i){var h=2166136261;for(var f=1;f<F;f++){h^=c[i*F+f];h=Math.imul(h,16777619);}return(h>>>0)%360;}
+  function draw(ctx,st,o){
+    if(!themed){theme();themed=true;}
+    var cell=Math.floor(Math.min(o.w/W,o.h/H)),ox=Math.floor((o.w-cell*W)/2),oy=Math.floor((o.h-cell*H)/2),c=st.culture;
+    for(var y=0;y<H;y++)for(var x=0;x<W;x++){var i=idx(x,y),isMin=c[i*F]===1;
+      ctx.fillStyle=o.view==="culture"?"hsl("+hue(c,i)+",46%,"+(isMin?"38%":"62%")+")":(isMin?lerp(C.minLo,C.minHi,st.assim?st.assim[i]:0):C.maj);
+      ctx.fillRect(ox+x*cell,oy+y*cell,cell-2,cell-2);
+      if(isMin&&o.view==="culture"){ctx.strokeStyle="#fff";ctx.lineWidth=3;ctx.strokeRect(ox+x*cell+3,oy+y*cell+3,cell-8,cell-8);}}
+    if(o.p.dualNetwork){var bx=ox+st.legacyCols*cell-1;ctx.save();ctx.strokeStyle=C.line;ctx.setLineDash([10,8]);ctx.lineWidth=4;
+      ctx.beginPath();ctx.moveTo(bx,oy-4);ctx.lineTo(bx,oy+H*cell+4);ctx.stroke();ctx.restore();
+      ctx.fillStyle=C.line;ctx.font="700 26px 'Noto Sans KR',sans-serif";ctx.textBaseline="top";
+      ctx.fillText("기존 조직(반경 2)",ox+6,6);ctx.textAlign="right";ctx.fillText("주변부(반경 1)",ox+W*cell-6,6);ctx.textAlign="left";}
+  }
+
+  PaperSim.register("axelrod-org",{
+    params:[
+      {key:"minorityRatio",label:"소수 비율",type:"range",min:3,max:30,step:1,value:9,fmt:function(v){return v+"%";}},
+      {key:"placement",label:"소수 배치",type:"seg",value:"scattered",options:[["scattered","분산"],["clustered","군집"]]},
+      {key:"identityFixed",label:"성별 특성",type:"seg",value:true,options:[[true,"고정"],[false,"바뀔 수 있음"]]},
+      {key:"dualNetwork",label:"네트워크",type:"seg",value:true,options:[[true,"이중"],[false,"단일"]]}],
+    presets:{
+      base:{label:"기본",values:{minorityRatio:9,placement:"scattered",identityFixed:true,dualNetwork:true}},
+      clu:{label:"군집",values:{minorityRatio:9,placement:"clustered",identityFixed:true,dualNetwork:true}},
+      free:{label:"정체성 가변",values:{minorityRatio:9,placement:"scattered",identityFixed:false,dualNetwork:true}},
+      single:{label:"단일망",values:{minorityRatio:9,placement:"scattered",identityFixed:true,dualNetwork:false}}},
+    views:[["assim","동화 정도"],["culture","문화 벡터"]],
+    legend:function(v){if(!themed){theme();themed=true;}return v==="culture"?[["#8FA0C0","다수"],["#3C4A66","소수(흰 테두리)"],["#C9D1DD","색이 같으면 같은 문화"]]:[[C.maj,"다수"],[C.minLo,"소수, 동화 전"],[C.minHi,"소수, 동화됨"]];},
+    metrics:[
+      {key:"assim",label:"소수 동화율",fmt:function(v){return isNaN(v)?"계산 불가":Math.round(v*100)+"%";},chart:true,max:1,color:"#0046CB"},
+      {key:"regions",label:"문화 영역 수",fmt:function(v){return v;},chart:true,color:"#203044"},
+      {key:"t90",label:"90% 도달(상호작용)",fmt:function(v){return isNaN(v)?"–":(v/10000).toFixed(1)+"만";}},
+      {key:"femDom",label:"소수만의 영역",tile:false}],
+    init:init,step:step,measure:measure,draw:draw,
+    batch:40,speeds:[1,4,16],ffChunk:40000,ffMeasure:2000,ffMax:3200000,tLabel:"상호작용"
+  });
+})();
+
+</script>
+<script>
+/* Axelrod 스크롤 관찰기: 데이터 연결과 그래픽 핸들러 */
+(function(){
+  var RAW={"generated":"2026-11-18T02:05:21.916Z","env":{"node":"v22.22.1","platform":"linux"},"rule":{"seeds":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"measureEvery":2000,"chunk":40000,"max":3200000,"stop":"지표(동화율, 영역 수, 소수만의 영역)를 4만 회마다 비교해 3번 연속 같으면 정지. 90% 도달 시점은 2천 회 간격으로 측정","traceEvery":20000,"traceMax":400000,"traceSeed":1},"model":"sims/axelrod.js (복잡계 5강 모형 이식, 이질성·순차 갱신 제외)","scenarios":[{"key":"base","label":"기본","values":{"minorityRatio":9,"placement":"scattered","identityFixed":true,"dualNetwork":true},"runs":[{"seed":1,"minN":9,"minNEnd":9,"allMin":0,"assim0":0.2444444480869505,"t90":142000,"assim":1,"regions":10,"femDom":0,"stopAt":440000},{"seed":2,"minN":16,"minNEnd":16,"allMin":0,"assim0":0.31250000838190317,"t90":100000,"assim":1,"regions":13,"femDom":3,"stopAt":320000},{"seed":3,"minN":17,"minNEnd":17,"allMin":0,"assim0":0.20000000385677114,"t90":68000,"assim":1,"regions":15,"femDom":3,"stopAt":280000},{"seed":4,"minN":16,"minNEnd":16,"allMin":0,"assim0":0.2875000052154064,"t90":98000,"assim":1,"regions":11,"femDom":2,"stopAt":240000},{"seed":5,"minN":14,"minNEnd":14,"allMin":0,"assim0":0.285714291036129,"t90":124000,"assim":1,"regions":11,"femDom":2,"stopAt":280000},{"seed":6,"minN":12,"minNEnd":12,"allMin":0,"assim0":0.20000000298023224,"t90":118000,"assim":1,"regions":12,"femDom":1,"stopAt":320000},{"seed":7,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.26666667146815193,"t90":72000,"assim":1,"regions":15,"femDom":3,"stopAt":280000},{"seed":8,"minN":13,"minNEnd":13,"allMin":0,"assim0":0.23076923535420343,"t90":138000,"assim":1,"regions":10,"femDom":3,"stopAt":320000},{"seed":9,"minN":14,"minNEnd":14,"allMin":0,"assim0":0.300000005534717,"t90":158000,"assim":1,"regions":14,"femDom":1,"stopAt":360000},{"seed":10,"minN":21,"minNEnd":21,"allMin":0,"assim0":0.20000000368981136,"t90":82000,"assim":1,"regions":12,"femDom":3,"stopAt":280000},{"seed":11,"minN":24,"minNEnd":24,"allMin":0,"assim0":0.2500000049670537,"t90":88000,"assim":1,"regions":14,"femDom":4,"stopAt":280000},{"seed":12,"minN":21,"minNEnd":21,"allMin":0,"assim0":0.26666667205946787,"t90":110000,"assim":1,"regions":18,"femDom":5,"stopAt":320000},{"seed":13,"minN":28,"minNEnd":28,"allMin":0,"assim0":0.25000000478965895,"t90":82000,"assim":1,"regions":19,"femDom":2,"stopAt":360000},{"seed":14,"minN":16,"minNEnd":16,"allMin":0,"assim0":0.22500000428408384,"t90":142000,"assim":1,"regions":17,"femDom":1,"stopAt":320000},{"seed":15,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.25555556184715694,"t90":62000,"assim":1,"regions":13,"femDom":4,"stopAt":280000},{"seed":16,"minN":17,"minNEnd":17,"allMin":0,"assim0":0.20000000298023224,"t90":110000,"assim":1,"regions":17,"femDom":2,"stopAt":360000},{"seed":17,"minN":15,"minNEnd":15,"allMin":0,"assim0":0.2266666700442632,"t90":78000,"assim":1,"regions":13,"femDom":3,"stopAt":320000},{"seed":18,"minN":21,"minNEnd":21,"allMin":0,"assim0":0.22857143410614558,"t90":80000,"assim":1,"regions":15,"femDom":5,"stopAt":240000},{"seed":19,"minN":13,"minNEnd":13,"allMin":0,"assim0":0.18461538736636823,"t90":104000,"assim":1,"regions":13,"femDom":1,"stopAt":400000},{"seed":20,"minN":20,"minNEnd":20,"allMin":0,"assim0":0.180000002682209,"t90":158000,"assim":1,"regions":18,"femDom":2,"stopAt":320000}],"summary":{"t90Mean":105700,"t90Sd":29998.421011078146,"t90N":20,"regionsMean":14,"femDomMean":2.5,"minNMean":17.15,"vanished":0,"takeover":0},"trace":[{"t":0,"assim":0.2444444480869505,"regions":198},{"t":20000,"assim":0.46666667693191105,"regions":158},{"t":40000,"assim":0.5777777979771296,"regions":128},{"t":60000,"assim":0.6444444557030996,"regions":105},{"t":80000,"assim":0.5777777913543913,"regions":78},{"t":100000,"assim":0.5333333479033576,"regions":91},{"t":120000,"assim":0.644444465637207,"regions":97},{"t":140000,"assim":0.8666666746139526,"regions":48},{"t":160000,"assim":0.7555555701255798,"regions":86},{"t":180000,"assim":0.8000000086095598,"regions":77},{"t":200000,"assim":0.8666666746139526,"regions":74},{"t":220000,"assim":0.7555555701255798,"regions":70},{"t":240000,"assim":0.9111111164093018,"regions":44},{"t":260000,"assim":0.800000011920929,"regions":38},{"t":280000,"assim":0.8444444537162781,"regions":60},{"t":300000,"assim":0.9111111164093018,"regions":32},{"t":320000,"assim":1,"regions":10},{"t":340000,"assim":1,"regions":10},{"t":360000,"assim":1,"regions":10},{"t":380000,"assim":1,"regions":10},{"t":400000,"assim":1,"regions":10}]},{"key":"clu","label":"군집","values":{"minorityRatio":9,"placement":"clustered","identityFixed":true,"dualNetwork":true},"runs":[{"seed":1,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.2111111150847541,"t90":86000,"assim":1,"regions":2,"femDom":1,"stopAt":280000},{"seed":2,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.18888889253139496,"t90":62000,"assim":1,"regions":2,"femDom":1,"stopAt":280000},{"seed":3,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.2444444489147928,"t90":18000,"assim":1,"regions":2,"femDom":1,"stopAt":320000},{"seed":4,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.2666666731238365,"t90":82000,"assim":1,"regions":2,"femDom":1,"stopAt":280000},{"seed":5,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.22222222636143366,"t90":84000,"assim":1,"regions":2,"femDom":1,"stopAt":280000},{"seed":6,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.23333333763811323,"t90":70000,"assim":1,"regions":2,"femDom":1,"stopAt":320000},{"seed":7,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.25555555936363006,"t90":86000,"assim":1,"regions":2,"femDom":1,"stopAt":320000},{"seed":8,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.2666666722959942,"t90":82000,"assim":1,"regions":2,"femDom":1,"stopAt":240000},{"seed":9,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.20000000298023224,"t90":46000,"assim":1,"regions":2,"femDom":1,"stopAt":280000},{"seed":10,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.24444445057047737,"t90":74000,"assim":1,"regions":2,"femDom":1,"stopAt":320000},{"seed":11,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.25555556101931465,"t90":44000,"assim":1,"regions":2,"femDom":1,"stopAt":280000},{"seed":12,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.23333333929379782,"t90":68000,"assim":1,"regions":2,"femDom":1,"stopAt":240000},{"seed":13,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.23333333846595553,"t90":142000,"assim":1,"regions":2,"femDom":1,"stopAt":320000},{"seed":14,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.25555556019147235,"t90":70000,"assim":1,"regions":2,"femDom":1,"stopAt":240000},{"seed":15,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.23333333763811323,"t90":74000,"assim":1,"regions":2,"femDom":1,"stopAt":360000},{"seed":16,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.22222222636143366,"t90":124000,"assim":1,"regions":2,"femDom":1,"stopAt":320000},{"seed":17,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.26666667146815193,"t90":60000,"assim":1,"regions":2,"femDom":1,"stopAt":240000},{"seed":18,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.3444444504049089,"t90":138000,"assim":1,"regions":2,"femDom":1,"stopAt":320000},{"seed":19,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.2666666722959942,"t90":128000,"assim":1,"regions":2,"femDom":1,"stopAt":320000},{"seed":20,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.2111111142569118,"t90":204000,"assim":1,"regions":2,"femDom":1,"stopAt":360000}],"summary":{"t90Mean":87100,"t90Sd":41894.47897302284,"t90N":20,"regionsMean":2,"femDomMean":1,"minNMean":18,"vanished":0,"takeover":0},"trace":[{"t":0,"assim":0.2111111150847541,"regions":198},{"t":20000,"assim":0.4444444585177634,"regions":150},{"t":40000,"assim":0.42222223099735046,"regions":107},{"t":60000,"assim":0.7000000162257088,"regions":97},{"t":80000,"assim":0.8444444537162781,"regions":59},{"t":100000,"assim":0.9777777791023254,"regions":32},{"t":120000,"assim":0.800000011920929,"regions":8},{"t":140000,"assim":0.9777777791023254,"regions":22},{"t":160000,"assim":1,"regions":2},{"t":180000,"assim":1,"regions":2},{"t":200000,"assim":1,"regions":2},{"t":220000,"assim":1,"regions":2},{"t":240000,"assim":1,"regions":2},{"t":260000,"assim":1,"regions":2},{"t":280000,"assim":1,"regions":2},{"t":300000,"assim":1,"regions":2},{"t":320000,"assim":1,"regions":2},{"t":340000,"assim":1,"regions":2},{"t":360000,"assim":1,"regions":2},{"t":380000,"assim":1,"regions":2},{"t":400000,"assim":1,"regions":2}]},{"key":"free","label":"정체성 가변","values":{"minorityRatio":9,"placement":"scattered","identityFixed":false,"dualNetwork":true},"runs":[{"seed":1,"minN":9,"minNEnd":0,"allMin":0,"assim0":0.2444444480869505,"t90":null,"assim":null,"regions":1,"femDom":0,"stopAt":280000},{"seed":2,"minN":16,"minNEnd":0,"allMin":0,"assim0":0.31250000838190317,"t90":138000,"assim":null,"regions":1,"femDom":0,"stopAt":400000},{"seed":3,"minN":17,"minNEnd":0,"allMin":0,"assim0":0.20000000385677114,"t90":104000,"assim":null,"regions":1,"femDom":0,"stopAt":280000},{"seed":4,"minN":16,"minNEnd":0,"allMin":0,"assim0":0.2875000052154064,"t90":null,"assim":null,"regions":1,"femDom":0,"stopAt":360000},{"seed":5,"minN":14,"minNEnd":0,"allMin":0,"assim0":0.285714291036129,"t90":null,"assim":null,"regions":1,"femDom":0,"stopAt":360000},{"seed":6,"minN":12,"minNEnd":0,"allMin":0,"assim0":0.20000000298023224,"t90":48000,"assim":null,"regions":1,"femDom":0,"stopAt":360000},{"seed":7,"minN":18,"minNEnd":0,"allMin":0,"assim0":0.26666667146815193,"t90":null,"assim":null,"regions":1,"femDom":0,"stopAt":360000},{"seed":8,"minN":13,"minNEnd":0,"allMin":0,"assim0":0.23076923535420343,"t90":null,"assim":null,"regions":1,"femDom":0,"stopAt":360000},{"seed":9,"minN":14,"minNEnd":200,"allMin":1,"assim0":0.300000005534717,"t90":null,"assim":null,"regions":1,"femDom":1,"stopAt":320000},{"seed":10,"minN":21,"minNEnd":0,"allMin":0,"assim0":0.20000000368981136,"t90":null,"assim":null,"regions":1,"femDom":0,"stopAt":320000},{"seed":11,"minN":24,"minNEnd":0,"allMin":0,"assim0":0.2500000049670537,"t90":60000,"assim":null,"regions":1,"femDom":0,"stopAt":320000},{"seed":12,"minN":21,"minNEnd":0,"allMin":0,"assim0":0.26666667205946787,"t90":null,"assim":null,"regions":1,"femDom":0,"stopAt":240000},{"seed":13,"minN":28,"minNEnd":0,"allMin":0,"assim0":0.25000000478965895,"t90":114000,"assim":null,"regions":1,"femDom":0,"stopAt":280000},{"seed":14,"minN":16,"minNEnd":0,"allMin":0,"assim0":0.22500000428408384,"t90":null,"assim":null,"regions":1,"femDom":0,"stopAt":360000},{"seed":15,"minN":18,"minNEnd":0,"allMin":0,"assim0":0.25555556184715694,"t90":null,"assim":null,"regions":1,"femDom":0,"stopAt":280000},{"seed":16,"minN":17,"minNEnd":0,"allMin":0,"assim0":0.20000000298023224,"t90":null,"assim":null,"regions":1,"femDom":0,"stopAt":320000},{"seed":17,"minN":15,"minNEnd":0,"allMin":0,"assim0":0.2266666700442632,"t90":null,"assim":null,"regions":1,"femDom":0,"stopAt":280000},{"seed":18,"minN":21,"minNEnd":0,"allMin":0,"assim0":0.22857143410614558,"t90":28000,"assim":null,"regions":1,"femDom":0,"stopAt":240000},{"seed":19,"minN":13,"minNEnd":200,"allMin":1,"assim0":0.18461538736636823,"t90":null,"assim":null,"regions":1,"femDom":1,"stopAt":320000},{"seed":20,"minN":20,"minNEnd":0,"allMin":0,"assim0":0.180000002682209,"t90":null,"assim":null,"regions":1,"femDom":0,"stopAt":400000}],"summary":{"t90Mean":82000,"t90Sd":42895.22117905443,"t90N":6,"regionsMean":1,"femDomMean":0.1,"minNMean":17.15,"vanished":18,"takeover":2},"trace":[{"t":0,"assim":0.2444444480869505,"regions":198},{"t":20000,"assim":0.4000000059604645,"regions":137},{"t":40000,"assim":null,"regions":115},{"t":60000,"assim":null,"regions":125},{"t":80000,"assim":null,"regions":80},{"t":100000,"assim":null,"regions":62},{"t":120000,"assim":null,"regions":42},{"t":140000,"assim":null,"regions":21},{"t":160000,"assim":null,"regions":1},{"t":180000,"assim":null,"regions":1},{"t":200000,"assim":null,"regions":1},{"t":220000,"assim":null,"regions":1},{"t":240000,"assim":null,"regions":1},{"t":260000,"assim":null,"regions":1},{"t":280000,"assim":null,"regions":1},{"t":300000,"assim":null,"regions":1},{"t":320000,"assim":null,"regions":1},{"t":340000,"assim":null,"regions":1},{"t":360000,"assim":null,"regions":1},{"t":380000,"assim":null,"regions":1},{"t":400000,"assim":null,"regions":1}]},{"key":"single","label":"단일망","values":{"minorityRatio":9,"placement":"scattered","identityFixed":true,"dualNetwork":false},"runs":[{"seed":1,"minN":9,"minNEnd":9,"allMin":0,"assim0":0.2444444480869505,"t90":74000,"assim":1,"regions":10,"femDom":0,"stopAt":280000},{"seed":2,"minN":16,"minNEnd":16,"allMin":0,"assim0":0.31250000838190317,"t90":62000,"assim":1,"regions":13,"femDom":3,"stopAt":200000},{"seed":3,"minN":17,"minNEnd":17,"allMin":0,"assim0":0.20000000385677114,"t90":126000,"assim":1,"regions":15,"femDom":3,"stopAt":280000},{"seed":4,"minN":16,"minNEnd":16,"allMin":0,"assim0":0.2875000052154064,"t90":146000,"assim":1,"regions":11,"femDom":2,"stopAt":360000},{"seed":5,"minN":14,"minNEnd":14,"allMin":0,"assim0":0.285714291036129,"t90":184000,"assim":1,"regions":11,"femDom":2,"stopAt":360000},{"seed":6,"minN":12,"minNEnd":12,"allMin":0,"assim0":0.20000000298023224,"t90":104000,"assim":1,"regions":12,"femDom":1,"stopAt":360000},{"seed":7,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.26666667146815193,"t90":84000,"assim":1,"regions":15,"femDom":3,"stopAt":280000},{"seed":8,"minN":13,"minNEnd":13,"allMin":0,"assim0":0.23076923535420343,"t90":108000,"assim":1,"regions":10,"femDom":3,"stopAt":320000},{"seed":9,"minN":14,"minNEnd":14,"allMin":0,"assim0":0.300000005534717,"t90":78000,"assim":1,"regions":14,"femDom":1,"stopAt":320000},{"seed":10,"minN":21,"minNEnd":21,"allMin":0,"assim0":0.20000000368981136,"t90":130000,"assim":1,"regions":12,"femDom":3,"stopAt":320000},{"seed":11,"minN":24,"minNEnd":24,"allMin":0,"assim0":0.2500000049670537,"t90":184000,"assim":1,"regions":14,"femDom":4,"stopAt":360000},{"seed":12,"minN":21,"minNEnd":21,"allMin":0,"assim0":0.26666667205946787,"t90":76000,"assim":1,"regions":18,"femDom":5,"stopAt":240000},{"seed":13,"minN":28,"minNEnd":28,"allMin":0,"assim0":0.25000000478965895,"t90":80000,"assim":1,"regions":19,"femDom":2,"stopAt":240000},{"seed":14,"minN":16,"minNEnd":16,"allMin":0,"assim0":0.22500000428408384,"t90":68000,"assim":1,"regions":17,"femDom":1,"stopAt":240000},{"seed":15,"minN":18,"minNEnd":18,"allMin":0,"assim0":0.25555556184715694,"t90":96000,"assim":1,"regions":13,"femDom":4,"stopAt":280000},{"seed":16,"minN":17,"minNEnd":17,"allMin":0,"assim0":0.20000000298023224,"t90":98000,"assim":1,"regions":17,"femDom":2,"stopAt":280000},{"seed":17,"minN":15,"minNEnd":15,"allMin":0,"assim0":0.2266666700442632,"t90":132000,"assim":1,"regions":13,"femDom":3,"stopAt":280000},{"seed":18,"minN":21,"minNEnd":21,"allMin":0,"assim0":0.22857143410614558,"t90":134000,"assim":1,"regions":15,"femDom":5,"stopAt":280000},{"seed":19,"minN":13,"minNEnd":13,"allMin":0,"assim0":0.18461538736636823,"t90":124000,"assim":1,"regions":13,"femDom":1,"stopAt":320000},{"seed":20,"minN":20,"minNEnd":20,"allMin":0,"assim0":0.180000002682209,"t90":100000,"assim":1,"regions":18,"femDom":2,"stopAt":320000}],"summary":{"t90Mean":109400,"t90Sd":35357.42310210195,"t90N":20,"regionsMean":14,"femDomMean":2.5,"minNMean":17.15,"vanished":0,"takeover":0},"trace":[{"t":0,"assim":0.2444444480869505,"regions":198},{"t":20000,"assim":0.5333333429363039,"regions":165},{"t":40000,"assim":0.3777777867184745,"regions":172},{"t":60000,"assim":0.5777777913543913,"regions":142},{"t":80000,"assim":0.7777777910232544,"regions":95},{"t":100000,"assim":0.8888888955116272,"regions":38},{"t":120000,"assim":0.8888888955116272,"regions":25},{"t":140000,"assim":1,"regions":10},{"t":160000,"assim":1,"regions":10},{"t":180000,"assim":1,"regions":10},{"t":200000,"assim":1,"regions":10},{"t":220000,"assim":1,"regions":10},{"t":240000,"assim":1,"regions":10},{"t":260000,"assim":1,"regions":10},{"t":280000,"assim":1,"regions":10},{"t":300000,"assim":1,"regions":10},{"t":320000,"assim":1,"regions":10},{"t":340000,"assim":1,"regions":10},{"t":360000,"assim":1,"regions":10},{"t":380000,"assim":1,"regions":10},{"t":400000,"assim":1,"regions":10}]}]};
+  var S=ScrollStory,C=S.color,el=S.svg;
+  var sc={};
+  RAW.scenarios.forEach(function(s){var m=Object.assign({},s.summary);
+    m.full=s.runs.filter(function(r){return r.assim===1;}).length;sc[s.key]=m;});
+  S.data={raw:RAW,sc:sc};
+  var COL={base:C.accent,clu:C.yellow,single:C.navy,free:C.mid};
+  var byKey={};RAW.scenarios.forEach(function(s){byKey[s.key]=s;});
+  function q(g){return g.querySelector(".sc-gb");}
+  function sim(g){var r=g.querySelector(".sim");return r&&r._sim;}
+
+  /* 01 규칙: i와 j의 특성 벡터 */
+  var I=[1,2,1,3,0,2],J=[0,2,1,0,0,3],LB=["성별","문화 1","문화 2","문화 3","문화 4","문화 5"];
+  var rule=null;
+  function buildRule(box){
+    box.innerHTML="";var s=el("svg",{viewBox:"0 0 760 420"});box.appendChild(s);
+    var o={s:s,ci:[],cj:[],ti:[],tj:[]},x0=150,w=88;
+    LB.forEach(function(l,k){s.appendChild(el("text",{x:x0+k*w+w/2-4,y:70,"text-anchor":"middle","font-size":13.33,fill:C.gray},k+"번 "+l));});
+    [["i",I,120,"ci","ti"],["j",J,250,"cj","tj"]].forEach(function(r){
+      o["row"+r[0]]=el("g",{});s.appendChild(o["row"+r[0]]);
+      o["row"+r[0]].appendChild(el("text",{x:110,y:r[2]+44,"text-anchor":"end","font-size":32,fill:C.navy,"font-weight":700},r[0]));
+      r[1].forEach(function(v,k){var c=el("rect",{x:x0+k*w,y:r[2],width:w-10,height:72,fill:"#fff",stroke:C.navy,"stroke-width":2});
+        var t=el("text",{x:x0+k*w+w/2-5,y:r[2]+46,"text-anchor":"middle","font-size":28,fill:C.navy,"font-weight":700},v);
+        o["row"+r[0]].appendChild(c);o["row"+r[0]].appendChild(t);o[r[3]].push(c);o[r[4]].push(t);});});
+    s.appendChild(el("defs",{})).innerHTML='<pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#fff"/><line x1="0" y1="0" x2="0" y2="8" stroke="#9AA8BC" stroke-width="4"/></pattern>';
+    o.link=el("line",{x1:96,y1:202,x2:96,y2:238,stroke:C.accent,"stroke-width":4});s.appendChild(o.link);
+    o.note=el("text",{x:150,y:370,"font-size":20,fill:C.navy,"font-weight":700},"");s.appendChild(o.note);
+    o.arrow=el("path",{d:"M"+(150+3*88+39)+" 248 L"+(150+3*88+39)+" 200",stroke:C.accent,"stroke-width":4,fill:"none","marker-end":""});s.appendChild(o.arrow);
+    return o;}
+  S.on("g-rule",function(st,g){
+    if(!rule)rule=buildRule(q(g));var o=rule;
+    o.rowj.style.opacity=st>=2?1:.15;o.link.style.opacity=st>=2?1:0;o.arrow.style.opacity=st>=4?1:0;
+    for(var k=0;k<6;k++){var same=I[k]===J[k];
+      var fi=k===0&&st>=4?"url(#hatch)":(st>=3&&same?C.yellow:"#fff");
+      o.ci[k].setAttribute("fill",fi);o.cj[k].setAttribute("fill",k===0&&st>=4?"url(#hatch)":(st>=3&&same?C.yellow:"#fff"));
+      o.ci[k].setAttribute("stroke-width",st>=3&&same?4:2);o.cj[k].setAttribute("stroke-width",st>=3&&same?4:2);}
+    o.ti[3].textContent=st>=4?J[3]:I[3];o.ti[3].setAttribute("fill",st>=4?C.accent:C.navy);
+    o.note.textContent=st===1?"0번은 성별(2가지 값), 1~5번은 문화(각 4가지 값)":st===2?"i: 무작위로 고른 사람 · j: i의 이웃 중 한 명":
+      st===3?"같은 특성 3개 → 이번 차례 상호작용 확률 3 ÷ 6 = 50%":"다른 특성(0, 3, 5번) 중 성별을 뺀 하나(3번)를 j 값으로 바꿈";
+  });
+
+  /* 표지 그림: 노란 원 + 20×10 격자(소수는 파랑, 주변부에 더 많이) */
+  (function(){var svg=document.getElementById("hero-art");if(!svg)return;
+    svg.appendChild(el("circle",{cx:470,cy:92,r:70,fill:C.yellow,stroke:C.navy,"stroke-width":4}));
+    svg.appendChild(el("rect",{x:40,y:120,width:520,height:280,rx:14,fill:"#fff",stroke:C.navy,"stroke-width":4}));
+    var r=PaperSim.rng(7),cell=24,x0=60,y0=140;
+    for(var y=0;y<10;y++)for(var x=0;x<20;x++){var peri=x>=13,blue=r()<(peri?0.22:0.04);
+      svg.appendChild(el("rect",{x:x0+x*cell,y:y0+y*cell,width:cell-4,height:cell-4,rx:3,fill:blue?C.accent:"#E3E5EA"}));}
+    svg.appendChild(el("line",{x1:x0+13*cell-2,x2:x0+13*cell-2,y1:y0-8,y2:y0+10*cell+4,stroke:C.navy,"stroke-width":4,"stroke-dasharray":"10 8"}));})();
+
+  /* 02 조직, 03 돌려 보기: 시뮬레이션 제어 */
+  S.on("g-org",function(st,g){var m=sim(g);if(!m)return;m.preset("base");m.view(st>=3?"culture":"assim");});
+  S.on("g-run",function(st,g){var m=sim(g);if(!m)return;m.view("assim");
+    if(st===1)m.preset("base");else if(st===2){m.preset("base");m.ff();}else{m.preset("free");m.ff();}});
+
+  /* 04 레플리케이션 차트 */
+  var man=function(v){return (v/10000).toFixed(0)+"만";};
+  S.on("g-trace",function(st,g){S.lines(q(g),["base","clu","single"].map(function(k){
+      return{label:byKey[k].label,color:COL[k],outline:k==="clu"?C.navy:null,w:4,pts:byKey[k].trace.map(function(p){return[p.t,p.assim];})};}),
+    {max:1,step:.25,fmt:S.fmt.pct,ylabel:"소수 동화율",xfmt:man,xlabel:"상호작용 횟수"});});
+  S.on("g-t90",function(st,g){var keys=["base","single","clu"];
+    S.dots(q(g),keys.map(function(k){return{label:byKey[k].label,sub:"n="+sc[k].t90N,color:COL[k],stroke:k==="clu"?C.navy:null,opacity:k==="clu"?.9:.55,
+      values:byKey[k].runs.map(function(r){return r.t90;}).filter(function(v){return v!=null;})};}),
+      {max:250000,step:50000,fmt:function(v){return (v/10000).toFixed(1)+"만";},ylabel:"90% 도달까지 상호작용 횟수",l:80});});
+  S.on("g-final",function(st,g){var b=q(g);
+    b.innerHTML='<table class="sm"><thead><tr><th>시나리오</th><th>처음 소수(명)</th><th>최종 문화 영역(개)</th><th>소수만의 영역(개)</th><th>동화율 100%</th></tr></thead><tbody>'+
+      ["base","single","clu"].map(function(k){var m=sc[k];return"<tr><th>"+byKey[k].label+"</th><td>"+m.minNMean.toFixed(1)+"</td><td class=\"ac\">"+m.regionsMean.toFixed(1)+"</td><td>"+m.femDomMean.toFixed(1)+"</td><td>"+m.full+" / 20</td></tr>";}).join("")+
+      "</tbody></table>";});
+  S.on("g-free",function(st,g){var m=sc.free;
+    S.hbars(q(g),[{label:"소수 표식 사라짐",value:m.vanished,text:m.vanished+"회",color:C.mid},
+      {label:"소수 표식이 전체로",value:m.takeover,text:m.takeover+"회",color:C.accent},
+      {label:"그 밖의 결말",value:20-m.vanished-m.takeover,text:(20-m.vanished-m.takeover)+"회",color:C.navy}],{max:20,h:300,t:20,b:20});});
+
+  /* 05 환경 */
+  S.on("g-env",function(st,g){var r=RAW.rule,b=q(g);
+    b.innerHTML='<table class="sm"><tbody>'+[
+      ["모형 파일",RAW.model],["실행 환경","Node.js "+RAW.env.node+" ("+RAW.env.platform+")"],["생성 시각",RAW.generated.replace("T"," ").slice(0,16)+" UTC"],
+      ["시드",r.seeds[0]+"~"+r.seeds[r.seeds.length-1]+" ("+r.seeds.length+"개), 시나리오 4개"],["정지 규칙",r.stop],
+      ["경로 그림","시드 "+r.traceSeed+", "+(r.traceEvery/10000)+"만 회마다, "+(r.traceMax/10000)+"만 회까지"],
+      ["실험 코드","papers/axelrod_story/replication/run.js"],["결과 파일","papers/axelrod_story/replication/results.json"]]
+      .map(function(x){return"<tr><th style=\"width:110px\">"+x[0]+"</th><td>"+x[1]+"</td></tr>";}).join("")+"</tbody></table>";});
+})();
+
+</script>
+
+<div id="tipbox" role="tooltip"></div>
+<script>(function(){var box=document.getElementById("tipbox");
+  function show(t){box.textContent=t.dataset.tip;box.style.display="block";var r=t.getBoundingClientRect(),w=box.offsetWidth,h=box.offsetHeight;
+    var x=Math.min(Math.max(8,r.left),window.innerWidth-w-8),y=r.bottom+8;if(y+h>window.innerHeight-8)y=r.top-h-8;
+    box.style.left=x+"px";box.style.top=y+"px";}
+  document.addEventListener("mouseover",function(e){var t=e.target.closest(".tip");if(t)show(t);});
+  document.addEventListener("mouseout",function(e){if(e.target.closest(".tip"))box.style.display="none";});
+  document.addEventListener("focusin",function(e){var t=e.target.closest(".tip");if(t)show(t);});
+  document.addEventListener("focusout",function(e){if(e.target.closest(".tip"))box.style.display="none";});
+  document.addEventListener("click",function(e){var t=e.target.closest(".tip");if(t)show(t);else box.style.display="none";});
+})();</script>
+</body></html>

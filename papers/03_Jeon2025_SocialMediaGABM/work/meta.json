@@ -1,0 +1,12 @@
+{
+ "alias": "jeo",
+ "cite": "Jeon et al. (2025). Simulating conversations on social media with generative agent-based models. EPJ Data Science, 14:79",
+ "title": "ABM과 LLM으로 만드는 소셜 미디어 대화 가이드",
+ "parts": [
+  "왜, 무엇을 위해",
+  "시뮬레이터 구조",
+  "실험 설계",
+  "결과",
+  "해석과 한계"
+ ]
+}

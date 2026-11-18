@@ -13,7 +13,7 @@
     "build": "node src/build.js",
     "check": "node src/check_numbers.js",
     "export": "node src/export_pptx.js",
-    "deliver": "node src/deliver.js",
+    "final": "node src/final.js",
     "test": "node src/selftest.js"
   },
   "devDependencies": {
