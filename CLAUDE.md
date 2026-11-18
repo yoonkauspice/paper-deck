@@ -78,7 +78,8 @@
 - 예시: `papers/02_Axelrod1997_Culture_story/`
 
 ## 용도별 판 (파랑이, 선택 장)
-같은 덱을 논문 발표·랩미팅·연구계획서 등 용도에 따라 장을 골라 만든다(비공개 저장소의 작업 중 논문에서 주로 씀)
+같은 덱을 논문 발표·랩미팅·연구계획서 등 용도에 따라 장을 골라 만든다(비공개 저장소의 작업 중 논문에서 주로 씀).
+**기본은 한 판만 만든다**(사용자 결정, 2026-11-18): `--variant` 없이 빌드한 전체판 하나(HTML + PPTX)만 `final/`에 둔다. 한계·수정 방향·향후 계획 같은 선택 장은 원고에 표시해 두되, 용도별 판은 사용자가 요청할 때만 만든다
 - 선택 장 표시: `<section class="slide " data-id="limits" data-opt="limits">`. 여러 용도에 들어가면 `data-opt="review revise plan"`처럼 공백으로. 구분 장(dv)에 `data-opt`를 주면 그 부 전체가 선택
 - 표지·구분 장 목록의 `<li data-opt="...">`도 같이 빠진다. 장 번호는 자리표시로 쓴다: `{{N:id}}`(data-id가 id인 장의 번호), `{{R:id}}`(data-id가 id인 구분 장이 묶는 범위), `{{PARTS}}`(부의 수). 진행바의 부 이름(meta.parts)도 빠진 부를 자동으로 뺀다
 - `meta.json`: `"variants": {"talk": {"label": "논문 발표", "opts": ["limits"]}, "lab": {...}, "proposal": {...}}`
