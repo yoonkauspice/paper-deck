@@ -35,11 +35,17 @@ function download(url,dest,left){
   }else if(src){let p=src;
     if(/^[A-Za-z]:[\\/]/.test(p)||p.startsWith('\\\\')){
       try{p=cp.execFileSync('wslpath',['-u',p]).toString().trim();}catch(e){console.error('윈도우 경로를 바꾸지 못했습니다(WSL이 아니면 Linux 경로를 주세요): '+src);process.exit(1);}}
-    if(!fs.existsSync(p)){console.error('PDF를 찾지 못했습니다: '+src);process.exit(1);}fs.copyFileSync(p,P.pdf);}
-  if(!fs.existsSync(P.pdf)){console.error('source.pdf가 없습니다. PDF 경로나 URL을 함께 주거나 input/'+key+'/source.pdf 로 넣으세요.');process.exit(1);}
-  const full=path.join(P.extract,'full.txt');
-  cp.execFileSync('pdftotext',['-layout',P.pdf,full]);
-  const info=cp.execFileSync('pdfinfo',[P.pdf]).toString(),pages=+(info.match(/Pages:\s+(\d+)/)||[])[1]||0;
+    if(!fs.existsSync(p)){console.error('원고 파일을 찾지 못했습니다: '+src);process.exit(1);}
+    fs.copyFileSync(p,/\.docx$/i.test(p)?path.join(P.input,'source.docx'):P.pdf);}
+  const full=path.join(P.extract,'full.txt'),docx=path.join(P.input,'source.docx');let pages=0;
+  if(fs.existsSync(docx)&&!fs.existsSync(P.pdf)){
+    // Word 원고(초안 등): 텍스트와 표·수식·각주는 extract/full.txt, 그림은 figures/imageN.* (쪽 이미지는 없음)
+    process.stdout.write(cp.execFileSync('python3',[path.join(__dirname,'docx_text.py'),docx,full,P.figures]).toString());
+  }else{
+    if(!fs.existsSync(P.pdf)){console.error('원고가 없습니다. PDF·Word(.docx) 경로나 URL을 함께 주거나 input/'+key+'/source.pdf 로 넣으세요.');process.exit(1);}
+    cp.execFileSync('pdftotext',['-layout',P.pdf,full]);
+    const info=cp.execFileSync('pdfinfo',[P.pdf]).toString();pages=+(info.match(/Pages:\s+(\d+)/)||[])[1]||0;
+  }
   const chars=fs.readFileSync(full,'utf8').replace(/\s/g,'').length;
   if(!resume)fs.writeFileSync(path.join(P.work,'meta.json'),JSON.stringify({alias:arg.replace(/^\d{2}_/,'').toLowerCase(),cite:'',title:'',short:'',parts:[]},null,1)+'\n');
   console.log((resume?'원문 다시 준비: ':'준비 완료: ')+'input/'+key+'/ (원문, '+pages+'쪽, 텍스트 '+chars.toLocaleString()+'자), papers/'+key+'/work/ ('+(resume?'기존 작업 원고 그대로':'작업 원고')+')');

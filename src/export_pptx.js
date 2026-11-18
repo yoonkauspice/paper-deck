@@ -50,7 +50,7 @@ async function save(slides,title,outFile){
 async function deck(port,shotDir){
   const src=fs.readFileSync(path.join(abs,'deck.html'),'utf8');
   const css='<style id="pptx-shot">html,body{background:#fff!important}#nav,#tipbox{display:none!important}#deck{height:720px!important}'
-    +'.slide{left:0!important;top:0!important;transform:none!important;box-shadow:none!important}.an{animation:none!important;opacity:1!important}</style>';
+    +'.slide{left:0!important;top:0!important;transform:none!important;box-shadow:none!important}.an{animation:none!important;opacity:1!important}.fade [data-s]{opacity:1!important}</style>';
   fs.writeFileSync(path.join(shotDir,'_deck_shot.html'),src.replace('</head>',css+'</head>'));
   const all=[...src.matchAll(/<section class="slide[^"]*"([^>]*)>([\s\S]*?)<\/section>/g)],secs=all.map(m=>m[2]),sids=all.map(m=>(m[1].match(/data-id="([^"]*)"/)||[])[1]);
   const notes=secs.map(b=>{const t=(b.match(/<h[12][^>]*>([\s\S]*?)<\/h[12]>/)||[])[1]||'',m=(b.match(/<div class="(?:msg|dm[^"]*)"[^>]*>([\s\S]*?)<\/div>/)||[])[1]||'';return strip(t)+(m?'\n'+strip(m):'');});
