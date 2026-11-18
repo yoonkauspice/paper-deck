@@ -21,14 +21,14 @@
 | `src/reference/`, `src/examples/` | 기준 덱, 슬라이드 유형별 마크업 예시(표지, 구분 `dv`, 본문 `.body`, `.body.full`, 표, 감사 `.au3`, 단계 위젯 `mkStep`) | 커밋 |
 | `src/scripts/web_session.sh` | 웹 세션 시작 때 자동 준비 | 커밋 |
 | `docs/WEB_GUIDE.md` | Claude Code 웹 사용 안내 | 커밋 |
-| `private/` | **비공개 저장소 paper-deck-private**(별도 git, 이 저장소에서는 제외): `papers/9N_*/`(비공개 논문), `overlays/<키>.json`(제출판 설정), `submissions/<키>/`(제출판 결과물), `README.md`(자동 생성) | 별도 비공개 저장소에 커밋 |
+| `private/` | **비공개 저장소 paper-deck-private**(별도 git, 이 저장소에서는 제외): `papers/NN_*/`(비공개 논문, 공개 전 작업 중인 논문), `README.md`(자동 생성), (선택) `overlays/`·`submissions/`(제출판) | 별도 비공개 저장소에 커밋 |
 | `.claude/skills/paper-deck/`, `.claude/commands/` | 스킬과 슬래시 명령(`/new-paper`, `/build`, `/check`, `/export`) | 커밋 |
 
-**논문 폴더 이름**: `번호_저자연도_주제`(예: `04_Hou2025_VacSim`). 번호는 작업 순서. `00_check_*`는 회귀 시험(파랑이 템플릿 재조립, 노랑이 부품), `90`번대는 비공개 논문으로 `private/papers/`에 둔다(예: `90_private_dashboard`). 도구는 `papers/`와 `private/papers/`를 함께 찾는다.
+**논문 폴더 이름**: `번호_저자연도_주제`(예: `04_Hou2025_VacSim`). 번호는 작업 순서. `00_check_*`는 회귀 시험(파랑이 템플릿 재조립, 노랑이 부품), **공개 여부는 위치로 정한다**: `papers/`는 공개, `private/papers/`는 비공개(예: `private/papers/01_주제`). 번호는 저장소마다 따로 매긴다. 도구는 두 곳을 함께 찾고, 번호가 겹치면(예: 공개 `01`과 비공개 `01`) alias나 폴더 이름으로 지정한다. 새 비공개 논문은 `node src/new_paper.js <저자연도_주제> <PDF> --private`.
 
 **공개 저장소다.** 이 저장소(paper-deck)는 Public이다. 원문 PDF, 이름·학번 같은 개인정보, 기관 자료, 미공개 리뷰는 절대 이 저장소에 커밋하지 않는다. 그런 것은 `input/`(PC 전용) 또는 `private/`(비공개 저장소)에 둔다. 커밋 전에 `git diff --cached`로 개인정보가 없는지 확인한다.
 
-**제출판**: 공개판과 내용이 같고 표지 등 일부만 다른 판(예: 이름·학번이 든 과제 제출용). 바꿀 문구와 파일 이름은 `private/overlays/<키>.json`의 `{"file":"이름","replace":[["공개판 문구","제출판 문구"]]}`. 만들기: `node src/build.js <키> --submit` → `node src/export_pptx.js <키> --submit` → `node src/final.js <키> --submit`(결과는 `private/submissions/<키>/`)
+**제출판(선택)**: 공개판과 내용이 같고 표지 등 일부만 다른 판(예: 이름·학번이 든 과제 제출용). 바꿀 문구와 파일 이름은 `private/overlays/<키>.json`의 `{"file":"이름","replace":[["공개판 문구","제출판 문구"]]}`. 만들기: `node src/build.js <키> --submit` → `node src/export_pptx.js <키> --submit` → `node src/final.js <키> --submit`(결과는 `private/submissions/<키>/`)
 **<키>**: 도구에는 폴더 이름 전체, 번호(`04`), `meta.json`의 `alias`(`hou`), 폴더 이름의 한 마디(`vacsim`) 가운데 무엇을 줘도 된다. 여러 개가 맞으면 번호로 지정하라는 오류가 난다.
 
 ## 도구 (모두 `<키>` 하나만 받는다. `npm run <이름> -- <키>`도 같음)
@@ -76,6 +76,15 @@
 - 발표: ↓ → 스페이스 = 다음 단계, ↑ ← = 이전 단계, 상단 `전체 화면`. PPTX를 만든 뒤 다시 빌드하면 상단에 `PPTX 받기` 버튼이 붙음
 - 노랑이 PPTX 확인: 슬라이드 수 = 단계 수 + 1, 노트에 빈 숫자가 없는지 확인
 - 예시: `papers/02_Axelrod1997_Culture_story/`
+
+## 용도별 판 (파랑이, 선택 장)
+같은 덱을 논문 발표·랩미팅·연구계획서 등 용도에 따라 장을 골라 만든다(비공개 저장소의 작업 중 논문에서 주로 씀)
+- 선택 장 표시: `<section class="slide " data-id="limits" data-opt="limits">`. 여러 용도에 들어가면 `data-opt="review revise plan"`처럼 공백으로. 구분 장(dv)에 `data-opt`를 주면 그 부 전체가 선택
+- 표지·구분 장 목록의 `<li data-opt="...">`도 같이 빠진다. 장 번호는 자리표시로 쓴다: `{{N:id}}`(data-id가 id인 장의 번호), `{{R:id}}`(data-id가 id인 구분 장이 묶는 범위), `{{PARTS}}`(부의 수). 진행바의 부 이름(meta.parts)도 빠진 부를 자동으로 뺀다
+- `meta.json`: `"variants": {"talk": {"label": "논문 발표", "opts": ["limits"]}, "lab": {...}, "proposal": {...}}`
+- 권장 선택 장 이름: `limits`(현재 한계), `review`(심사·피드백), `revise`(수정 방향), `plan`(향후 계획). 다음 단계 장은 원문·심사평·저자 계획에 있는 내용만 쓰고, 결과가 없는 계획은 "계획, 결과 없음"으로 표시한다
+- 만들기: `node src/build.js <키> --variant <용도>` → `output/<키>/<용도>/deck.html`, `node src/export_pptx.js <키> --variant <용도>` → `<파일 이름>_<용도>.pptx`, `node src/final.js <키>`가 전체판과 용도별 판을 모두 `final/`에 복사. `--variant` 없이 빌드하면 선택 장을 모두 넣은 전체판
+- 발표 스크립트(`script.md`)는 `## 09`(전체판 장 번호) 또는 `## limits`(data-id)로 쓴다. 용도별 판은 data-id로 찾는다
 
 ## 합의 규칙 (불필요한 반복 수정 방지)
 - 아웃라인(장 제목 + 2줄 메시지 + 들어갈 표·그림) 승인 전에는 만들지 않는다

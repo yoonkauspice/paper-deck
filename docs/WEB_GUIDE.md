@@ -30,7 +30,7 @@ cd ~/projects/paper-deck
 gh repo create paper-deck --private --source=. --remote=origin --push
 ```
 - 저장소 만들기, 연결, 첫 push를 한 번에 합니다. 처음에는 비공개로 만들었고, 2026-11-18에 이름·학번을 기록에서 지운 뒤 **공개(Public)** 로 바꿨습니다.
-- 비공개 논문과 제출판(이름·학번이 든 파일)은 별도 비공개 저장소 **paper-deck-private** 에 있습니다. PC에서는 `paper-deck/private/` 폴더가 그 저장소입니다(이 저장소에서는 git 제외).
+- 비공개 논문과 공개 전 작업 중인 논문은 별도 비공개 저장소 **paper-deck-private** 에 있습니다. PC에서는 `paper-deck/private/` 폴더가 그 저장소입니다(이 저장소에서는 git 제외).
 
 ### 1-3. (권장) main 보호
 GitHub 저장소 → **Settings → Rules → Rulesets → New ruleset → New branch ruleset**

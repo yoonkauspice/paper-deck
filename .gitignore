@@ -21,7 +21,7 @@ papers/**/export/
 papers/*/work/*.pptx
 *.pdf
 
-# 비공개 저장소(paper-deck-private)와 비공개 작업(기관 데이터·비공개 리뷰): private/, papers/90번대
+# 비공개 저장소(paper-deck-private): private/ (실수로 papers/ 에 둔 90번대도 제외)
 private/
 papers/9[0-9]_*/
 

@@ -14,8 +14,11 @@ let P;try{P=paper(process.argv[2]);}catch(e){console.error('usage: node src/expo
 // --submit: 제출판(node src/build.js <키> --submit 로 만든 output/<폴더>/submit/deck.html)을 제출 파일 이름으로 내보냄
 const SUBMIT=process.argv.includes('--submit'),OV=SUBMIT?overlayOf(P.key):null;
 if(SUBMIT&&!OV){console.error('제출판 설정이 없습니다: private/overlays/'+P.key+'.json');process.exit(1);}
-const only=SUBMIT?'deck':process.argv.slice(3).find(a=>!a.startsWith('--')),ROOT=P.root,abs=SUBMIT?P.submit:P.output,rel=path.relative(ROOT,abs).split(path.sep).join('/');
-const metaP=path.join(P.work,'meta.json'),META=Object.assign(fs.existsSync(metaP)?JSON.parse(fs.readFileSync(metaP,'utf8')):{},OV&&OV.file?{file:OV.file}:{});
+// --variant <이름>: 용도별 판(node src/build.js <키> --variant <이름> 로 만든 output/<폴더>/<이름>/deck.html) → <파일 이름>_<이름>.pptx
+const VAR=(i=>i>0?process.argv[i+1]:null)(process.argv.indexOf('--variant'));
+const only=SUBMIT||VAR?'deck':process.argv.slice(3).find(a=>!a.startsWith('--')),ROOT=P.root,abs=SUBMIT?P.submit:VAR?path.join(P.output,VAR):P.output,rel=path.relative(ROOT,abs).split(path.sep).join('/');
+const metaP=path.join(P.work,'meta.json'),META0=fs.existsSync(metaP)?JSON.parse(fs.readFileSync(metaP,'utf8')):{};
+const META=Object.assign({},META0,OV&&OV.file?{file:OV.file}:{},VAR?{file:(META0.file||P.key)+'_'+VAR}:{});
 const CANDIDATES=['/mnt/c/Program Files/Google/Chrome/Application/chrome.exe','/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe',
   '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe','/mnt/c/Program Files/Microsoft/Edge/Application/msedge.exe',
   '/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium','/usr/bin/chromium-browser'];
@@ -49,15 +52,16 @@ async function deck(port,shotDir){
   const css='<style id="pptx-shot">html,body{background:#fff!important}#nav,#tipbox{display:none!important}#deck{height:720px!important}'
     +'.slide{left:0!important;top:0!important;transform:none!important;box-shadow:none!important}.an{animation:none!important;opacity:1!important}</style>';
   fs.writeFileSync(path.join(shotDir,'_deck_shot.html'),src.replace('</head>',css+'</head>'));
-  const secs=[...src.matchAll(/<section class="slide[^"]*">([\s\S]*?)<\/section>/g)].map(m=>m[1]);
+  const all=[...src.matchAll(/<section class="slide[^"]*"([^>]*)>([\s\S]*?)<\/section>/g)],secs=all.map(m=>m[2]),sids=all.map(m=>(m[1].match(/data-id="([^"]*)"/)||[])[1]);
   const notes=secs.map(b=>{const t=(b.match(/<h[12][^>]*>([\s\S]*?)<\/h[12]>/)||[])[1]||'',m=(b.match(/<div class="(?:msg|dm[^"]*)"[^>]*>([\s\S]*?)<\/div>/)||[])[1]||'';return strip(t)+(m?'\n'+strip(m):'');});
   // 발표 스크립트(papers/<키>/work/script.md의 "## 번호" 절)가 있으면 그 장의 노트로 씀
   const sp=path.join(P.work,'script.md'),script={};
-  if(fs.existsSync(sp))fs.readFileSync(sp,'utf8').split(/^## +(\d+)[^\n]*\n/m).forEach((t,i,a)=>{if(i%2)script[+t]=a[i+1].trim();});
-  const nS=Object.keys(script).length;if(nS&&nS!==secs.length)console.warn('주의: script.md는 '+nS+'장, 덱은 '+secs.length+'장입니다. 없는 장은 제목과 메시지를 노트로 씁니다.');
+  // 절 제목은 장 번호(## 09, 전체판 기준) 또는 장의 data-id(## limits). 용도별 판은 번호가 바뀌므로 data-id 로 찾고, 번호는 전체판에서만 씀
+  if(fs.existsSync(sp))fs.readFileSync(sp,'utf8').split(/^## +([\w-]+)[^\n]*\n/m).forEach((t,i,a)=>{if(i%2)script[/^\d+$/.test(t)?+t:t]=a[i+1].trim();});
+  const nS=Object.keys(script).length;if(nS&&!VAR&&nS!==secs.length)console.warn('주의: script.md는 '+nS+'장, 덱은 '+secs.length+'장입니다. 없는 장은 제목과 메시지를 노트로 씁니다.');
   const out=[];
   for(let i=0;i<secs.length;i++){const f=path.join(shotDir,'d'+String(i+1).padStart(2,'0')+'.png');
-    await shoot('http://localhost:'+port+'/'+rel+'/export/_deck_shot.html#'+(i+1),f,1280,720,1.5);out.push({img:f,note:script[i+1]||notes[i]});process.stdout.write('\r파랑이 캡처 '+(i+1)+'/'+secs.length);}
+    await shoot('http://localhost:'+port+'/'+rel+'/export/_deck_shot.html#'+(i+1),f,1280,720,1.5);out.push({img:f,note:(sids[i]&&script[sids[i]])||(!VAR&&script[i+1])||notes[i]});process.stdout.write('\r파랑이 캡처 '+(i+1)+'/'+secs.length);}
   const title=(src.match(/<title>([^<]*)<\/title>/)||[])[1]||P.key;
   // meta.json의 file(예: "ABM_Hou")이 있으면 그 이름으로 PPTX와 HTML 사본을 만듦
   const name=META.file||'deck';

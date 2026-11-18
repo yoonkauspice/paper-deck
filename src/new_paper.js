@@ -9,9 +9,9 @@
 // papers/<폴더>/work/ 가 이미 있으면(다른 PC나 새 웹 세션) 원문만 다시 준비하고 작업 원고는 건드리지 않음
 const fs=require('fs'),path=require('path'),cp=require('child_process'),https=require('https'),http=require('http');
 const {paper}=require('./paths');
-const [arg,src]=process.argv.slice(2);
+const argv=process.argv.slice(2),PRIV=argv.includes('--private'),[arg,src]=argv.filter(a=>!a.startsWith('--'));
 if(!arg){console.error('usage: node src/new_paper.js <저자연도_주제 또는 기존 번호> [PDF 경로 또는 URL]');process.exit(1);}
-let P;try{P=paper(arg,{create:true});}catch(e){console.error(e.message);process.exit(1);}
+let P;try{P=paper(arg,{create:true,private:PRIV});}catch(e){console.error(e.message);process.exit(1);}
 const key=P.key;
 const resume=fs.existsSync(path.join(P.work,'meta.json'));
 if(resume&&fs.existsSync(P.pdf)&&!src){console.error('이미 준비된 논문입니다: papers/'+key+', input/'+key+' (그대로 이어서 작업하면 됩니다)');process.exit(1);}

@@ -30,7 +30,7 @@ paper-deck/
 └── package.json, package-lock.json, .env.example, .gitignore
 
 PC에만 있는 폴더(이 저장소에 없음)
-├── private/             비공개 저장소 paper-deck-private(비공개 논문, 이름·학번이 든 제출판)
+├── private/             비공개 저장소 paper-deck-private(비공개 논문, 공개 전 작업 중인 논문)
 ├── input/<논문>/        논문 PDF와 원문에서 나온 것(저작권)
 └── output/<논문>/       빌드 중간 결과(언제든 다시 만듦)
 ```

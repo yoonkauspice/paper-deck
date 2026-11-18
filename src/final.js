@@ -4,7 +4,7 @@
 //       node src/final.js --index         안내문만 다시 만들기
 // 파일 이름: work/meta.json 의 file 값(예: ABM_Hou), 없으면 폴더 이름. 파랑이와 노랑이가 둘 다 있으면 노랑이에 _story를 붙임
 // 제출판 이름은 private/overlays/<폴더>.json 의 file 값
-// papers/<폴더>/final/ 은 공개 저장소에, 90번대 논문(private/papers/)과 제출판은 비공개 저장소(private/)에 들어간다
+// papers/<폴더>/final/ 은 공개 저장소에, private/papers/ 의 논문과 제출판은 비공개 저장소(private/)에 들어간다
 const fs=require('fs'),path=require('path');
 const {paper,paperDirs,metaOf,dirOf,isPrivate,overlayOf,PAPERS,PRIVATE,PRIVATE_PAPERS}=require('./paths');
 const relRoot=p=>path.relative(path.join(__dirname,'..'),p).split(path.sep).join('/');
@@ -20,6 +20,9 @@ function finalize(P){
   const pairs=[['deck.html',base+'.html'],[deckPptx,base+'.pptx'],['story.html',sb+'.html'],['story.pptx',sb+'.pptx']].filter(([s])=>ex(s));
   if(!pairs.length){console.error('output/'+P.key+'/ 에 완성 파일이 없습니다. 먼저 node src/build.js '+P.key+' (PPTX는 node src/export_pptx.js '+P.key+')');process.exit(1);}
   copyAll(pairs,P.output,P.final,sb);
+  // 용도별 판(meta.json variants): output/<폴더>/<이름>/ 에 있으면 <파일 이름>_<이름>.html/.pptx 로 함께 복사
+  for(const v of Object.keys(meta.variants||{})){const d=path.join(P.output,v),n=base+'_'+v;
+    const vp=[['deck.html',n+'.html'],[n+'.pptx',n+'.pptx']].filter(([s])=>fs.existsSync(path.join(d,s)));if(vp.length)copyAll(vp,d,P.final,'');}
 }
 function submit(P){
   const ov=overlayOf(P.key);if(!ov||!ov.file){console.error('제출판 설정(file)이 없습니다: private/overlays/'+P.key+'.json');process.exit(1);}
@@ -48,11 +51,9 @@ function index(){
   // 비공개 저장소(private/)가 있으면 그쪽 목록도
   if(fs.existsSync(PRIVATE)){const priv=paperDirs().filter(isPrivate),subs=fs.existsSync(path.join(PRIVATE,'submissions'))?fs.readdirSync(path.join(PRIVATE,'submissions')).sort():[];
     let pm='# paper-deck-private (비공개)\n\npaper-deck 의 `private/` 폴더에 연결된 비공개 저장소입니다. 공개 저장소에 올리면 안 되는 것만 둡니다.\n\n'
-      +'- `papers/9N_*/`: 비공개 논문(구조는 공개 저장소의 `papers/` 와 같음, 결과물은 `final/`)\n'
-      +'- `overlays/<폴더>.json`: 제출판 설정(파일 이름, 표지의 이름·학번 등 공개판에서 바꿀 문구)\n'
-      +'- `submissions/<폴더>/`: 제출판 결과물\n\n## 비공개 논문\n\n'+head+(priv.length?priv.map(d=>row(d,'papers/')).join('\n'):'| - | - | - | - | - |')+'\n'
-      +'\n## 제출판\n\n| 폴더 | 파일 |\n|---|---|\n'+(subs.length?subs.map(s=>'| '+s+' | '+listFiles(path.join(PRIVATE,'submissions',s)).map(x=>'[' +x+'](submissions/'+s+'/'+x+')').join('<br>')+' |').join('\n'):'| - | - |')+'\n'
-      +'\n제출판 다시 만들기: `node src/build.js <키> --submit` → `node src/export_pptx.js <키> --submit` → `node src/final.js <키> --submit`\n';
+      +'- `papers/NN_*/`: 비공개 논문과 공개 전 작업 중인 논문(구조는 공개 저장소의 `papers/` 와 같음, 결과물은 `final/`, 번호는 이 저장소에서 따로 매김)\n'
+      +'- 도구(파랑이·노랑이, 빌드·PPTX)는 공개 저장소 paper-deck 에 있습니다. PC에서 paper-deck 안의 `private/` 폴더로 받아야 동작합니다\n\n## 논문\n\n'+head+(priv.length?priv.map(d=>row(d,'papers/')).join('\n'):'| - | - | - | - | - |')+'\n'
+      +(subs.length?'\n## 제출판\n\n| 폴더 | 파일 |\n|---|---|\n'+subs.map(s=>'| '+s+' | '+listFiles(path.join(PRIVATE,'submissions',s)).map(x=>'[' +x+'](submissions/'+s+'/'+x+')').join('<br>')+' |').join('\n')+'\n':'');
     fs.writeFileSync(path.join(PRIVATE,'README.md'),pm+NOTE);}
   for(const d of paperDirs()){const m=metaOf(d),fl=finals(d),n=d.slice(0,2);
     const t='# '+d+'\n\n'+(m.cite?'**논문**: '+m.cite+'\n\n':'')+(m.title?'**덱 제목**: '+m.title+'\n\n':'')
