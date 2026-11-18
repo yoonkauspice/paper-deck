@@ -34,12 +34,12 @@ function units(kind){
   const files=fs.existsSync(path.join(dir,kind))?fs.readdirSync(path.join(dir,kind)).filter(f=>f.endsWith('.html')).sort():[];
   const out=[];let n=0;
   for(const f of files){const h=rd(path.join(dir,kind,f));
-    const re=kind==='slides'?/<section class="slide[^"]*">([\s\S]*?)<\/section>/g:/<div class="sc-(?:step|g)"[^>]*>([\s\S]*?)(?=<div class="sc-(?:step|g)"|<\/section>)/g;
+    const re=kind.startsWith('slides')?/<section class="slide[^"]*"[^>]*>([\s\S]*?)<\/section>/g:/<div class="sc-(?:step|g)"[^>]*>([\s\S]*?)(?=<div class="sc-(?:step|g)"|<\/section>)/g;
     for(const m of h.matchAll(re)){n++;
       const tips=[...m[1].matchAll(/data-tip="([^"]*)"/g)].map(t=>t[1]).join(' ');
       const text=(m[1].replace(/<script[\s\S]*?<\/script>/g,'').replace(/<style[\s\S]*?<\/style>/g,'').replace(/<(?!text)[^>]*>/g,' ').replace(/<text[^>]*>/g,' ')+' '+tips)
         .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ').replace(/\s+/g,' ');
-      out.push({where:(kind==='slides'?'슬라이드 ':'단계/그래픽 ')+n+' ('+f+')',text});}}
+      out.push({where:(kind.startsWith('slides')?'슬라이드 ':'단계/그래픽 ')+n+' ('+(kind==='slides'?'':kind+'/')+f+')',text});}}
   return out;
 }
 const SKIP_BEFORE=/(§\s*|p\.\s*|pp\.\s*|표\s*|그림\s*|식\s*\(|쪽\s*|Fig\.?\s*|Table\s*|부록\s*S?|S|\[)$/;
@@ -59,13 +59,15 @@ function check(kind){
       miss.push({where:u.where,tok,ctx:t.slice(Math.max(0,m.index-28),m.index+m[0].length+20).trim()});}}
   return {kind,total,miss};
 }
-const kinds=(only?[only]:['deck','story']).map(k=>k==='deck'?'slides':'story');
+// 파랑이 원고: slides/ 와 추가 덱 slides_<이름>/ 모두
+const deckDirs=fs.existsSync(dir)?fs.readdirSync(dir).filter(d=>/^slides(_[\w-]+)?$/.test(d)&&fs.statSync(path.join(dir,d)).isDirectory()).sort():[];
+const kinds=(only?[only]:['deck','story']).flatMap(k=>k==='deck'?deckDirs:['story']);
 const reports=kinds.map(check).filter(Boolean);
 if(!reports.length){console.error('papers/'+P.key+'/work/slides/ 또는 story/ 가 없습니다');process.exit(1);}
 let md='# 수치 대조 결과 ('+P.key+')\n\n근거: input/'+P.key+'/extract/full.txt'+(fs.existsSync(P.sources)?', input/'+P.key+'/sources/':'')+(fs.existsSync(rj)?', output/'+P.key+'/results.json':'')+'\n';
 for(const r of reports){
-  console.log((r.kind==='slides'?'파랑이':'노랑이')+': 숫자 '+r.total+'개 중 근거를 못 찾은 것 '+r.miss.length+'개');
-  md+='\n## '+(r.kind==='slides'?'파랑이(slides)':'노랑이(story)')+' · 숫자 '+r.total+'개, 확인 필요 '+r.miss.length+'개\n\n';
+  console.log((r.kind.startsWith('slides')?'파랑이'+(r.kind==='slides'?'':'('+r.kind+')'):'노랑이')+': 숫자 '+r.total+'개 중 근거를 못 찾은 것 '+r.miss.length+'개');
+  md+='\n## '+(r.kind.startsWith('slides')?'파랑이('+r.kind+')':'노랑이(story)')+' · 숫자 '+r.total+'개, 확인 필요 '+r.miss.length+'개\n\n';
   if(r.miss.length){md+='| 위치 | 값 | 앞뒤 글 |\n|---|---|---|\n'+r.miss.map(x=>'| '+x.where+' | '+x.tok+' | '+x.ctx.replace(/\|/g,'/')+' |').join('\n')+'\n';
     r.miss.slice(0,40).forEach(x=>console.log('  ['+x.where+'] '+x.tok+'  …'+x.ctx+'…'));}}
 md+='\n확인 방법: 원문 쪽 이미지(node src/pdf_figure.js '+P.key+' <쪽>)로 보거나, 계산한 값이면 papers/'+P.key+'/numbers_ok.txt에 "값<TAB>이유"를 적는다.\n';

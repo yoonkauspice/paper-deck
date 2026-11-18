@@ -59,9 +59,11 @@ const tailHtml=rd(path.join(T,'tail.html'));
 const rel=f=>path.relative(P.root,f).split(path.sep).join('/');
 try{
   // 1) 파랑이
-  let slides=list(path.join(dir,'slides'),'.html').join('\n\n');
+  // 추가 덱: variants.<이름>.slides 가 있으면 그 폴더(예: slides_brief)의 원고로 별도 덱을 만듦(부 이름은 variants.<이름>.parts)
+  const VS=VAR&&meta.variants[VAR].slides;
+  let slides=list(path.join(dir,VS||'slides'),'.html').join('\n\n');
   if(SUBMIT)for(const [a,b] of OV.replace||[]){if(!slides.includes(a)){console.error('제출판 바꿀 문구를 원고에서 찾지 못했습니다: '+a);process.exit(1);}slides=slides.split(a).join(b);}
-  let partNames=meta.parts||[];
+  let partNames=VS?(meta.variants[VAR].parts||[]):(meta.parts||[]);
   if(slides){const v=applyVariant(slides,partNames);slides=v.html;partNames=v.parts;}
   if(slides){
     const sim=simParts(slides);

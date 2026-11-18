@@ -86,6 +86,7 @@
 - 권장 선택 장 이름: `limits`(현재 한계), `review`(심사·피드백), `revise`(수정 방향), `plan`(향후 계획). 다음 단계 장은 원문·심사평·저자 계획에 있는 내용만 쓰고, 결과가 없는 계획은 "계획, 결과 없음"으로 표시한다
 - 만들기: `node src/build.js <키> --variant <용도>` → `output/<키>/<용도>/deck.html`, `node src/export_pptx.js <키> --variant <용도>` → `<파일 이름>_<용도>.pptx`, `node src/final.js <키>`가 전체판과 용도별 판을 모두 `final/`에 복사. `--variant` 없이 빌드하면 선택 장을 모두 넣은 전체판
 - 발표 스크립트(`script.md`)는 `## 09`(전체판 장 번호) 또는 `## limits`(data-id)로 쓴다. 용도별 판은 data-id로 찾는다
+- **추가 덱**(내용이 다른 별도 덱, 예: 10장 브리핑): 원고를 `work/slides_<이름>/`에 두고 `meta.json`에 `"variants": {"<이름>": {"label": "...", "slides": "slides_<이름>", "parts": []}}`. 만들기는 용도별 판과 같다(`--variant <이름>`, 결과는 `<파일 이름>_<이름>.html/.pptx`). 수치 대조는 `slides_*` 폴더도 함께 본다. 사용자가 요청할 때만 만들고 기존 덱은 그대로 둔다(예: `private/papers/02_*`의 `brief`)
 
 ## 합의 규칙 (불필요한 반복 수정 방지)
 - 아웃라인(장 제목 + 2줄 메시지 + 들어갈 표·그림) 승인 전에는 만들지 않는다
