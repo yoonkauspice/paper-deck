@@ -18,7 +18,6 @@ paper-deck/
 │   └── 04_Hou2025_VacSim/
 │       ├── final/       최종 결과물(HTML, PPTX)
 │       └── work/        원고: 슬라이드 원고, 노트, 아웃라인, 발표 스크립트(고치는 곳)
-├── inbox/               Claude Code 웹으로 보낼 논문 PDF
 ├── src/                 도구(Node.js)와 공용 부품
 │   ├── templates/       파랑이·노랑이·시뮬레이션 디자인 틀
 │   ├── reference/       기준 덱(TOR)
@@ -30,7 +29,8 @@ paper-deck/
 ├── setup.sh             의존성 설치와 확인
 └── package.json, package-lock.json, .env.example, .gitignore
 
-PC에만 있는 폴더(GitHub에 없음)
+PC에만 있는 폴더(이 저장소에 없음)
+├── private/             비공개 저장소 paper-deck-private(비공개 논문, 이름·학번이 든 제출판)
 ├── input/<논문>/        논문 PDF와 원문에서 나온 것(저작권)
 └── output/<논문>/       빌드 중간 결과(언제든 다시 만듦)
 ```
@@ -62,7 +62,7 @@ cd paper-deck
 ```
 `setup.sh`가 하는 일: nodejs·npm·poppler-utils가 없으면 apt로 설치(sudo 비밀번호를 물음), `npm ci`, `.env` 만들기, 크롬 찾기, `npm test`. 이미 있는 것은 건너뜁니다.
 
-비공개 저장소를 clone할 때 비밀번호 대신 인증이 필요합니다. 가장 쉬운 방법은 GitHub CLI입니다.
+이 저장소는 공개라 인증 없이 clone됩니다. push하거나 비공개 저장소(paper-deck-private)를 받으려면 인증이 필요하고, 가장 쉬운 방법은 GitHub CLI입니다. 비공개 저장소는 프로젝트 안에 `git clone https://github.com/yoonkauspice/paper-deck-private.git private` 로 받습니다.
 ```bash
 sudo apt-get install -y gh && gh auth login
 ```

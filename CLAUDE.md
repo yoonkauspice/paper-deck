@@ -21,10 +21,14 @@
 | `src/reference/`, `src/examples/` | 기준 덱, 슬라이드 유형별 마크업 예시(표지, 구분 `dv`, 본문 `.body`, `.body.full`, 표, 감사 `.au3`, 단계 위젯 `mkStep`) | 커밋 |
 | `src/scripts/web_session.sh` | 웹 세션 시작 때 자동 준비 | 커밋 |
 | `docs/WEB_GUIDE.md` | Claude Code 웹 사용 안내 | 커밋 |
-| `inbox/` | Claude Code 웹으로 보낼 논문 PDF(사용자가 GitHub에 올림) | 사용자가 올린 PDF만 |
+| `private/` | **비공개 저장소 paper-deck-private**(별도 git, 이 저장소에서는 제외): `papers/9N_*/`(비공개 논문), `overlays/<키>.json`(제출판 설정), `submissions/<키>/`(제출판 결과물), `README.md`(자동 생성) | 별도 비공개 저장소에 커밋 |
 | `.claude/skills/paper-deck/`, `.claude/commands/` | 스킬과 슬래시 명령(`/new-paper`, `/build`, `/check`, `/export`) | 커밋 |
 
-**논문 폴더 이름**: `번호_저자연도_주제`(예: `04_Hou2025_VacSim`). 번호는 작업 순서. `00_check_*`는 회귀 시험(파랑이 템플릿 재조립, 노랑이 부품), `90`번대는 비공개(`.gitignore`가 통째로 뺌, 예: `90_private_dashboard`).
+**논문 폴더 이름**: `번호_저자연도_주제`(예: `04_Hou2025_VacSim`). 번호는 작업 순서. `00_check_*`는 회귀 시험(파랑이 템플릿 재조립, 노랑이 부품), `90`번대는 비공개 논문으로 `private/papers/`에 둔다(예: `90_private_dashboard`). 도구는 `papers/`와 `private/papers/`를 함께 찾는다.
+
+**공개 저장소다.** 이 저장소(paper-deck)는 Public이다. 원문 PDF, 이름·학번 같은 개인정보, 기관 자료, 미공개 리뷰는 절대 이 저장소에 커밋하지 않는다. 그런 것은 `input/`(PC 전용) 또는 `private/`(비공개 저장소)에 둔다. 커밋 전에 `git diff --cached`로 개인정보가 없는지 확인한다.
+
+**제출판**: 공개판과 내용이 같고 표지 등 일부만 다른 판(예: 이름·학번이 든 과제 제출용). 바꿀 문구와 파일 이름은 `private/overlays/<키>.json`의 `{"file":"이름","replace":[["공개판 문구","제출판 문구"]]}`. 만들기: `node src/build.js <키> --submit` → `node src/export_pptx.js <키> --submit` → `node src/final.js <키> --submit`(결과는 `private/submissions/<키>/`)
 **<키>**: 도구에는 폴더 이름 전체, 번호(`04`), `meta.json`의 `alias`(`hou`), 폴더 이름의 한 마디(`vacsim`) 가운데 무엇을 줘도 된다. 여러 개가 맞으면 번호로 지정하라는 오류가 난다.
 
 ## 도구 (모두 `<키>` 하나만 받는다. `npm run <이름> -- <키>`도 같음)
@@ -87,10 +91,10 @@
 ## Claude Code 웹(클라우드) 세션
 환경변수 `CLAUDE_CODE_REMOTE=true`면 웹 세션이다. 세션 시작 때 `src/scripts/web_session.sh`가 poppler 설치, `npm ci`, `.env`를 자동으로 준비한다(`.claude/settings.json`).
 - 웹 세션은 매번 새 컴퓨터다. `input/`, `output/`은 세션이 끝나면 사라지고, 커밋해서 push한 것만 남는다
-- **원문 가져오기**: 사용자가 GitHub의 `inbox/<파일>.pdf`에 올렸으면 `node src/new_paper.js <키> inbox/<파일>.pdf`, 공개 논문 URL을 줬으면 `node src/new_paper.js <키> <URL>`. 작업 원고(`papers/<키>`)가 이미 있으면 원문만 다시 준비된다(이어 하기). 그림은 `node src/pdf_figure.js <키> --all`
+- **원문 가져오기**: 공개 논문 URL로만 받는다: `node src/new_paper.js <키> <URL>`(공개 저장소라 PDF를 커밋하지 않음). 작업 원고(`papers/<키>`)가 이미 있으면 원문만 다시 준비된다(이어 하기). 그림은 `node src/pdf_figure.js <키> --all`
 - **중간 저장**: 아웃라인을 보여 주고 승인을 기다리기 전에 `papers/<키>/work/`를 커밋하고 push한다(세션이 끊겨도 이어서 할 수 있게)
 - **결과물 내보내기**: 빌드(필요하면 PPTX)까지 끝나면 `node src/final.js <키>`로 `papers/<키>/final/`에 복사하고 `papers/<키>/`와 `papers/README.md`를 커밋해 push한다. 사용자는 GitHub에서 이 브랜치의 `papers/<키>/final/` 파일을 내려받는다. push한 브랜치 이름을 마지막에 알려 준다
-- `inbox/`의 PDF와 `input/`은 커밋 대상이 아니다(`inbox/`는 사용자가 올린 것). 원문 텍스트·그림을 다른 곳에 커밋하지 않는다
+- `input/`은 커밋 대상이 아니다. 원문 PDF·텍스트를 다른 곳에 커밋하지 않는다(결과물 속 논문 그림은 출처를 밝혀 둠)
 - 크롬은 클라우드의 `CHROME_PATH`를 자동으로 쓴다. 노랑이 캡처는 Pretendard 글꼴 서버(`cdn.jsdelivr.net`)가 막혀 있으면 대체 글꼴로 찍히므로, 그런 경고가 보이면 사용자에게 환경의 허용 도메인 추가를 안내한다
 - main에 직접 push하지 않는다(세션 브랜치에 push)
 

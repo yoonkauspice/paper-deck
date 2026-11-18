@@ -3,7 +3,7 @@
 브라우저(claude.ai/code)만으로 이 파이프라인을 돌리는 방법입니다. 처음 한 번 하는 일(1~2부)과 논문마다 하는 일(3부)로 나눴습니다.
 
 - 웹 세션은 GitHub 저장소를 클라우드 컴퓨터에 복제해서 작업합니다. 세션이 끝나면 그 컴퓨터는 사라지고, **커밋해서 GitHub에 올린 것만 남습니다.**
-- 웹 세션에는 파일을 첨부할 수 없습니다. 논문 PDF는 저장소의 `inbox/`에 올리거나(비공개 저장소), 공개 논문이면 URL을 줍니다.
+- 웹 세션에는 파일을 첨부할 수 없습니다. 이 저장소는 **공개**라 논문 PDF를 올리지 않고, 공개 논문의 URL(arXiv 등)을 줍니다. URL로 받을 수 없는 논문과 비공개 자료는 PC(WSL)에서 작업합니다.
 - 결과물(HTML, PPTX)은 Claude가 `papers/<키>/final/`에 넣어 세션 브랜치에 올리고, GitHub에서 내려받습니다.
 
 ---
@@ -24,13 +24,13 @@ gh auth login
 6. GitHub에 **구글 계정으로 로그인**(평소처럼 "Continue with Google") → 코드 붙여넣기 → **Authorize**.
 7. 터미널에 `Logged in as yoonkauspice`가 나오면 끝입니다.
 
-### 1-2. 비공개 저장소를 만들고 올리기
+### 1-2. 저장소를 만들고 올리기
 ```bash
 cd ~/projects/paper-deck
 gh repo create paper-deck --private --source=. --remote=origin --push
 ```
-- 저장소 만들기, 연결, 첫 push를 한 번에 합니다. 반드시 `--private`입니다.
-- 확인: `gh repo view --web`(또는 브라우저에서 github.com/yoonkauspice/paper-deck)에 **Private** 표시와 파일들이 보이면 됩니다.
+- 저장소 만들기, 연결, 첫 push를 한 번에 합니다. 처음에는 비공개로 만들었고, 2026-11-18에 이름·학번을 기록에서 지운 뒤 **공개(Public)** 로 바꿨습니다.
+- 비공개 논문과 제출판(이름·학번이 든 파일)은 별도 비공개 저장소 **paper-deck-private** 에 있습니다. PC에서는 `paper-deck/private/` 폴더가 그 저장소입니다(이 저장소에서는 git 제외).
 
 ### 1-3. (권장) main 보호
 GitHub 저장소 → **Settings → Rules → Rulesets → New ruleset → New branch ruleset**
@@ -48,7 +48,7 @@ Claude는 작업을 세션 브랜치에 올리므로, 이렇게 해 두면 main�
 1. **https://claude.ai/code** 접속 → Claude 계정으로 로그인(Pro/Max 등 유료 플랜 필요. 사용량은 계정 한도를 함께 씀)
 2. 화면의 안내에 따라 **Connect GitHub** → GitHub 화면에서 **Authorize** → claude.ai/code로 돌아옵니다.
 
-### 2-2. 비공개 저장소 접근 허용 (Claude GitHub App)
+### 2-2. 저장소 접근 허용 (Claude GitHub App)
 1. **https://github.com/apps/claude/installations/new** 접속
 2. 설치할 계정으로 **yoonkauspice** 선택
 3. **Only select repositories** → **paper-deck** 선택 → **Install**
@@ -76,17 +76,12 @@ claude.ai/code에서 저장소를 고르는 곳 옆의 **환경(Environment) 선
 
 ## 3부. 논문 작업 (매번)
 
-### 3-1. PDF 넣기 (둘 중 하나)
-- **비공개 저장소에 올리기**: github.com/yoonkauspice/paper-deck → `inbox` 폴더 → **Add file → Upload files** → PDF를 끌어다 놓기 → **Commit changes**(main에 바로)
-  - 파일 이름은 영어로(예: `schelling1971.pdf`). 올린 PDF는 git 기록에 남습니다.
-  - 기관 자료나 공개하면 안 되는 원고는 올리지 말고 로컬(WSL)에서 작업하세요.
-- **공개 논문 URL**: arXiv 같은 PDF 주소를 그대로 프롬프트에 넣습니다.
+### 3-1. 논문 원문
+- **공개 논문 URL**: arXiv 같은 PDF 주소를 그대로 프롬프트에 넣습니다(환경의 허용 도메인에 그 사이트가 있어야 함).
+- PDF 파일을 저장소에 올리지 않습니다. 공개 저장소라 누구나 내려받을 수 있게 됩니다. URL이 없는 논문은 PC(WSL)에서 작업합니다.
 
 ### 3-2. 세션 시작
 claude.ai/code → 저장소 **paper-deck**, 브랜치 **main**, 환경 **paper-deck** → 프롬프트 예시:
-```
-inbox/schelling1971.pdf 를 Schelling1971_Segregation 으로 파랑이 만들어줘. 랩세미나 20분, 청중은 ABM은 알지만 이 논문은 처음.
-```
 ```
 https://arxiv.org/pdf/2310.05984 논문을 Tornberg2023_SocialMedia 로 노랑이 만들어줘. 핵심 모형을 시드 20개로 레플리케이션해줘.
 ```
@@ -109,6 +104,6 @@ cd ~/projects/paper-deck && claude --teleport
 ---
 
 ## 알아 둘 점
-- 저장소는 반드시 **Private**으로 둡니다.
-- 세션마다 새 컴퓨터라, 다음 세션에서 같은 논문을 이어 하려면 `inbox/`의 PDF(또는 URL)가 다시 필요합니다. 작업 원고가 있으면 원문만 다시 준비하고 이어 갑니다.
+- 이 저장소는 **공개**입니다. 원문 PDF, 이름·학번 같은 개인정보, 기관 자료는 올리지 않습니다(비공개는 paper-deck-private).
+- 세션마다 새 컴퓨터라, 다음 세션에서 같은 논문을 이어 하려면 URL이 다시 필요합니다. 작업 원고가 있으면 원문만 다시 준비하고 이어 갑니다.
 - 아직 확인하지 못한 것: 웹 화면의 정확한 메뉴 이름(위 설명은 공식 문서 기준), 세션 브랜치 이름 규칙, 웹에서 결과 파일을 바로 내려받는 기능. 처음 한 번 해 보면서 다르면 이 문서를 고치면 됩니다.

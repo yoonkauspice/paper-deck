@@ -3,7 +3,7 @@
 //   <키>: 저자연도_주제(예: Schelling1971_Segregation). 번호가 없으면 다음 번호를 붙여 papers/05_Schelling1971_Segregation 처럼 만듦
 //         이미 있는 논문이면 번호(04)나 alias(hou)로도 지정 가능
 //   PDF: 다음 중 하나. 생략하면 input/<키>/source.pdf 가 이미 있어야 함
-//     - 파일 경로: 윈도우 경로(C:\...)나 Linux 경로. Claude Code 웹에서는 저장소의 inbox/<파일>.pdf
+//     - 파일 경로: 윈도우 경로(C:\...)나 Linux 경로(PDF는 저장소에 커밋하지 않음)
 //     - URL(https://...): 공개 논문 PDF를 내려받음(웹 세션은 네트워크 허용 도메인에 그 사이트가 있어야 함)
 // 만드는 것: input/<폴더>/{source.pdf, extract/full.txt, figures/, sources/}, papers/<폴더>/{work/meta.json, work/assets/, final/}, output/<폴더>/
 // papers/<폴더>/work/ 가 이미 있으면(다른 PC나 새 웹 세션) 원문만 다시 준비하고 작업 원고는 건드리지 않음

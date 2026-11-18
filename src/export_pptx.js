@@ -8,11 +8,14 @@
 // 캡처는 크롬 헤드리스. 크롬 위치는 .env 의 CHROME(없으면 자동 탐색: WSL이면 윈도우 Chrome/Edge, Linux면 google-chrome/chromium)
 // PPTX는 pptxgenjs. 슬라이드는 이미지라 글자 편집은 안 됨
 const fs=require('fs'),path=require('path'),http=require('http'),cp=require('child_process');
-const {paper}=require('./paths');
+const {paper,overlayOf}=require('./paths');
 const PptxGenJS=require('pptxgenjs');
-let P;try{P=paper(process.argv[2]);}catch(e){console.error('usage: node src/export_pptx.js <키> [deck|story]');process.exit(1);}
-const only=process.argv[3],ROOT=P.root,abs=P.output,rel=path.relative(ROOT,abs).split(path.sep).join('/');
-const metaP=path.join(P.work,'meta.json'),META=fs.existsSync(metaP)?JSON.parse(fs.readFileSync(metaP,'utf8')):{};
+let P;try{P=paper(process.argv[2]);}catch(e){console.error('usage: node src/export_pptx.js <키> [deck|story] [--submit]');process.exit(1);}
+// --submit: 제출판(node src/build.js <키> --submit 로 만든 output/<폴더>/submit/deck.html)을 제출 파일 이름으로 내보냄
+const SUBMIT=process.argv.includes('--submit'),OV=SUBMIT?overlayOf(P.key):null;
+if(SUBMIT&&!OV){console.error('제출판 설정이 없습니다: private/overlays/'+P.key+'.json');process.exit(1);}
+const only=SUBMIT?'deck':process.argv.slice(3).find(a=>!a.startsWith('--')),ROOT=P.root,abs=SUBMIT?P.submit:P.output,rel=path.relative(ROOT,abs).split(path.sep).join('/');
+const metaP=path.join(P.work,'meta.json'),META=Object.assign(fs.existsSync(metaP)?JSON.parse(fs.readFileSync(metaP,'utf8')):{},OV&&OV.file?{file:OV.file}:{});
 const CANDIDATES=['/mnt/c/Program Files/Google/Chrome/Application/chrome.exe','/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe',
   '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe','/mnt/c/Program Files/Microsoft/Edge/Application/msedge.exe',
   '/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium','/usr/bin/chromium-browser'];
@@ -37,7 +40,8 @@ async function shoot(url,out,w,h,scale){
   if(!fs.existsSync(out))throw new Error('캡처 실패(4번 시도): '+url);}
 async function save(slides,title,outFile){
   const pptx=new PptxGenJS();pptx.layout='LAYOUT_16x9';pptx.title=title;pptx.author='paper-deck';
-  slides.forEach(x=>{const s=pptx.addSlide();s.background={color:'FFFFFF'};s.addImage({path:x.img,x:0,y:0,w:10,h:5.625});if(x.note)s.addNotes(x.note);});
+  // altText를 주지 않으면 pptxgenjs가 이미지의 PC 경로(/home/사용자/...)를 설명으로 넣으므로 장 번호로 대신함
+  slides.forEach((x,i)=>{const s=pptx.addSlide();s.background={color:'FFFFFF'};s.addImage({path:x.img,x:0,y:0,w:10,h:5.625,altText:'슬라이드 '+(i+1)});if(x.note)s.addNotes(x.note);});
   await pptx.writeFile({fileName:outFile});console.log('\n저장:',path.relative(ROOT,outFile),slides.length+'장');}
 
 async function deck(port,shotDir){

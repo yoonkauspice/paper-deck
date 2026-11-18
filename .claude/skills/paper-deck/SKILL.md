@@ -16,5 +16,5 @@ description: 논문 PDF를 읽고 발표자료를 만드는 파이프라인. 두
 6. 시뮬레이션은 `src/templates/sim.js`(PaperSim) 부품과 `papers/<키>/work/sims/*.js` 모형으로 만들고, node에서 헤드리스로 돌려 원문과 대조한다.
 7. 빌드 `node src/build.js <키>` → 결과는 `output/<키>/`. 검증: 원문 감사(외부 모델 사용 가능) → 수치 대조 `node src/check_numbers.js <키>` → 렌더 검증.
 8. ★ 최종 확인 후 PPTX: `node src/export_pptx.js <키>`(파랑이 `deck.pptx`, 노랑이 `story.pptx`, 화면 캡처 이미지 + 발표자 노트, 노트는 `work/script.md`). 끝나면 `node src/final.js <키>`로 `papers/<키>/final/`에 최종본을 두고 목록을 갱신한다.
-9. Claude Code 웹(CLAUDE_CODE_REMOTE=true)에서는 CLAUDE.md의 웹 세션 절을 따른다: 원문은 inbox/ 또는 URL, 아웃라인 전에 papers/<키> 커밋, 끝나면 node src/final.js <키> 후 커밋·push.
+9. Claude Code 웹(CLAUDE_CODE_REMOTE=true)에서는 CLAUDE.md의 웹 세션 절을 따른다: 원문은 공개 논문 URL만(공개 저장소라 PDF·개인정보 커밋 금지, 비공개는 private/), 아웃라인 전에 papers/<키> 커밋, 끝나면 node src/final.js <키> 후 커밋·push.
 10. 문체는 "~합니다", 원문에 없는 내용은 쓰지 않고, 숫자는 원문과 대조한다. 원문 밖 자료(리뷰 등)는 `input/<키>/sources/`에 둔다. 원문·출력은 커밋하지 않는다.

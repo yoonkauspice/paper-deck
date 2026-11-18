@@ -5,8 +5,11 @@
 //   story/*.js(스크롤 그래픽 핸들러), {{IMG:파일}}(papers/<키>/work/assets → input/<키>/figures 순서로 찾아 파일 안에 포함),
 //   {{JSON:파일}}(papers/<키> → output/<키> 순서로 찾음. 예: 실험 결과 results.json)
 const fs=require('fs'),path=require('path');
-const {paper,findAsset}=require('./paths');
-let P;try{P=paper(process.argv[2]);}catch(e){console.error('usage: node src/build.js <키>\n'+e.message);process.exit(1);}
+const {paper,findAsset,overlayOf}=require('./paths');
+let P;try{P=paper(process.argv[2]);}catch(e){console.error('usage: node src/build.js <키> [--submit]\n'+e.message);process.exit(1);}
+// --submit: 제출판(private/overlays/<폴더>.json 의 replace 를 적용, 예: 표지의 이름·학번) → output/<폴더>/submit/deck.html
+const SUBMIT=process.argv.includes('--submit'),OV=SUBMIT?overlayOf(P.key):null;
+if(SUBMIT&&!OV){console.error('제출판 설정이 없습니다: private/overlays/'+P.key+'.json');process.exit(1);}
 const dir=P.work,T=P.templates;
 const rd=p=>fs.readFileSync(p,'utf8');
 const ex=p=>fs.existsSync(p);
@@ -33,7 +36,8 @@ const tailHtml=rd(path.join(T,'tail.html'));
 const rel=f=>path.relative(P.root,f).split(path.sep).join('/');
 try{
   // 1) 파랑이
-  const slides=list(path.join(dir,'slides'),'.html').join('\n\n');
+  let slides=list(path.join(dir,'slides'),'.html').join('\n\n');
+  if(SUBMIT)for(const [a,b] of OV.replace||[]){if(!slides.includes(a)){console.error('제출판 바꿀 문구를 원고에서 찾지 못했습니다: '+a);process.exit(1);}slides=slides.split(a).join(b);}
   if(slides){
     const sim=simParts(slides);
     const extraP=path.join(dir,'extra.js');
@@ -41,12 +45,12 @@ try{
     const head=headHtml.replace('</head>',sim.css+'</head>');
     const tail=tailHtml.replace('<!--EXTRA_SCRIPTS-->',sim.js+extra);
     const pn='<script>window.PART_NAMES='+JSON.stringify(meta.parts||[])+';</script>\n';
-    const out=path.join(P.output,'deck.html');
+    const out=path.join(SUBMIT?P.submit:P.output,'deck.html');fs.mkdirSync(path.dirname(out),{recursive:true});
     fs.writeFileSync(out,embed(head+'\n'+slides+'\n</div>\n'+pn+tail));
     console.log('built',rel(out),'slides:',(slides.match(/<section class="slide/g)||[]).length,sim.js?'(sim)':'');
   }
   // 2) 노랑이
-  const story=list(path.join(dir,'story'),'.html').join('\n\n');
+  const story=SUBMIT?'':list(path.join(dir,'story'),'.html').join('\n\n');  // 제출판은 파랑이만
   if(story){
     const sim=simParts(story);
     // 노랑이는 파랑이와 다른 전용 테마(src/templates/story.css, Pretendard). 아이콘만 파랑이 템플릿에서 가져옴

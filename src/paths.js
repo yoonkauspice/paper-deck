@@ -5,9 +5,13 @@
 //   input/<폴더>/           원문 PDF와 원문에서 나온 것(PC 전용, 커밋 안 함): source.pdf, extract/, figures/, sources/
 //   output/<폴더>/          빌드 결과(PC 전용, 커밋 안 함): deck.html, story.html, *.pptx, export/, 04_numbers.md, results.json
 //   src/templates/          디자인 템플릿(파랑이·노랑이 공용)
+//   private/                비공개 저장소(paper-deck-private, 이 저장소에서는 git 제외)
+//     papers/9N_*/          비공개 논문(번호 90번대). 구조는 papers/ 와 같음
+//     overlays/<폴더>.json  제출판 설정: {"file":"제출 파일 이름","replace":[["공개판 문구","제출판 문구"],...]}
+//     submissions/<폴더>/   제출판 결과물(이름·학번이 든 표지 등). build/export/final 에 --submit
 // 도구에 주는 <키>는 다음 중 무엇이든 된다: 폴더 이름 전체, 번호(04), meta.json의 alias(hou), 폴더 이름의 한 마디(vacsim)
 const fs=require('fs'),path=require('path');
-const ROOT=path.join(__dirname,'..'),PAPERS=path.join(ROOT,'papers');
+const ROOT=path.join(__dirname,'..'),PAPERS=path.join(ROOT,'papers'),PRIVATE=path.join(ROOT,'private'),PRIVATE_PAPERS=path.join(PRIVATE,'papers');
 
 // .env 읽기(따로 패키지를 쓰지 않음). 이미 있는 환경변수가 우선
 (function(){const f=path.join(ROOT,'.env');if(!fs.existsSync(f))return;
@@ -15,8 +19,14 @@ const ROOT=path.join(__dirname,'..'),PAPERS=path.join(ROOT,'papers');
     if(m&&!line.trim().startsWith('#')&&m[2]!==''&&process.env[m[1]]===undefined)process.env[m[1]]=m[2].replace(/^["']|["']$/g,'');}})();
 
 const NAME=/^[A-Za-z0-9_-]+$/;
-function paperDirs(){return fs.existsSync(PAPERS)?fs.readdirSync(PAPERS).filter(d=>NAME.test(d)&&fs.statSync(path.join(PAPERS,d)).isDirectory()).sort():[];}
-function metaOf(dir){try{return JSON.parse(fs.readFileSync(path.join(PAPERS,dir,'work','meta.json'),'utf8'));}catch(e){return {};}}
+const isPrivate=d=>/^9\d_/.test(d);  // 90번대 = 비공개 논문(private/papers/)
+const listDir=r=>fs.existsSync(r)?fs.readdirSync(r).filter(d=>NAME.test(d)&&fs.statSync(path.join(r,d)).isDirectory()):[];
+function paperDirs(){return [...new Set([...listDir(PAPERS),...listDir(PRIVATE_PAPERS)])].sort();}
+// 폴더가 있는 곳(공개 papers/ 또는 비공개 private/papers/)
+function dirOf(d){return fs.existsSync(path.join(PAPERS,d))?path.join(PAPERS,d):fs.existsSync(path.join(PRIVATE_PAPERS,d))||isPrivate(d)?path.join(PRIVATE_PAPERS,d):path.join(PAPERS,d);}
+function metaOf(dir){try{return JSON.parse(fs.readFileSync(path.join(dirOf(dir),'work','meta.json'),'utf8'));}catch(e){return {};}}
+// 제출판 설정(private/overlays/<폴더>.json). 없으면 null
+function overlayOf(key){const f=path.join(PRIVATE,'overlays',key+'.json');return fs.existsSync(f)?JSON.parse(fs.readFileSync(f,'utf8')):null;}
 // <키> → 폴더 이름. 못 찾으면 null, 여러 개가 맞으면 오류
 function resolveKey(arg){
   if(!arg)return null;
@@ -36,8 +46,9 @@ function newKey(arg){
   return String((nums.length?Math.max(...nums):0)+1).padStart(2,'0')+'_'+arg;
 }
 function make(key){
-  const dir=path.join(PAPERS,key),input=path.join(ROOT,'input',key),output=path.join(ROOT,'output',key);
-  return {key,root:ROOT,dir,work:path.join(dir,'work'),final:path.join(dir,'final'),input,output,
+  const dir=dirOf(key),input=path.join(ROOT,'input',key),output=path.join(ROOT,'output',key);
+  return {key,root:ROOT,dir,work:path.join(dir,'work'),final:path.join(dir,'final'),input,output,private:isPrivate(key)||dir.startsWith(PRIVATE_PAPERS),
+    submit:path.join(output,'submit'),submissions:path.join(PRIVATE,'submissions',key),
     pdf:path.join(input,'source.pdf'),extract:path.join(input,'extract'),figures:path.join(input,'figures'),sources:path.join(input,'sources'),
     templates:path.join(ROOT,'src','templates')};
 }
@@ -54,4 +65,4 @@ function findAsset(p,file){
   return null;
 }
 const keyOf=arg=>{try{return resolveKey(arg);}catch(e){return null;}};
-module.exports={ROOT,PAPERS,paper,keyOf,findAsset,paperDirs,metaOf};
+module.exports={ROOT,PAPERS,PRIVATE,PRIVATE_PAPERS,paper,keyOf,findAsset,paperDirs,metaOf,dirOf,isPrivate,overlayOf};

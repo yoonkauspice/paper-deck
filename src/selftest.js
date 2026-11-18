@@ -5,7 +5,7 @@
 //  4) 노랑이 시험 페이지(00_check_story)와 파랑이 템플릿 시험(00_check_deck)이 만들어지는지 확인
 // 크롬 캡처(PPTX)는 시간이 걸려 여기서는 하지 않는다: npm run export -- <키>
 const fs=require('fs'),path=require('path'),cp=require('child_process');
-const ROOT=path.join(__dirname,'..');
+const ROOT=path.join(__dirname,'..'),{paperDirs,dirOf}=require('./paths');
 let fail=0,skip=0;
 const ok=m=>console.log('  ✓ '+m),bad=m=>{fail++;console.log('  ✗ '+m);},sk=m=>{skip++;console.log('  - '+m);};
 console.log('1) 명령과 패키지');
@@ -14,9 +14,9 @@ try{require.resolve('pptxgenjs',{paths:[ROOT]});ok('pptxgenjs');}catch(e){bad('p
 console.log('2) 템플릿 스크립트 문법');
 for(const f of ['sim.js','scroll.js']){try{new Function(fs.readFileSync(path.join(ROOT,'src','templates',f),'utf8'));ok(f);}catch(e){bad(f+': '+e.message);}}
 console.log('3) 논문 빌드');
-const keys=fs.readdirSync(path.join(ROOT,'papers')).filter(k=>fs.existsSync(path.join(ROOT,'papers',k,'work','meta.json'))).sort();
+const keys=paperDirs().filter(k=>fs.existsSync(path.join(dirOf(k),'work','meta.json')));  // 공개 papers/ 와 비공개 private/papers/
 for(const k of keys){
-  const run=path.join(ROOT,'papers',k,'work','replication','run.js');
+  const run=path.join(dirOf(k),'work','replication','run.js');
   try{if(fs.existsSync(run))cp.execFileSync(process.execPath,[run],{stdio:'pipe'});
     cp.execFileSync(process.execPath,[path.join(__dirname,'build.js'),k],{stdio:'pipe'});ok(k);}
   catch(e){const msg=(e.stderr||'').toString();
